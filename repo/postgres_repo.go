@@ -1,23 +1,13 @@
-package main
+package repo
 
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	"postgres-example/models"
 
 	"github.com/georgysavva/scany/v2/sqlscan"
-	_ "github.com/lib/pq"
-)
-
-const (
-	host     = "localhost"
-	port     = 5432
-	user     = "postgres"
-	password = "postgres"
-	dbname   = "example_db"
 )
 
 const ddl = `
@@ -25,27 +15,29 @@ CREATE TABLE IF NOT EXISTS departments (
     dept_id SERIAL PRIMARY KEY,
     dept_name VARCHAR(50) NOT NULL,
     location VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS employees (
     emp_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
-    email VARCHAR(150) UNIQUE,
+    email VARCHAR(150),
     hire_date DATE NOT NULL,
-    salary NUMERIC(10,2),
+    salary NUMERIC,
     dept_id INTEGER REFERENCES departments(dept_id),
     manager_id INTEGER REFERENCES employees(emp_id),
     phone_number VARCHAR(20)
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_emp_email ON employees(email);
 
 CREATE TABLE IF NOT EXISTS projects (
     project_id SERIAL PRIMARY KEY,
     project_name VARCHAR(100) NOT NULL,
     start_date DATE,
     end_date DATE,
-    budget NUMERIC(12,2),
+    budget NUMERIC,
     status VARCHAR(20) DEFAULT 'ACTIVE',
     CONSTRAINT check_dates CHECK (end_date > start_date),
     CONSTRAINT check_status CHECK (status IN ('ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED'))
@@ -79,20 +71,22 @@ LEFT JOIN departments d ON e.dept_id = d.dept_id
 LEFT JOIN employees m ON e.manager_id = m.emp_id;
 `
 
-func ConnectDB() (*sql.DB, error) {
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
-	return sql.Open("postgres", connStr)
+type PostgresRepo struct {
+	DB *sql.DB
 }
 
-func CreateTables(db *sql.DB) error {
-	_, err := db.Exec(ddl)
+func NewPostgresRepo(db *sql.DB) *PostgresRepo {
+	return &PostgresRepo{DB: db}
+}
+
+func (r *PostgresRepo) CreateTables() error {
+	_, err := r.DB.Exec(ddl)
 	return err
 }
 
-func InsertSampleData(db *sql.DB) (int, int, int, error) {
+func (r *PostgresRepo) InsertSampleData() (int, int, int, error) {
 	var deptID int
-	err := db.QueryRow(`
+	err := r.DB.QueryRow(`
 		INSERT INTO departments (dept_name, location)
 		VALUES ($1, $2)
 		RETURNING dept_id`, "Engineering", "New York").Scan(&deptID)
@@ -101,7 +95,7 @@ func InsertSampleData(db *sql.DB) (int, int, int, error) {
 	}
 
 	var empID int
-	err = db.QueryRow(`
+	err = r.DB.QueryRow(`
 		INSERT INTO employees (first_name, last_name, email, hire_date, salary, dept_id)
 		VALUES ($1, $2, $3, $4, $5, $6)
 		RETURNING emp_id`,
@@ -111,7 +105,7 @@ func InsertSampleData(db *sql.DB) (int, int, int, error) {
 	}
 
 	var projectID int
-	err = db.QueryRow(`
+	err = r.DB.QueryRow(`
 		INSERT INTO projects (project_name, start_date, end_date, budget, status)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING project_id`,
@@ -120,7 +114,7 @@ func InsertSampleData(db *sql.DB) (int, int, int, error) {
 		return 0, 0, 0, err
 	}
 
-	_, err = db.Exec(`
+	_, err = r.DB.Exec(`
 		INSERT INTO project_assignments (emp_id, project_id, role, hours_allocated)
 		VALUES ($1, $2, $3, $4)`,
 		empID, projectID, "Lead Developer", 40)
@@ -131,11 +125,11 @@ func InsertSampleData(db *sql.DB) (int, int, int, error) {
 	return deptID, empID, projectID, nil
 }
 
-func QueryEmployeeDetails(db *sql.DB) ([]models.EmployeeDetails, error) {
+func (r *PostgresRepo) QueryEmployeeDetails() ([]models.EmployeeDetails, error) {
 	query := `
 		SELECT e.emp_id, e.first_name, e.last_name, e.email, d.dept_name, 
 		       m.first_name as manager_first_name, m.last_name as manager_last_name,
-			   p.project_name
+		   p.project_name
 		FROM employees e
 		LEFT JOIN departments d ON e.dept_id = d.dept_id
 		LEFT JOIN employees m ON e.manager_id = m.emp_id
@@ -144,16 +138,20 @@ func QueryEmployeeDetails(db *sql.DB) ([]models.EmployeeDetails, error) {
 	`
 
 	var details []models.EmployeeDetails
-	err := sqlscan.Select(context.Background(), db, &details, query)
+	err := sqlscan.Select(context.Background(), r.DB, &details, query)
 	if err != nil {
 		return nil, err
 	}
 	return details, nil
 }
 
-func CleanupDB(db *sql.DB) error {
-	_, err := db.Exec(`
+func (r *PostgresRepo) CleanupDB() error {
+	_, err := r.DB.Exec(`
 		DROP VIEW IF EXISTS employee_details;
+		DROP INDEX IF EXISTS idx_project_status;
+		DROP INDEX IF EXISTS idx_dept_location;
+		DROP INDEX IF EXISTS idx_emp_name;
+		DROP INDEX IF EXISTS idx_emp_email;
 		DROP TABLE IF EXISTS project_assignments;
 		DROP TABLE IF EXISTS projects;
 		DROP TABLE IF EXISTS employees;
