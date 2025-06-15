@@ -1,4 +1,4 @@
-package repo
+package valid_repo
 
 import (
 	"context"
