@@ -545,21 +545,21 @@ func analyzeCommonIssues(results []TestFileResult) map[string]int {
 
 		for _, errMsg := range result.Errors {
 			switch {
-			case contains(errMsg, "CURRENT_TIMESTAMP"):
+			case strings.Contains(errMsg, "CURRENT_TIMESTAMP"):
 				fileIssues["CURRENT_TIMESTAMP syntax"] = true
-			case contains(errMsg, "SQL SECURITY"):
+			case strings.Contains(errMsg, "SQL SECURITY"):
 				fileIssues["Missing SQL SECURITY clause in views"] = true
-			case contains(errMsg, "GENERATE_UUID"):
+			case strings.Contains(errMsg, "GENERATE_UUID"):
 				fileIssues["GENERATE_UUID() compatibility"] = true
-			case contains(errMsg, "DEFAULT"):
+			case strings.Contains(errMsg, "DEFAULT"):
 				fileIssues["DEFAULT value syntax"] = true
-			case contains(errMsg, "CONSTRAINT"):
+			case strings.Contains(errMsg, "CONSTRAINT"):
 				fileIssues["CHECK constraints not supported"] = true
-			case contains(errMsg, "FOREIGN KEY"):
+			case strings.Contains(errMsg, "FOREIGN KEY"):
 				fileIssues["FOREIGN KEY constraints"] = true
-			case contains(errMsg, "IDENTITY"):
+			case strings.Contains(errMsg, "IDENTITY"):
 				fileIssues["IDENTITY column issues"] = true
-			case contains(errMsg, "Table not found"):
+			case strings.Contains(errMsg, "Table not found"):
 				fileIssues["Table dependency issues"] = true
 			}
 		}
@@ -571,25 +571,6 @@ func analyzeCommonIssues(results []TestFileResult) map[string]int {
 	}
 
 	return issues
-}
-
-// contains is a helper function to check if a string contains a substring (case insensitive)
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) &&
-		(s == substr ||
-			len(s) > len(substr) &&
-				(s[:len(substr)] == substr ||
-					s[len(s)-len(substr):] == substr ||
-					findInString(s, substr)))
-}
-
-func findInString(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }
 
 func validateExecutionResult(t *testing.T, result *repo.ExecutionResult, filename string) {
