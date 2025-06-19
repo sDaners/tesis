@@ -27,6 +27,7 @@ type TestFileResult struct {
 	ExecutionTime    time.Duration
 	Errors           []string
 	ErrorCodes       map[string]int // error_code -> count
+	ErrorCategories  map[string]int // detailed_category -> count
 }
 
 type SpannerDBTeardown struct {
@@ -93,8 +94,9 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 	filename := filepath.Base(sqlFile)
 
 	result := TestFileResult{
-		Filename:   filename,
-		ErrorCodes: make(map[string]int),
+		Filename:        filename,
+		ErrorCodes:      make(map[string]int),
+		ErrorCategories: make(map[string]int),
 	}
 
 	// Setup database
@@ -136,6 +138,17 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 		errorCode := extractSpannerErrorCode(errMsg)
 		if errorCode != "" {
 			result.ErrorCodes[errorCode]++
+
+			// Categorize InvalidArgument errors further
+			if errorCode == "InvalidArgument" {
+				category := categorizeInvalidArgumentError(errMsg)
+				if category != "" {
+					result.ErrorCategories[category]++
+				}
+			} else {
+				// For non-InvalidArgument errors, use the error code as category
+				result.ErrorCategories[errorCode]++
+			}
 		}
 	}
 
@@ -153,6 +166,14 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 		t.Logf("  Error codes:")
 		for code, count := range result.ErrorCodes {
 			t.Logf("    %s: %d occurrences", code, count)
+		}
+	}
+
+	// Log error categories summary
+	if len(result.ErrorCategories) > 0 {
+		t.Logf("  Error categories:")
+		for category, count := range result.ErrorCategories {
+			t.Logf("    %s: %d occurrences", category, count)
 		}
 	}
 
@@ -214,7 +235,8 @@ func generateMarkdownReport(results []TestFileResult) error {
 	totalStatements := 0
 	totalExecuted := 0
 	totalFailed := 0
-	allErrorCodes := make(map[string]int) // Global error code counts
+	allErrorCodes := make(map[string]int)      // Global error code counts
+	allErrorCategories := make(map[string]int) // Global error category counts
 
 	for _, result := range results {
 		totalStatements += result.TotalStatements
@@ -224,6 +246,11 @@ func generateMarkdownReport(results []TestFileResult) error {
 		// Aggregate error codes
 		for code, count := range result.ErrorCodes {
 			allErrorCodes[code] += count
+		}
+
+		// Aggregate error categories
+		for category, count := range result.ErrorCategories {
+			allErrorCategories[category] += count
 		}
 	}
 
@@ -266,6 +293,63 @@ func generateMarkdownReport(results []TestFileResult) error {
 		fmt.Fprintf(file, "\n")
 	}
 
+	// Write error category summary
+	if len(allErrorCategories) > 0 {
+		fmt.Fprintf(file, "## Error Category Analysis\n\n")
+		fmt.Fprintf(file, "| Error Category | Total Occurrences | Files Affected | Percentage |\n")
+		fmt.Fprintf(file, "|----------------|-------------------|----------------|------------|\n")
+
+		// Track which files have each error category
+		categoryFileCount := make(map[string]int)
+		for _, result := range results {
+			if len(result.Errors) > 0 { // Only count files that have errors
+				fileCategories := make(map[string]bool) // Track unique categories per file
+				for category := range result.ErrorCategories {
+					fileCategories[category] = true
+				}
+				// Count each category once per file
+				for category := range fileCategories {
+					categoryFileCount[category]++
+				}
+			}
+		}
+
+		// Count files with errors
+		filesWithErrors := 0
+		for _, result := range results {
+			if len(result.Errors) > 0 {
+				filesWithErrors++
+			}
+		}
+
+		// Sort error categories by frequency
+		type errorCategoryCount struct {
+			category string
+			count    int
+		}
+		var sortedCategories []errorCategoryCount
+		for category, count := range allErrorCategories {
+			sortedCategories = append(sortedCategories, errorCategoryCount{category, count})
+		}
+
+		// Simple bubble sort by count (descending)
+		for i := 0; i < len(sortedCategories); i++ {
+			for j := i + 1; j < len(sortedCategories); j++ {
+				if sortedCategories[i].count < sortedCategories[j].count {
+					sortedCategories[i], sortedCategories[j] = sortedCategories[j], sortedCategories[i]
+				}
+			}
+		}
+
+		for _, ec := range sortedCategories {
+			percentage := float64(ec.count) / float64(totalFailed) * 100
+			filesAffected := categoryFileCount[ec.category]
+			fmt.Fprintf(file, "| %s | %d | %d/%d | %.1f%% |\n",
+				ec.category, ec.count, filesAffected, filesWithErrors, percentage)
+		}
+		fmt.Fprintf(file, "\n")
+	}
+
 	// Write detailed results table
 	fmt.Fprintf(file, "## Detailed Results\n\n")
 	fmt.Fprintf(file, "| File | Total | CREATE | INSERT | SELECT | DROP | Executed | Failed | Success Rate | Execution Time |\n")
@@ -303,8 +387,17 @@ func generateMarkdownReport(results []TestFileResult) error {
 				fmt.Fprintf(file, "\n")
 			}
 
+			// Write error categories for this file
+			if len(result.ErrorCategories) > 0 {
+				fmt.Fprintf(file, "**Error Categories**:\n")
+				for category, count := range result.ErrorCategories {
+					fmt.Fprintf(file, "- `%s`: %d occurrences\n", category, count)
+				}
+				fmt.Fprintf(file, "\n")
+			}
+
 			if len(result.Errors) > 0 {
-				fmt.Fprintf(file, "**Sample Errors**:\n")
+				fmt.Fprintf(file, "**Errors**:\n")
 				for i, errMsg := range result.Errors {
 					fmt.Fprintf(file, "%d. %s\n", i+1, errMsg)
 				}
@@ -315,11 +408,46 @@ func generateMarkdownReport(results []TestFileResult) error {
 
 	// Write compatibility insights
 	fmt.Fprintf(file, "## Compatibility Insights\n\n")
-	fmt.Fprintf(file, "### Common Issues Found\n\n")
+	fmt.Fprintf(file, "### Most Common Error Categories\n\n")
 
-	commonIssues := analyzeCommonIssues(results)
-	for issue, count := range commonIssues {
-		fmt.Fprintf(file, "- **%s**: Found in %d files\n", issue, count)
+	// Show top error categories with descriptions
+	if len(allErrorCategories) > 0 {
+		// Get top 5 error categories
+		type categoryInsight struct {
+			category    string
+			count       int
+			percentage  float64
+			description string
+		}
+
+		var insights []categoryInsight
+		for category, count := range allErrorCategories {
+			percentage := float64(count) / float64(totalFailed) * 100
+			description := getErrorCategoryDescription(category)
+			insights = append(insights, categoryInsight{category, count, percentage, description})
+		}
+
+		// Sort by count (descending)
+		for i := 0; i < len(insights); i++ {
+			for j := i + 1; j < len(insights); j++ {
+				if insights[i].count < insights[j].count {
+					insights[i], insights[j] = insights[j], insights[i]
+				}
+			}
+		}
+
+		// Show top 5
+		maxShow := 5
+		if len(insights) < maxShow {
+			maxShow = len(insights)
+		}
+
+		for i := 0; i < maxShow; i++ {
+			insight := insights[i]
+			fmt.Fprintf(file, "1. **%s** (%.1f%% of all errors)\n", insight.category, insight.percentage)
+			fmt.Fprintf(file, "   - %d occurrences across all files\n", insight.count)
+			fmt.Fprintf(file, "   - %s\n\n", insight.description)
+		}
 	}
 
 	return nil
@@ -346,6 +474,66 @@ func getErrorCodeDescription(code string) string {
 		return desc
 	}
 	return "Unknown error code"
+}
+
+// getErrorCategoryDescription returns a human-readable description for error categories
+func getErrorCategoryDescription(category string) string {
+	descriptions := map[string]string{
+		// Syntax errors
+		"Syntax Error: CURRENT_TIMESTAMP":           "CURRENT_TIMESTAMP() function call syntax not supported in Spanner",
+		"Syntax Error: Missing Parentheses":         "SQL statement missing required opening parentheses",
+		"Syntax Error: Missing Closing Parentheses": "SQL statement missing required closing parentheses",
+		"Syntax Error: General":                     "General SQL syntax errors not matching specific patterns",
+
+		// Type mismatches
+		"Type Mismatch: GENERATE_UUID on INT64": "GENERATE_UUID() function used on INT64 columns instead of STRING",
+		"Type Mismatch: General":                "Data type mismatches between expected and provided types",
+
+		// Unsupported features
+		"Unsupported Feature: Sequence Kind": "Identity column sequence kind not specified or unsupported",
+		"Unsupported Feature: General":       "General Spanner unsupported features",
+
+		// Missing clauses
+		"Missing Clause: SQL SECURITY": "VIEW definitions missing required SQL SECURITY clause",
+		"Missing Clause: General":      "SQL statements missing required clauses",
+
+		// Function issues
+		"Function Not Found: NEXTVAL": "NEXTVAL() function not available in Spanner",
+		"Function Not Found: General": "SQL functions not available in Spanner",
+
+		// Identity/Sequence issues
+		"Identity Column: Missing Sequence Kind": "Identity columns require explicit sequence kind specification",
+
+		// Table issues
+		"Table Not Found (InvalidArgument)": "Table references that result in InvalidArgument rather than NotFound",
+
+		// Foreign key issues
+		"Foreign Key: Syntax Error": "Foreign key constraint syntax errors",
+
+		// Default value issues
+		"Default Value: Parsing Error": "Default value expressions that cannot be parsed",
+
+		// Constraint issues
+		"Constraint: Unsupported": "CHECK constraints and other constraint types not supported",
+
+		// View issues
+		"View Definition: Error": "Errors in view definition syntax or structure",
+
+		// Other error codes
+		"NotFound":           "Referenced objects (tables, columns, etc.) not found",
+		"FailedPrecondition": "Constraint violations or prerequisites not met",
+		"AlreadyExists":      "Attempting to create objects that already exist",
+		"PermissionDenied":   "Insufficient permissions for the operation",
+		"Unimplemented":      "Features not yet implemented in Spanner",
+
+		// Catch-all
+		"InvalidArgument: Other": "InvalidArgument errors not matching specific patterns",
+	}
+
+	if desc, exists := descriptions[category]; exists {
+		return desc
+	}
+	return "No description available for this error category"
 }
 
 // analyzeCommonIssues finds common error patterns across all files
@@ -575,4 +763,85 @@ func TestSpannerEmployeeDetails(t *testing.T) {
 			t.Logf("Project Name: %s", detail.ProjectName.String)
 		}
 	}
+}
+
+// categorizeInvalidArgumentError categorizes InvalidArgument errors into specific subcategories
+func categorizeInvalidArgumentError(errMsg string) string {
+	errLower := strings.ToLower(errMsg)
+
+	// Syntax errors
+	if strings.Contains(errLower, "syntax error") {
+		if strings.Contains(errLower, "current_timestamp") {
+			return "Syntax Error: CURRENT_TIMESTAMP"
+		} else if strings.Contains(errLower, "expecting '('") {
+			return "Syntax Error: Missing Parentheses"
+		} else if strings.Contains(errLower, "expecting ')'") {
+			return "Syntax Error: Missing Closing Parentheses"
+		}
+		return "Syntax Error: General"
+	}
+
+	// Type mismatches
+	if strings.Contains(errLower, "expected type") && strings.Contains(errLower, "found") {
+		if strings.Contains(errLower, "generate_uuid") {
+			return "Type Mismatch: GENERATE_UUID on INT64"
+		}
+		return "Type Mismatch: General"
+	}
+
+	// Unsupported features
+	if strings.Contains(errLower, "unsupported") {
+		if strings.Contains(errLower, "sequence kind") {
+			return "Unsupported Feature: Sequence Kind"
+		}
+		return "Unsupported Feature: General"
+	}
+
+	// Missing clauses
+	if strings.Contains(errLower, "missing") {
+		if strings.Contains(errLower, "sql security") {
+			return "Missing Clause: SQL SECURITY"
+		}
+		return "Missing Clause: General"
+	}
+
+	// Function/feature not found
+	if strings.Contains(errLower, "function not found") {
+		if strings.Contains(errLower, "nextval") {
+			return "Function Not Found: NEXTVAL"
+		}
+		return "Function Not Found: General"
+	}
+
+	// Sequence/Identity issues
+	if strings.Contains(errLower, "sequence kind") && strings.Contains(errLower, "not specified") {
+		return "Identity Column: Missing Sequence Kind"
+	}
+
+	// Table not found (when it's an InvalidArgument, not NotFound)
+	if strings.Contains(errLower, "table not found") {
+		return "Table Not Found (InvalidArgument)"
+	}
+
+	// Foreign key issues
+	if strings.Contains(errLower, "foreign key") {
+		return "Foreign Key: Syntax Error"
+	}
+
+	// Default value issues
+	if strings.Contains(errLower, "default value") {
+		return "Default Value: Parsing Error"
+	}
+
+	// Constraint issues
+	if strings.Contains(errLower, "constraint") || strings.Contains(errLower, "check") {
+		return "Constraint: Unsupported"
+	}
+
+	// View definition issues
+	if strings.Contains(errLower, "definition of view") {
+		return "View Definition: Error"
+	}
+
+	return "InvalidArgument: Other"
 }

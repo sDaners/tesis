@@ -1,6 +1,6 @@
 # SQL Test Results
 
-Generated: 2025-06-19 14:49:31
+Generated: 2025-06-19 15:11:01
 
 ## Summary
 
@@ -17,16 +17,31 @@ Generated: 2025-06-19 14:49:31
 | InvalidArgument | 43 | Invalid SQL syntax or unsupported features |
 | NotFound | 19 | Referenced table, column, or object not found |
 
+## Error Category Analysis
+
+| Error Category | Total Occurrences | Files Affected | Percentage |
+|----------------|-------------------|----------------|------------|
+| Table Not Found (InvalidArgument) | 24 | 5/5 | 38.7% |
+| NotFound | 19 | 5/5 | 30.6% |
+| Missing Clause: SQL SECURITY | 4 | 4/5 | 6.5% |
+| Syntax Error: CURRENT_TIMESTAMP | 4 | 4/5 | 6.5% |
+| Unsupported Feature: Sequence Kind | 3 | 1/5 | 4.8% |
+| Syntax Error: Missing Parentheses | 3 | 3/5 | 4.8% |
+| Type Mismatch: GENERATE_UUID on INT64 | 2 | 1/5 | 3.2% |
+| Function Not Found: NEXTVAL | 1 | 1/5 | 1.6% |
+| Identity Column: Missing Sequence Kind | 1 | 1/5 | 1.6% |
+| Syntax Error: Missing Closing Parentheses | 1 | 1/5 | 1.6% |
+
 ## Detailed Results
 
 | File | Total | CREATE | INSERT | SELECT | DROP | Executed | Failed | Success Rate | Execution Time |
 |------|-------|--------|--------|--------|------|----------|--------|--------------|----------------|
-| [gpt-4o-2.sql](../../generated_sql/gpt-4o-2.sql) | 11 | 9 | 1 | 1 | 0 | 6 | 5 | 54.5% | 5.491s |
-| [gpt-4o-p2.sql](../../generated_sql/gpt-4o-p2.sql) | 27 | 9 | 8 | 1 | 9 | 9 | 18 | 33.3% | 3.444s |
-| [gpt-4o.sql](../../generated_sql/gpt-4o.sql) | 10 | 8 | 1 | 1 | 0 | 2 | 8 | 20.0% | 3.389s |
-| [gpt-o3.sql](../../generated_sql/gpt-o3.sql) | 29 | 12 | 4 | 1 | 12 | 12 | 17 | 41.4% | 3.428s |
-| [gpt-o4-mini-high.sql](../../generated_sql/gpt-o4-mini-high.sql) | 23 | 9 | 4 | 1 | 9 | 9 | 14 | 39.1% | 3.472s |
-| [valid_spanner_database.sql](../../generated_sql/valid_spanner_database.sql) | 23 | 9 | 4 | 1 | 9 | 23 | 0 | 100.0% | 3.472s |
+| [gpt-4o-2.sql](../../generated_sql/gpt-4o-2.sql) | 11 | 9 | 1 | 1 | 0 | 6 | 5 | 54.5% | 5.496s |
+| [gpt-4o-p2.sql](../../generated_sql/gpt-4o-p2.sql) | 27 | 9 | 8 | 1 | 9 | 9 | 18 | 33.3% | 3.372s |
+| [gpt-4o.sql](../../generated_sql/gpt-4o.sql) | 10 | 8 | 1 | 1 | 0 | 2 | 8 | 20.0% | 3.364s |
+| [gpt-o3.sql](../../generated_sql/gpt-o3.sql) | 29 | 12 | 4 | 1 | 12 | 12 | 17 | 41.4% | 3.321s |
+| [gpt-o4-mini-high.sql](../../generated_sql/gpt-o4-mini-high.sql) | 23 | 9 | 4 | 1 | 9 | 9 | 14 | 39.1% | 3.332s |
+| [valid_spanner_database.sql](../../generated_sql/valid_spanner_database.sql) | 23 | 9 | 4 | 1 | 9 | 23 | 0 | 100.0% | 3.401s |
 
 ## Error Details
 
@@ -35,15 +50,21 @@ Generated: 2025-06-19 14:49:31
 **Error Rate**: 45.5% (5/11 failed)
 
 **Error Codes**:
-- `InvalidArgument`: 4 occurrences
 - `NotFound`: 1 occurrences
+- `InvalidArgument`: 4 occurrences
 
-**Sample Errors**:
+**Error Categories**:
+- `Syntax Error: CURRENT_TIMESTAMP`: 1 occurrences
+- `NotFound`: 1 occurrences
+- `Missing Clause: SQL SECURITY`: 1 occurrences
+- `Table Not Found (InvalidArgument)`: 2 occurrences
+
+**Errors**:
 1. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE TABLE departments ( dept_id INT64 NOT NULL, dept_name STRING(50) NOT NULL, location STRING(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(), ) PRIMARY KEY (dept_id) : Syntax error on line 1, column 134: Expecting '(' but found 'CURRENT_TIMESTAMP'
 2. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: departments
 3. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = View `employee_details` is missing the SQL SECURITY clause.
-4. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.4c9dbd79443e577b.1.4.5.1"
-5. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:179]\n...p.project_name FROM employees e LEFT JOIN departments d ON e.dept_id = d.d...\n                                             ^", requestID = "1.4c9dbd79443e577b.1.4.6.1"
+4. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.adfc1f7ef4de1770.1.2.5.1"
+5. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:179]\n...p.project_name FROM employees e LEFT JOIN departments d ON e.dept_id = d.d...\n                                             ^", requestID = "1.adfc1f7ef4de1770.1.2.6.1"
 
 ### gpt-4o-p2.sql
 
@@ -53,7 +74,14 @@ Generated: 2025-06-19 14:49:31
 - `InvalidArgument`: 13 occurrences
 - `NotFound`: 5 occurrences
 
-**Sample Errors**:
+**Error Categories**:
+- `Type Mismatch: GENERATE_UUID on INT64`: 2 occurrences
+- `NotFound`: 5 occurrences
+- `Syntax Error: Missing Parentheses`: 1 occurrences
+- `Missing Clause: SQL SECURITY`: 1 occurrences
+- `Table Not Found (InvalidArgument)`: 9 occurrences
+
+**Errors**:
 1. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing the default value of column `departments`.`dept_id`: Expected type INT64; found STRING [at 1:1]
 GENERATE_UUID()
 ^
@@ -67,15 +95,15 @@ GENERATE_UUID()
 7. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: departments
 8. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: projects
 9. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = View `employee_details` is missing the SQL SECURITY clause.
-10. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.5.1"
-11. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_id, project_name, start_date, end_date, budget,...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.6.1"
-12. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.7.1"
-13. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_id, project_name, start_date, end_date, budget,...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.8.1"
-14. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (emp_id, first_name, last_name, email, hire_date, salar...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.9.1"
-15. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (emp_id, first_name, last_name, email, hire_date, salar...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.10.1"
-16. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.11.1"
-17. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.4c9dbd79443e577b.2.2.12.1"
-18. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees e LEFT JOIN ...\n                                                       ^", requestID = "1.4c9dbd79443e577b.2.2.13.1"
+10. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.5.1"
+11. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_id, project_name, start_date, end_date, budget,...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.6.1"
+12. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.7.1"
+13. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_id, project_name, start_date, end_date, budget,...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.8.1"
+14. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (emp_id, first_name, last_name, email, hire_date, salar...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.9.1"
+15. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (emp_id, first_name, last_name, email, hire_date, salar...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.10.1"
+16. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.11.1"
+17. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.adfc1f7ef4de1770.2.2.12.1"
+18. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees e LEFT JOIN ...\n                                                       ^", requestID = "1.adfc1f7ef4de1770.2.2.13.1"
 
 ### gpt-4o.sql
 
@@ -85,15 +113,21 @@ GENERATE_UUID()
 - `InvalidArgument`: 4 occurrences
 - `NotFound`: 4 occurrences
 
-**Sample Errors**:
+**Error Categories**:
+- `Syntax Error: CURRENT_TIMESTAMP`: 1 occurrences
+- `NotFound`: 4 occurrences
+- `Missing Clause: SQL SECURITY`: 1 occurrences
+- `Table Not Found (InvalidArgument)`: 2 occurrences
+
+**Errors**:
 1. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE TABLE departments ( dept_id INT64 NOT NULL, dept_name STRING(50) NOT NULL, location STRING(100), created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP() ) PRIMARY KEY (dept_id) : Syntax error on line 1, column 134: Expecting '(' but found 'CURRENT_TIMESTAMP'
 2. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: departments
 3. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: employees
 4. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: employees
 5. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: departments
 6. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = View `employee_details` is missing the SQL SECURITY clause.
-7. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.4c9dbd79443e577b.3.2.5.1"
-8. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees e LEFT JOIN ...\n                                                       ^", requestID = "1.4c9dbd79443e577b.3.2.6.1"
+7. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_id, dept_name, location) VALUES (NULL, 'Enginee...\n            ^", requestID = "1.adfc1f7ef4de1770.3.1.5.1"
+8. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees e LEFT JOIN ...\n                                                       ^", requestID = "1.adfc1f7ef4de1770.3.1.6.1"
 
 ### gpt-o3.sql
 
@@ -103,7 +137,16 @@ GENERATE_UUID()
 - `InvalidArgument`: 12 occurrences
 - `NotFound`: 5 occurrences
 
-**Sample Errors**:
+**Error Categories**:
+- `Function Not Found: NEXTVAL`: 1 occurrences
+- `Syntax Error: Missing Parentheses`: 1 occurrences
+- `NotFound`: 5 occurrences
+- `Missing Clause: SQL SECURITY`: 1 occurrences
+- `Table Not Found (InvalidArgument)`: 5 occurrences
+- `Unsupported Feature: Sequence Kind`: 3 occurrences
+- `Syntax Error: CURRENT_TIMESTAMP`: 1 occurrences
+
+**Errors**:
 1. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE SEQUENCE departments_seq OPTIONS (sequence_kind = 'positive') : Unsupported sequence kind: positive
 2. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE SEQUENCE employees_seq OPTIONS (sequence_kind = 'positive') : Unsupported sequence kind: positive
 3. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE SEQUENCE projects_seq OPTIONS (sequence_kind = 'positive') : Unsupported sequence kind: positive
@@ -118,11 +161,11 @@ NEXTVAL(SEQUENCE employees_seq)
 10. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: departments
 11. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: projects
 12. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = View `employee_details` is missing the SQL SECURITY clause.
-13. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_name, location) VALUES ('Engineering', 'New Yor...\n            ^", requestID = "1.4c9dbd79443e577b.4.4.5.1"
-14. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_name, start_date, end_date, budget, status) VAL...\n            ^", requestID = "1.4c9dbd79443e577b.4.4.6.1"
-15. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (first_name, last_name, email, hire_date, salary, dept_...\n            ^", requestID = "1.4c9dbd79443e577b.4.4.7.1"
-16. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.4c9dbd79443e577b.4.4.8.1"
-17. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees AS e LEFT JO...\n                                                       ^", requestID = "1.4c9dbd79443e577b.4.4.9.1"
+13. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: departments [at 1:13]\nINSERT INTO departments (dept_name, location) VALUES ('Engineering', 'New Yor...\n            ^", requestID = "1.adfc1f7ef4de1770.4.3.5.1"
+14. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: projects [at 1:13]\nINSERT INTO projects (project_name, start_date, end_date, budget, status) VAL...\n            ^", requestID = "1.adfc1f7ef4de1770.4.3.6.1"
+15. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:13]\nINSERT INTO employees (first_name, last_name, email, hire_date, salary, dept_...\n            ^", requestID = "1.adfc1f7ef4de1770.4.3.7.1"
+16. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: project_assignments [at 1:13]\nINSERT INTO project_assignments (emp_id, project_id, role, hours_allocated) V...\n            ^", requestID = "1.adfc1f7ef4de1770.4.3.8.1"
+17. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM employees AS e LEFT JO...\n                                                       ^", requestID = "1.adfc1f7ef4de1770.4.3.9.1"
 
 ### gpt-o4-mini-high.sql
 
@@ -132,7 +175,15 @@ NEXTVAL(SEQUENCE employees_seq)
 - `InvalidArgument`: 10 occurrences
 - `NotFound`: 4 occurrences
 
-**Sample Errors**:
+**Error Categories**:
+- `Syntax Error: Missing Closing Parentheses`: 1 occurrences
+- `Table Not Found (InvalidArgument)`: 6 occurrences
+- `Syntax Error: CURRENT_TIMESTAMP`: 1 occurrences
+- `Identity Column: Missing Sequence Kind`: 1 occurrences
+- `NotFound`: 4 occurrences
+- `Syntax Error: Missing Parentheses`: 1 occurrences
+
+**Errors**:
 1. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing Spanner DDL statement: CREATE TABLE IF NOT EXISTS Departments ( dept_id INT64 NOT NULL GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY, dept_name STRING(50) NOT NULL, location STRING(100), created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP() ) : Syntax error on line 1, column 202: Expecting '(' but found 'CURRENT_TIMESTAMP'
 2. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = The sequence kind of an identity column emp_id is not specified. Please specify the sequence kind explicitly or set the database option `default_sequence_kind`.
 3. CREATE failed: executing CREATE statement: rpc error: code = NotFound desc = Table not found: Employees
@@ -144,19 +195,33 @@ NEXTVAL(SEQUENCE employees_seq)
 9. CREATE failed: executing CREATE statement: rpc error: code = InvalidArgument desc = Error parsing the definition of view `employee_details`: Table not found: Employees [at 1:255]
 ...m.last_name AS manager_last_name FROM Employees AS e LEFT JOIN Departments...
                                          ^
-10. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Departments [at 1:13]\nINSERT INTO Departments (dept_name, location) VALUES ('Sample Name', 'New Yor...\n            ^", requestID = "1.4c9dbd79443e577b.5.4.5.1"
-11. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Projects [at 1:13]\nINSERT INTO Projects (project_name, start_date, end_date, budget, status) VAL...\n            ^", requestID = "1.4c9dbd79443e577b.5.4.6.1"
-12. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Employees [at 1:13]\nINSERT INTO Employees (first_name, last_name, email, hire_date, salary, dept_...\n            ^", requestID = "1.4c9dbd79443e577b.5.4.7.1"
-13. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: ProjectAssignments [at 1:13]\nINSERT INTO ProjectAssignments (emp_id, project_id, role, hours_allocated) VA...\n            ^", requestID = "1.4c9dbd79443e577b.5.4.8.1"
-14. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: Employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM Employees AS e LEFT JO...\n                                                       ^", requestID = "1.4c9dbd79443e577b.5.4.9.1"
+10. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Departments [at 1:13]\nINSERT INTO Departments (dept_name, location) VALUES ('Sample Name', 'New Yor...\n            ^", requestID = "1.adfc1f7ef4de1770.5.4.5.1"
+11. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Projects [at 1:13]\nINSERT INTO Projects (project_name, start_date, end_date, budget, status) VAL...\n            ^", requestID = "1.adfc1f7ef4de1770.5.4.6.1"
+12. INSERT failed: executing INSERT with THEN RETURN: spanner: code = "InvalidArgument", desc = "Table not found: Employees [at 1:13]\nINSERT INTO Employees (first_name, last_name, email, hire_date, salary, dept_...\n            ^", requestID = "1.adfc1f7ef4de1770.5.4.7.1"
+13. INSERT failed: executing INSERT: spanner: code = "InvalidArgument", desc = "Table not found: ProjectAssignments [at 1:13]\nINSERT INTO ProjectAssignments (emp_id, project_id, role, hours_allocated) VA...\n            ^", requestID = "1.adfc1f7ef4de1770.5.4.8.1"
+14. SELECT failed: reading SELECT results: spanner: code = "InvalidArgument", desc = "Table not found: Employees [at 1:157]\n...last_name AS manager_last_name, p.project_name FROM Employees AS e LEFT JO...\n                                                       ^", requestID = "1.adfc1f7ef4de1770.5.4.9.1"
 
 ## Compatibility Insights
 
-### Common Issues Found
+### Most Common Error Categories
 
-- **DEFAULT value syntax**: Found in 2 files
-- **FOREIGN KEY constraints**: Found in 1 files
-- **CURRENT_TIMESTAMP syntax**: Found in 4 files
-- **Table dependency issues**: Found in 5 files
-- **Missing SQL SECURITY clause in views**: Found in 4 files
-- **GENERATE_UUID() compatibility**: Found in 1 files
+1. **Table Not Found (InvalidArgument)** (38.7% of all errors)
+   - 24 occurrences across all files
+   - Table references that result in InvalidArgument rather than NotFound
+
+1. **NotFound** (30.6% of all errors)
+   - 19 occurrences across all files
+   - Referenced objects (tables, columns, etc.) not found
+
+1. **Missing Clause: SQL SECURITY** (6.5% of all errors)
+   - 4 occurrences across all files
+   - VIEW definitions missing required SQL SECURITY clause
+
+1. **Syntax Error: CURRENT_TIMESTAMP** (6.5% of all errors)
+   - 4 occurrences across all files
+   - CURRENT_TIMESTAMP() function call syntax not supported in Spanner
+
+1. **Syntax Error: Missing Parentheses** (4.8% of all errors)
+   - 3 occurrences across all files
+   - SQL statement missing required opening parentheses
+
