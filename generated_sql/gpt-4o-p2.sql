@@ -6,7 +6,7 @@ CREATE TABLE departments (
   dept_id INT64 NOT NULL DEFAULT (GENERATE_UUID()),
   dept_name STRING(50) NOT NULL,
   location STRING(100),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+  created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP()),
 ) PRIMARY KEY (dept_id);
 
 CREATE TABLE employees (

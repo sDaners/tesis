@@ -15,14 +15,20 @@ type SQLExecutor struct {
 	repo          Database
 	executed      map[string]bool
 	createdTables []string
+	tableSchemas  map[string]map[string]string // table -> column -> type
+	uuidRegistry  map[string]string            // logical_key -> actual_uuid
+	uuidCounter   int
 }
 
 // NewSQLExecutor creates a new SQL executor instance
 func NewSQLExecutor(db *sql.DB, repo Database) *SQLExecutor {
 	return &SQLExecutor{
-		DB:       db,
-		repo:     repo,
-		executed: make(map[string]bool),
+		DB:           db,
+		repo:         repo,
+		executed:     make(map[string]bool),
+		tableSchemas: make(map[string]map[string]string),
+		uuidRegistry: make(map[string]string),
+		uuidCounter:  1,
 	}
 }
 
@@ -54,7 +60,7 @@ type ExecutionResult struct {
 // InsertResult contains information about an insert operation
 type InsertResult struct {
 	Statement string
-	ID        int64
+	ID        any // int64 or string
 	Error     error
 }
 
@@ -92,7 +98,7 @@ func (e *SQLExecutor) ExecuteStatements(statements []string) (*ExecutionResult, 
 		}
 	}
 
-	// Execute in proper order: DROP, CREATE, INSERT, SELECT
+	// Execute in proper order: DROP, CREATE, INSERT (with dependency order), SELECT
 
 	// 1. Execute DROP statements first (for cleanup)
 	for _, stmt := range dropStmts {
@@ -112,8 +118,9 @@ func (e *SQLExecutor) ExecuteStatements(statements []string) (*ExecutionResult, 
 		}
 	}
 
-	// 3. Execute INSERT statements
-	for _, stmt := range insertStmts {
+	// 3. Execute INSERT statements in dependency order
+	sortedInserts := e.sortInsertsByDependencies(insertStmts)
+	for _, stmt := range sortedInserts {
 		insertResult := e.executeInsert(stmt)
 		result.InsertedRecords = append(result.InsertedRecords, insertResult)
 		if insertResult.Error == nil {
@@ -166,9 +173,11 @@ func (e *SQLExecutor) executeCreate(stmt string) error {
 	// Clean up the statement
 	cleanStmt := e.cleanStatement(stmt)
 
-	// Track table names for cleanup
+	// Track table names and schemas for better parameter substitution
 	if tableName := e.extractTableName(cleanStmt); tableName != "" {
 		e.createdTables = append(e.createdTables, tableName)
+		// Extract table schema for parameter substitution
+		e.extractTableSchema(cleanStmt, tableName)
 	}
 
 	// Execute the create statement
@@ -194,16 +203,41 @@ func (e *SQLExecutor) executeInsert(stmt string) InsertResult {
 		return result
 	}
 
-	// For simplicity, always use regular insert (THEN RETURN syntax often causes issues)
-	_, err = e.DB.Exec(populatedStmt)
-	if err != nil {
-		result.Error = fmt.Errorf("executing INSERT: %w", err)
-		return result
-	}
+	// Get table name for ID tracking
+	tableName := e.getTableFromInsert(populatedStmt)
 
-	// Try to get the last insert ID if possible (this is database-specific)
-	// For Spanner, we'll just mark it as successful without trying to get the ID
-	result.ID = 1 // Placeholder to indicate success
+	// Check if this is a THEN RETURN statement
+	if strings.Contains(strings.ToUpper(populatedStmt), "THEN RETURN") {
+		// Execute and capture the returned ID
+		var returnedID string
+		err = e.DB.QueryRow(populatedStmt).Scan(&returnedID)
+		if err != nil {
+			result.Error = fmt.Errorf("executing INSERT with THEN RETURN: %w", err)
+			return result
+		}
+
+		// Store the returned ID in our registry for foreign key references
+		switch tableName {
+		case "departments":
+			e.uuidRegistry["departments_pk"] = "'" + returnedID + "'"
+		case "employees":
+			e.uuidRegistry["employees_pk"] = "'" + returnedID + "'"
+		case "projects":
+			e.uuidRegistry["projects_pk"] = "'" + returnedID + "'"
+		}
+
+		result.ID = returnedID
+	} else {
+		// Regular INSERT without THEN RETURN
+		// Execute the insert
+		_, err = e.DB.Exec(populatedStmt)
+		if err != nil {
+			result.Error = fmt.Errorf("executing INSERT: %w", err)
+			return result
+		}
+
+		result.ID = "success" // Use string to indicate success
+	}
 
 	return result
 }
@@ -264,11 +298,43 @@ func (e *SQLExecutor) extractTableName(stmt string) string {
 	return ""
 }
 
+// extractTableSchema extracts column information from CREATE TABLE statement
+func (e *SQLExecutor) extractTableSchema(stmt, tableName string) {
+	if e.tableSchemas[tableName] == nil {
+		e.tableSchemas[tableName] = make(map[string]string)
+	}
+
+	// Extract column definitions
+	// Look for patterns like: column_name TYPE
+	colRe := regexp.MustCompile(`(\w+)\s+(STRING\(\d+\)|INT64|FLOAT64|TIMESTAMP|DATE|BOOL)\s*(?:NOT\s+NULL|DEFAULT|,|\))`)
+	matches := colRe.FindAllStringSubmatch(stmt, -1)
+
+	for _, match := range matches {
+		if len(match) >= 3 {
+			columnName := strings.ToLower(match[1])
+			columnType := strings.ToUpper(match[2])
+			e.tableSchemas[tableName][columnName] = columnType
+		}
+	}
+}
+
+// getTableFromInsert extracts table name from INSERT statement
+func (e *SQLExecutor) getTableFromInsert(stmt string) string {
+	re := regexp.MustCompile(`(?i)INSERT\s+INTO\s+(\w+)`)
+	matches := re.FindStringSubmatch(stmt)
+	if len(matches) > 1 {
+		return strings.ToLower(matches[1])
+	}
+	return ""
+}
+
 // populateInsertParameters replaces parameter placeholders with sample data
 func (e *SQLExecutor) populateInsertParameters(stmt string) (string, error) {
-	// Replace named parameters (@param) with positional parameters ($1, $2, etc.)
+	// Get table name to understand column types
+	tableName := e.getTableFromInsert(stmt)
+
+	// Replace named parameters (@param) with sample data
 	namedParamRe := regexp.MustCompile(`@(\w+)`)
-	paramIndex := 1
 	paramMap := make(map[string]string)
 
 	populated := namedParamRe.ReplaceAllStringFunc(stmt, func(match string) string {
@@ -277,10 +343,9 @@ func (e *SQLExecutor) populateInsertParameters(stmt string) (string, error) {
 			return replacement
 		}
 
-		// Generate sample data based on parameter name
-		value := e.getSampleValueForParameter(paramName)
+		// Generate sample data based on parameter name and table schema
+		value := e.getSampleValueForParameter(paramName, tableName)
 		paramMap[paramName] = value
-		paramIndex++
 		return value
 	})
 
@@ -288,7 +353,7 @@ func (e *SQLExecutor) populateInsertParameters(stmt string) (string, error) {
 	positionalParamRe := regexp.MustCompile(`\$\d+`)
 	argIndex := 1
 	populated = positionalParamRe.ReplaceAllStringFunc(populated, func(match string) string {
-		value := e.getSampleValueForIndex(argIndex)
+		value := e.getSampleValueForIndex(argIndex, tableName)
 		argIndex++
 		return value
 	})
@@ -296,11 +361,25 @@ func (e *SQLExecutor) populateInsertParameters(stmt string) (string, error) {
 	return populated, nil
 }
 
-// getSampleValueForParameter returns sample data based on parameter name
-func (e *SQLExecutor) getSampleValueForParameter(paramName string) string {
+// getSampleValueForParameter returns sample data based on parameter name and table schema
+func (e *SQLExecutor) getSampleValueForParameter(paramName, tableName string) string {
 	lower := strings.ToLower(paramName)
 
+	// Check if we have schema information for this table
+	if schema, exists := e.tableSchemas[tableName]; exists {
+		if columnType, exists := schema[lower]; exists {
+			return e.generateValueForType(paramName, columnType, tableName)
+		}
+	}
+
+	// Fallback to name-based logic
 	switch {
+	case strings.Contains(lower, "id"):
+		// Check if this looks like a UUID column
+		if strings.Contains(lower, "dept") || strings.Contains(lower, "emp") || strings.Contains(lower, "project") {
+			return e.generateUUIDForParameter(paramName, tableName)
+		}
+		return "1"
 	case strings.Contains(lower, "name"):
 		if strings.Contains(lower, "first") {
 			return "'John'"
@@ -316,16 +395,20 @@ func (e *SQLExecutor) getSampleValueForParameter(paramName string) string {
 		return "'test@example.com'"
 	case strings.Contains(lower, "location"):
 		return "'New York'"
-	case strings.Contains(lower, "date"):
+	case strings.Contains(lower, "start_date"):
 		return "'2024-01-01'"
+	case strings.Contains(lower, "end_date"):
+		return "'2024-12-31'" // Ensure end_date > start_date
+	case strings.Contains(lower, "hire_date"):
+		return "'2024-01-01'"
+	case strings.Contains(lower, "date"):
+		return "'2024-06-01'"
 	case strings.Contains(lower, "salary"):
-		return "75000"
+		return "75000.0"
 	case strings.Contains(lower, "budget"):
-		return "50000"
+		return "50000.0"
 	case strings.Contains(lower, "hours"):
 		return "40"
-	case strings.Contains(lower, "id"):
-		return "1"
 	case strings.Contains(lower, "status"):
 		return "'ACTIVE'"
 	case strings.Contains(lower, "role"):
@@ -337,25 +420,197 @@ func (e *SQLExecutor) getSampleValueForParameter(paramName string) string {
 	}
 }
 
-// getSampleValueForIndex returns sample data based on parameter index
-func (e *SQLExecutor) getSampleValueForIndex(index int) string {
-	samples := []string{
-		"'Sample Name'",
-		"'New York'",
-		"'test@example.com'",
-		"'2024-01-01'",
-		"75000",
-		"1",
-		"'ACTIVE'",
-		"'Developer'",
-		"40",
-		"'555-1234'",
+// generateValueForType generates appropriate sample data based on column type
+func (e *SQLExecutor) generateValueForType(paramName, columnType, tableName string) string {
+	lower := strings.ToLower(paramName)
+
+	switch {
+	case strings.HasPrefix(columnType, "STRING"):
+		// Check if this is likely a UUID column
+		if strings.Contains(lower, "id") {
+			return e.generateUUIDForParameter(paramName, tableName)
+		}
+		// Handle other string types based on name
+		return e.getSampleValueForParameter(paramName, "")
+	case columnType == "INT64":
+		if strings.Contains(lower, "salary") || strings.Contains(lower, "budget") {
+			return "75000"
+		} else if strings.Contains(lower, "hours") {
+			return "40"
+		}
+		return "1"
+	case columnType == "FLOAT64":
+		if strings.Contains(lower, "salary") || strings.Contains(lower, "budget") {
+			return "75000.0"
+		}
+		return "1.0"
+	case columnType == "TIMESTAMP":
+		if strings.Contains(lower, "start") {
+			return "'2024-01-01T00:00:00Z'"
+		} else if strings.Contains(lower, "end") {
+			return "'2024-12-31T23:59:59Z'"
+		}
+		return "'2024-06-01T12:00:00Z'"
+	case columnType == "DATE":
+		if strings.Contains(lower, "start") {
+			return "'2024-01-01'"
+		} else if strings.Contains(lower, "end") {
+			return "'2024-12-31'"
+		}
+		return "'2024-06-01'"
+	case columnType == "BOOL":
+		return "true"
+	default:
+		return "'sample_value'"
+	}
+}
+
+// generateUUIDForParameter generates UUID with proper foreign key relationships
+func (e *SQLExecutor) generateUUIDForParameter(paramName, tableName string) string {
+	lower := strings.ToLower(paramName)
+
+	// Handle foreign key references
+	switch {
+	case strings.Contains(lower, "dept_id"):
+		if tableName == "departments" {
+			// This is a primary key for departments table
+			key := "departments_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		} else {
+			// This is a foreign key reference to departments
+			key := "departments_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			// If departments PK doesn't exist yet, create it
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		}
+	case strings.Contains(lower, "emp_id"):
+		if tableName == "employees" {
+			// This is a primary key for employees table
+			key := "employees_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		} else {
+			// This is a foreign key reference to employees
+			key := "employees_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			// If employees PK doesn't exist yet, create it
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		}
+	case strings.Contains(lower, "project_id"):
+		if tableName == "projects" {
+			// This is a primary key for projects table
+			key := "projects_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		} else {
+			// This is a foreign key reference to projects
+			key := "projects_pk"
+			if uuid, exists := e.uuidRegistry[key]; exists {
+				return uuid
+			}
+			// If projects PK doesn't exist yet, create it
+			e.uuidCounter++
+			uuid := e.generateUUID()
+			e.uuidRegistry[key] = uuid
+			return uuid
+		}
+	case strings.Contains(lower, "manager_id"):
+		// Manager is a self-reference to employees table
+		key := "employees_pk"
+		if uuid, exists := e.uuidRegistry[key]; exists {
+			return uuid
+		}
+		// If employees PK doesn't exist yet, create it
+		e.uuidCounter++
+		uuid := e.generateUUID()
+		e.uuidRegistry[key] = uuid
+		return uuid
+	default:
+		// Generate a unique UUID for other ID columns
+		key := fmt.Sprintf("%s_%s_%d", tableName, paramName, e.uuidCounter)
+		e.uuidCounter++
+		uuid := e.generateUUID()
+		e.uuidRegistry[key] = uuid
+		return uuid
+	}
+}
+
+// generateUUID generates a sample UUID string
+func (e *SQLExecutor) generateUUID() string {
+	// Generate a simple UUID-like string for testing with incrementing counter
+	return fmt.Sprintf("'550e8400-e29b-41d4-a716-%012d'", e.uuidCounter)
+}
+
+// getSampleValueForIndex returns sample data based on parameter index and table schema
+func (e *SQLExecutor) getSampleValueForIndex(index int, tableName string) string {
+	// Try to use schema information if available
+	if schema, exists := e.tableSchemas[tableName]; exists {
+		// This is a simplified approach - in a real implementation,
+		// you'd want to match the index to the actual column order
+		columnNames := make([]string, 0, len(schema))
+		for colName := range schema {
+			columnNames = append(columnNames, colName)
+		}
+		if index-1 < len(columnNames) {
+			colName := columnNames[index-1]
+			colType := schema[colName]
+			return e.generateValueForType(colName, colType, tableName)
+		}
 	}
 
-	if index-1 < len(samples) {
-		return samples[index-1]
+	// Fallback to hardcoded samples with proper UUID handling
+	switch index {
+	case 1:
+		return "'Sample Name'"
+	case 2:
+		return "'New York'"
+	case 3:
+		return "'test@example.com'"
+	case 4:
+		return "'2024-01-01'"
+	case 5:
+		return "75000.0"
+	case 6:
+		// Generate a unique UUID for index-based parameters
+		e.uuidCounter++
+		return e.generateUUID()
+	case 7:
+		return "'ACTIVE'"
+	case 8:
+		return "'Developer'"
+	case 9:
+		return "40"
+	case 10:
+		return "'555-1234'"
+	default:
+		return "'sample_value'"
 	}
-	return "'sample_value'"
 }
 
 // GetCreatedTables returns the list of tables created during execution
@@ -380,4 +635,55 @@ func (e *SQLExecutor) Cleanup() error {
 	}
 
 	return nil
+}
+
+// sortInsertsByDependencies sorts INSERT statements to respect foreign key dependencies
+func (e *SQLExecutor) sortInsertsByDependencies(insertStmts []string) []string {
+	// Define dependency order for common table patterns
+	dependencyOrder := map[string]int{
+		"departments":         1, // No dependencies
+		"projects":            1, // No dependencies
+		"employees":           2, // Depends on departments
+		"project_assignments": 3, // Depends on employees and projects
+	}
+
+	// Create a slice of statements with their priority
+	type stmtWithPriority struct {
+		stmt     string
+		priority int
+		table    string
+	}
+
+	var stmtsWithPriority []stmtWithPriority
+
+	for _, stmt := range insertStmts {
+		tableName := e.getTableFromInsert(stmt)
+		priority := dependencyOrder[tableName]
+		if priority == 0 {
+			priority = 999 // Unknown tables go last
+		}
+
+		stmtsWithPriority = append(stmtsWithPriority, stmtWithPriority{
+			stmt:     stmt,
+			priority: priority,
+			table:    tableName,
+		})
+	}
+
+	// Sort by priority
+	for i := 0; i < len(stmtsWithPriority); i++ {
+		for j := i + 1; j < len(stmtsWithPriority); j++ {
+			if stmtsWithPriority[i].priority > stmtsWithPriority[j].priority {
+				stmtsWithPriority[i], stmtsWithPriority[j] = stmtsWithPriority[j], stmtsWithPriority[i]
+			}
+		}
+	}
+
+	// Extract sorted statements
+	var sortedStmts []string
+	for _, s := range stmtsWithPriority {
+		sortedStmts = append(sortedStmts, s.stmt)
+	}
+
+	return sortedStmts
 }

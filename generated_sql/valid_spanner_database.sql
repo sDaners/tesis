@@ -1,33 +1,30 @@
 -- Spanner Database Schema and Queries
 -- Extracted from valid_spanner_sql.go
 
--- Database Configuration
-ALTER DATABASE db SET OPTIONS (default_sequence_kind = 'bit_reversed_positive');
-
 -- Table Creation Statements
 CREATE TABLE IF NOT EXISTS departments (
-    dept_id INT64 NOT NULL AUTO_INCREMENT,
+    dept_id STRING(36) DEFAULT (GENERATE_UUID()),
     dept_name STRING(50) NOT NULL,
     location STRING(100),
     created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP())
 ) PRIMARY KEY (dept_id);
 
 CREATE TABLE IF NOT EXISTS employees (
-    emp_id INT64 NOT NULL AUTO_INCREMENT,
+    emp_id STRING(36) DEFAULT (GENERATE_UUID()),
     first_name STRING(50) NOT NULL,
     last_name STRING(50) NOT NULL,
     email STRING(150),
     hire_date TIMESTAMP NOT NULL,
     salary FLOAT64,
-    dept_id INT64,
-    manager_id INT64,
+    dept_id STRING(36),
+    manager_id STRING(36),
     phone_number STRING(20),
     CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES departments(dept_id),
     CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
 ) PRIMARY KEY (emp_id);
 
 CREATE TABLE IF NOT EXISTS projects (
-    project_id INT64 NOT NULL AUTO_INCREMENT,
+    project_id STRING(36) DEFAULT (GENERATE_UUID()),
     project_name STRING(100) NOT NULL,
     start_date TIMESTAMP,
     end_date TIMESTAMP,
@@ -38,8 +35,8 @@ CREATE TABLE IF NOT EXISTS projects (
 ) PRIMARY KEY (project_id);
 
 CREATE TABLE IF NOT EXISTS project_assignments (
-    emp_id INT64 NOT NULL,
-    project_id INT64 NOT NULL,
+    emp_id STRING(36) NOT NULL,
+    project_id STRING(36) NOT NULL,
     role STRING(50),
     hours_allocated INT64,
     CONSTRAINT fk_emp FOREIGN KEY (emp_id) REFERENCES employees(emp_id),
