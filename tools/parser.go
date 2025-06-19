@@ -22,7 +22,7 @@ func NewSQLParser(filename string) *SQLParser {
 }
 
 // ParseSQL reads an SQL file and returns a list of SQL statements
-// separated by their first word (CREATE, INSERT, SELECT)
+// separated by their first word (CREATE, INSERT, SELECT, DROP)
 // Comments are ignored
 func (p *SQLParser) ParseSQL() ([]string, error) {
 	file, err := os.Open(p.filename)
@@ -90,14 +90,14 @@ func (p *SQLParser) removeComments(line string) string {
 	return line
 }
 
-// extractStatements extracts SQL statements that start with CREATE, INSERT, or SELECT
+// extractStatements extracts SQL statements that start with CREATE, INSERT, SELECT, or DROP
 func (p *SQLParser) extractStatements(content string) []string {
 	var statements []string
 
-	// Regular expression to find statements starting with CREATE, INSERT, or SELECT
+	// Regular expression to find statements starting with CREATE, INSERT, SELECT, or DROP
 	// This regex looks for these keywords at word boundaries and captures everything until
 	// we find another statement or the end of the content
-	re := regexp.MustCompile(`(?i)\b(CREATE|INSERT|SELECT)\b[^;]*(?:;|$)`)
+	re := regexp.MustCompile(`(?i)\b(CREATE|INSERT|SELECT|DROP)\b[^;]*(?:;|$)`)
 
 	matches := re.FindAllString(content, -1)
 
@@ -132,7 +132,7 @@ func (p *SQLParser) extractStatementsByKeyword(content string) []string {
 	content = strings.TrimSpace(content)
 
 	// Split by keywords while preserving the keywords
-	keywords := []string{"CREATE", "INSERT", "SELECT"}
+	keywords := []string{"CREATE", "INSERT", "SELECT", "DROP"}
 
 	// Case-insensitive split
 	parts := []string{content}
@@ -176,7 +176,8 @@ func (p *SQLParser) extractStatementsByKeyword(content string) []string {
 			upperPart := strings.ToUpper(part)
 			if strings.HasPrefix(upperPart, "CREATE ") ||
 				strings.HasPrefix(upperPart, "INSERT ") ||
-				strings.HasPrefix(upperPart, "SELECT ") {
+				strings.HasPrefix(upperPart, "SELECT ") ||
+				strings.HasPrefix(upperPart, "DROP ") {
 				statements = append(statements, part)
 			}
 		}
