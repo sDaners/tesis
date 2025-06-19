@@ -17,7 +17,6 @@ type SQLExecutor struct {
 	createdTables []string
 	tableSchemas  map[string]map[string]string // table -> column -> type
 	uuidRegistry  map[string]string            // logical_key -> actual_uuid
-	uuidCounter   int
 }
 
 // NewSQLExecutor creates a new SQL executor instance
@@ -28,7 +27,6 @@ func NewSQLExecutor(db *sql.DB, repo Database) *SQLExecutor {
 		executed:     make(map[string]bool),
 		tableSchemas: make(map[string]map[string]string),
 		uuidRegistry: make(map[string]string),
-		uuidCounter:  1,
 	}
 }
 
@@ -469,102 +467,50 @@ func (e *SQLExecutor) generateValueForType(paramName, columnType, tableName stri
 func (e *SQLExecutor) generateUUIDForParameter(paramName, tableName string) string {
 	lower := strings.ToLower(paramName)
 
-	// Handle foreign key references
+	// Handle foreign key references by reusing captured UUIDs from THEN RETURN
 	switch {
 	case strings.Contains(lower, "dept_id"):
-		if tableName == "departments" {
-			// This is a primary key for departments table
-			key := "departments_pk"
-			if uuid, exists := e.uuidRegistry[key]; exists {
-				return uuid
-			}
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
-		} else {
+		if tableName != "departments" {
 			// This is a foreign key reference to departments
 			key := "departments_pk"
 			if uuid, exists := e.uuidRegistry[key]; exists {
 				return uuid
 			}
-			// If departments PK doesn't exist yet, create it
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
 		}
+		// For departments table or if no UUID captured yet, let database generate
+		return "NULL" // Let database generate UUID
 	case strings.Contains(lower, "emp_id"):
-		if tableName == "employees" {
-			// This is a primary key for employees table
-			key := "employees_pk"
-			if uuid, exists := e.uuidRegistry[key]; exists {
-				return uuid
-			}
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
-		} else {
+		if tableName != "employees" {
 			// This is a foreign key reference to employees
 			key := "employees_pk"
 			if uuid, exists := e.uuidRegistry[key]; exists {
 				return uuid
 			}
-			// If employees PK doesn't exist yet, create it
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
 		}
+		// For employees table or if no UUID captured yet, let database generate
+		return "NULL" // Let database generate UUID
 	case strings.Contains(lower, "project_id"):
-		if tableName == "projects" {
-			// This is a primary key for projects table
-			key := "projects_pk"
-			if uuid, exists := e.uuidRegistry[key]; exists {
-				return uuid
-			}
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
-		} else {
+		if tableName != "projects" {
 			// This is a foreign key reference to projects
 			key := "projects_pk"
 			if uuid, exists := e.uuidRegistry[key]; exists {
 				return uuid
 			}
-			// If projects PK doesn't exist yet, create it
-			e.uuidCounter++
-			uuid := e.generateUUID()
-			e.uuidRegistry[key] = uuid
-			return uuid
 		}
+		// For projects table or if no UUID captured yet, let database generate
+		return "NULL" // Let database generate UUID
 	case strings.Contains(lower, "manager_id"):
 		// Manager is a self-reference to employees table
 		key := "employees_pk"
 		if uuid, exists := e.uuidRegistry[key]; exists {
 			return uuid
 		}
-		// If employees PK doesn't exist yet, create it
-		e.uuidCounter++
-		uuid := e.generateUUID()
-		e.uuidRegistry[key] = uuid
-		return uuid
+		// If no employee UUID captured yet, this will likely fail (which is expected)
+		return "NULL"
 	default:
-		// Generate a unique UUID for other ID columns
-		key := fmt.Sprintf("%s_%s_%d", tableName, paramName, e.uuidCounter)
-		e.uuidCounter++
-		uuid := e.generateUUID()
-		e.uuidRegistry[key] = uuid
-		return uuid
+		// For other ID columns, let database generate
+		return "NULL"
 	}
-}
-
-// generateUUID generates a sample UUID string
-func (e *SQLExecutor) generateUUID() string {
-	// Generate a simple UUID-like string for testing with incrementing counter
-	return fmt.Sprintf("'550e8400-e29b-41d4-a716-%012d'", e.uuidCounter)
 }
 
 // getSampleValueForIndex returns sample data based on parameter index and table schema
@@ -584,7 +530,7 @@ func (e *SQLExecutor) getSampleValueForIndex(index int, tableName string) string
 		}
 	}
 
-	// Fallback to hardcoded samples with proper UUID handling
+	// Fallback to hardcoded samples
 	switch index {
 	case 1:
 		return "'Sample Name'"
@@ -597,9 +543,8 @@ func (e *SQLExecutor) getSampleValueForIndex(index int, tableName string) string
 	case 5:
 		return "75000.0"
 	case 6:
-		// Generate a unique UUID for index-based parameters
-		e.uuidCounter++
-		return e.generateUUID()
+		// For UUID columns, let database generate
+		return "NULL"
 	case 7:
 		return "'ACTIVE'"
 	case 8:
