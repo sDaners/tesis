@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -25,6 +26,7 @@ type TestFileResult struct {
 	ErrorRate        float64
 	ExecutionTime    time.Duration
 	Errors           []string
+	ErrorCodes       map[string]int // error_code -> count
 }
 
 type SpannerDBTeardown struct {
@@ -91,7 +93,8 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 	filename := filepath.Base(sqlFile)
 
 	result := TestFileResult{
-		Filename: filename,
+		Filename:   filename,
+		ErrorCodes: make(map[string]int),
 	}
 
 	// Setup database
@@ -126,7 +129,14 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 	}
 
 	for _, err := range execResult.Errors {
-		result.Errors = append(result.Errors, err.Error())
+		errMsg := err.Error()
+		result.Errors = append(result.Errors, errMsg)
+
+		// Extract and count error codes
+		errorCode := extractSpannerErrorCode(errMsg)
+		if errorCode != "" {
+			result.ErrorCodes[errorCode]++
+		}
 	}
 
 	// Log execution results
@@ -138,6 +148,14 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 	t.Logf("  Error rate: %.1f%%", result.ErrorRate)
 	t.Logf("  Execution time: %v", result.ExecutionTime)
 
+	// Log error codes summary
+	if len(result.ErrorCodes) > 0 {
+		t.Logf("  Error codes:")
+		for code, count := range result.ErrorCodes {
+			t.Logf("    %s: %d occurrences", code, count)
+		}
+	}
+
 	// Validate results (but don't fail the test)
 	validateExecutionResult(t, execResult, filename)
 
@@ -147,6 +165,35 @@ func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
 	}
 
 	return result
+}
+
+// extractSpannerErrorCode extracts the error code from Spanner error messages
+func extractSpannerErrorCode(errMsg string) string {
+	// Spanner errors typically have format: "rpc error: code = ErrorCode desc = ..."
+	// or "spanner: code = \"ErrorCode\", desc = ..."
+
+	// Pattern 1: rpc error format
+	if strings.Contains(errMsg, "rpc error: code = ") {
+		start := strings.Index(errMsg, "rpc error: code = ") + len("rpc error: code = ")
+		end := strings.Index(errMsg[start:], " desc = ")
+		if end != -1 {
+			return errMsg[start : start+end]
+		}
+	}
+
+	// Pattern 2: spanner client format
+	if strings.Contains(errMsg, "spanner: code = ") {
+		start := strings.Index(errMsg, "spanner: code = ") + len("spanner: code = ")
+		if start < len(errMsg) && errMsg[start] == '"' {
+			start++ // Skip opening quote
+			end := strings.Index(errMsg[start:], "\"")
+			if end != -1 {
+				return errMsg[start : start+end]
+			}
+		}
+	}
+
+	return ""
 }
 
 // generateMarkdownReport creates a markdown file with test results
@@ -167,11 +214,17 @@ func generateMarkdownReport(results []TestFileResult) error {
 	totalStatements := 0
 	totalExecuted := 0
 	totalFailed := 0
+	allErrorCodes := make(map[string]int) // Global error code counts
 
 	for _, result := range results {
 		totalStatements += result.TotalStatements
 		totalExecuted += result.ExecutedCount
 		totalFailed += result.FailedCount
+
+		// Aggregate error codes
+		for code, count := range result.ErrorCodes {
+			allErrorCodes[code] += count
+		}
 	}
 
 	fmt.Fprintf(file, "## Summary\n\n")
@@ -180,6 +233,38 @@ func generateMarkdownReport(results []TestFileResult) error {
 	fmt.Fprintf(file, "- **Successfully Executed**: %d\n", totalExecuted)
 	fmt.Fprintf(file, "- **Failed**: %d\n", totalFailed)
 	fmt.Fprintf(file, "- **Overall Success Rate**: %.1f%%\n\n", float64(totalExecuted)/float64(totalStatements)*100)
+
+	// Write error code summary
+	if len(allErrorCodes) > 0 {
+		fmt.Fprintf(file, "## Error Code Summary\n\n")
+		fmt.Fprintf(file, "| Error Code | Total Occurrences | Description |\n")
+		fmt.Fprintf(file, "|------------|-------------------|-------------|\n")
+
+		// Sort error codes by frequency
+		type errorCodeCount struct {
+			code  string
+			count int
+		}
+		var sortedCodes []errorCodeCount
+		for code, count := range allErrorCodes {
+			sortedCodes = append(sortedCodes, errorCodeCount{code, count})
+		}
+
+		// Simple bubble sort by count (descending)
+		for i := 0; i < len(sortedCodes); i++ {
+			for j := i + 1; j < len(sortedCodes); j++ {
+				if sortedCodes[i].count < sortedCodes[j].count {
+					sortedCodes[i], sortedCodes[j] = sortedCodes[j], sortedCodes[i]
+				}
+			}
+		}
+
+		for _, ec := range sortedCodes {
+			description := getErrorCodeDescription(ec.code)
+			fmt.Fprintf(file, "| %s | %d | %s |\n", ec.code, ec.count, description)
+		}
+		fmt.Fprintf(file, "\n")
+	}
 
 	// Write detailed results table
 	fmt.Fprintf(file, "## Detailed Results\n\n")
@@ -202,12 +287,21 @@ func generateMarkdownReport(results []TestFileResult) error {
 		)
 	}
 
-	// Write error details
+	// Write error details with error codes
 	fmt.Fprintf(file, "\n## Error Details\n\n")
 	for _, result := range results {
 		if len(result.Errors) > 0 {
 			fmt.Fprintf(file, "### %s\n\n", result.Filename)
 			fmt.Fprintf(file, "**Error Rate**: %.1f%% (%d/%d failed)\n\n", result.ErrorRate, result.FailedCount, result.TotalStatements)
+
+			// Write error codes for this file
+			if len(result.ErrorCodes) > 0 {
+				fmt.Fprintf(file, "**Error Codes**:\n")
+				for code, count := range result.ErrorCodes {
+					fmt.Fprintf(file, "- `%s`: %d occurrences\n", code, count)
+				}
+				fmt.Fprintf(file, "\n")
+			}
 
 			if len(result.Errors) > 0 {
 				fmt.Fprintf(file, "**Sample Errors**:\n")
@@ -229,6 +323,29 @@ func generateMarkdownReport(results []TestFileResult) error {
 	}
 
 	return nil
+}
+
+// getErrorCodeDescription returns a human-readable description for Spanner error codes
+func getErrorCodeDescription(code string) string {
+	descriptions := map[string]string{
+		"InvalidArgument":    "Invalid SQL syntax or unsupported features",
+		"NotFound":           "Referenced table, column, or object not found",
+		"FailedPrecondition": "Constraint violations or prerequisite not met",
+		"AlreadyExists":      "Object already exists (duplicate creation)",
+		"PermissionDenied":   "Insufficient permissions for operation",
+		"Unimplemented":      "Feature not implemented in Spanner",
+		"Internal":           "Internal Spanner error",
+		"Unavailable":        "Service temporarily unavailable",
+		"DeadlineExceeded":   "Operation timeout",
+		"ResourceExhausted":  "Resource limits exceeded",
+		"Cancelled":          "Operation was cancelled",
+		"Unknown":            "Unknown error occurred",
+	}
+
+	if desc, exists := descriptions[code]; exists {
+		return desc
+	}
+	return "Unknown error code"
 }
 
 // analyzeCommonIssues finds common error patterns across all files
