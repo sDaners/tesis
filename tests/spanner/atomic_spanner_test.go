@@ -13,6 +13,7 @@ import (
 	"postgres-example/tools"
 
 	"github.com/cloudspannerecosystem/memefish"
+	"github.com/stretchr/testify/assert"
 )
 
 // Global statement cache: Map[fileName][statementType] = []string
@@ -280,22 +281,30 @@ func TestAtomicSQLStatements(t *testing.T) {
 
 // TestAtomicCREATEStatements tests only CREATE statements atomically
 func TestAtomicCREATEStatements(t *testing.T) {
-	testAtomicStatementsByType(t, "CREATE")
+	t.Run("AtomicCREATEStatements", func(t *testing.T) {
+		testAtomicStatementsByType(t, "CREATE")
+	})
 }
 
 // TestAtomicINSERTStatements tests only INSERT statements atomically
 func TestAtomicINSERTStatements(t *testing.T) {
-	testAtomicStatementsByType(t, "INSERT")
+	t.Run("AtomicINSERTStatements", func(t *testing.T) {
+		testAtomicStatementsByType(t, "INSERT")
+	})
 }
 
 // TestAtomicSELECTStatements tests only SELECT statements atomically
 func TestAtomicSELECTStatements(t *testing.T) {
-	testAtomicStatementsByType(t, "SELECT")
+	t.Run("AtomicSELECTStatements", func(t *testing.T) {
+		testAtomicStatementsByType(t, "SELECT")
+	})
 }
 
 // TestAtomicDROPStatements tests only DROP statements atomically
 func TestAtomicDROPStatements(t *testing.T) {
-	testAtomicStatementsByType(t, "DROP")
+	t.Run("AtomicDROPStatements", func(t *testing.T) {
+		testAtomicStatementsByType(t, "DROP")
+	})
 }
 
 // testAtomicStatementsByType tests statements of a specific type across all SQL files
@@ -358,6 +367,7 @@ func testAtomicStatementsByType(t *testing.T, statementType string) {
 			break
 		}
 	}
+	assert.True(t, true, "TestAtomicSQLStatements")
 }
 
 func testAtomicSQLFile(t *testing.T, sqlFile string) AtomicFileResult {

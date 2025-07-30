@@ -13,6 +13,8 @@ import (
 	"postgres-example/tools"
 
 	"github.com/cloudspannerecosystem/memefish"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestFileResult holds the results for a single SQL file test
@@ -75,34 +77,58 @@ func (d *SpannerDBTeardown) Close() {
 
 // TestGeneratedSQLFiles tests all SQL files in the generated_sql folder
 func TestGeneratedSQLFiles(t *testing.T) {
-	// Get all SQL files from generated_sql folder
-	sqlFiles, err := filepath.Glob("../../generated_sql/*.sql")
-	if err != nil {
-		t.Fatalf("Failed to find SQL files: %v", err)
-	}
+	t.Run("TestGeneratedSQLFiles", func(t *testing.T) {
+		// Get all SQL files from generated_sql folder
+		sqlFiles, err := filepath.Glob("../../generated_sql/*.sql")
+		if err != nil {
+			t.Fatalf("Failed to find SQL files: %v", err)
+		}
 
-	print("SQL Files: ", len(sqlFiles), "\n")
+		print("SQL Files: ", len(sqlFiles), "\n")
 
-	if len(sqlFiles) == 0 {
-		t.Fatalf("No SQL files found in generated_sql folder")
-	}
+		if len(sqlFiles) == 0 {
+			t.Fatalf("No SQL files found in generated_sql folder")
+		}
 
-	// Collect results for markdown report
-	var results []TestFileResult
+		// Collect results for markdown report
+		var results []TestFileResult
 
-	for _, sqlFile := range sqlFiles {
-		t.Run(filepath.Base(sqlFile), func(t *testing.T) {
-			result := testSQLFileWithParsing(t, sqlFile)
-			results = append(results, result)
-		})
-	}
+		for _, sqlFile := range sqlFiles {
+			t.Run(filepath.Base(sqlFile), func(t *testing.T) {
+				result := testSQLFileWithParsing(t, sqlFile)
+				results = append(results, result)
+			})
+		}
 
-	// Generate markdown report
-	if err := generateMarkdownReport(results); err != nil {
-		t.Logf("Warning: Failed to generate markdown report: %v", err)
-	} else {
-		t.Logf("Generated markdown report: sql_test_results.md")
-	}
+		// Generate markdown report
+		if err := generateMarkdownReport(results); err != nil {
+			t.Logf("Warning: Failed to generate markdown report: %v", err)
+		} else {
+			t.Logf("Generated markdown report: sql_test_results.md")
+		}
+
+		// Test results for valid_spanner_database.sql should be 100%
+		var validSpannerDatabaseResult TestFileResult
+
+		for _, result := range results {
+			if result.Filename == "valid_spanner_database.sql" {
+				validSpannerDatabaseResult = result
+				break
+			}
+		}
+
+		if !assert.NotNil(t, validSpannerDatabaseResult) {
+			require.Fail(t, "valid_spanner_database.sql not found in results")
+			return
+		}
+		assert.Equal(t, validSpannerDatabaseResult.ExecutedCount, validSpannerDatabaseResult.TotalStatements)
+		assert.Zero(t, validSpannerDatabaseResult.ErrorRate)
+		assert.Zero(t, validSpannerDatabaseResult.FailedCount)
+		assert.Empty(t, validSpannerDatabaseResult.ParseErrors)
+		assert.Empty(t, validSpannerDatabaseResult.ExecutionErrors)
+		assert.Empty(t, validSpannerDatabaseResult.ErrorCodes)
+		assert.Empty(t, validSpannerDatabaseResult.ErrorCategories)
+	})
 }
 
 func testSQLFileWithParsing(t *testing.T, sqlFile string) TestFileResult {
