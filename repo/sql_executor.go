@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
-	"postgres-example/tools"
 )
 
 // SQLExecutor provides an abstraction for executing parsed SQL statements
@@ -28,17 +26,6 @@ func NewSQLExecutor(db *sql.DB, repo Database) *SQLExecutor {
 		tableSchemas: make(map[string]map[string]string),
 		uuidRegistry: make(map[string]string),
 	}
-}
-
-// ExecuteFromFile parses and executes SQL statements from a file
-func (e *SQLExecutor) ExecuteFromFile(filename string) (*ExecutionResult, error) {
-	parser := tools.NewSQLParser(filename)
-	statements, err := parser.ParseSQL()
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse SQL file %s: %w", filename, err)
-	}
-
-	return e.ExecuteStatements(statements)
 }
 
 // ExecutionResult contains the results of executing SQL statements
@@ -268,16 +255,54 @@ func (e *SQLExecutor) executeSelect(stmt string) QueryResult {
 	return result
 }
 
-// cleanStatement removes extra whitespace and ensures proper formatting
+// cleanStatement removes extra whitespace, comments, and ensures proper formatting
 func (e *SQLExecutor) cleanStatement(stmt string) string {
 	// Remove leading/trailing whitespace
 	cleaned := strings.TrimSpace(stmt)
+
+	// Remove comments and extract only the SQL content
+	cleaned = e.stripComments(cleaned)
 
 	// Normalize internal whitespace
 	re := regexp.MustCompile(`\s+`)
 	cleaned = re.ReplaceAllString(cleaned, " ")
 
 	return cleaned
+}
+
+// stripComments removes SQL comments from a statement
+func (e *SQLExecutor) stripComments(stmt string) string {
+	lines := strings.Split(stmt, "\n")
+	var sqlLines []string
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+
+		// Skip empty lines
+		if trimmed == "" {
+			continue
+		}
+
+		// Skip single-line comments
+		if strings.HasPrefix(trimmed, "--") {
+			continue
+		}
+
+		// Handle inline comments (remove everything after --)
+		if commentIdx := strings.Index(trimmed, "--"); commentIdx != -1 {
+			trimmed = strings.TrimSpace(trimmed[:commentIdx])
+			if trimmed == "" {
+				continue
+			}
+		}
+
+		// For now, ignore multi-line comments /* */ as they're more complex
+		// and less common in our test cases
+
+		sqlLines = append(sqlLines, trimmed)
+	}
+
+	return strings.Join(sqlLines, " ")
 }
 
 // extractTableName extracts the table name from a CREATE statement

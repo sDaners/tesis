@@ -11,23 +11,39 @@ import (
 
 	"postgres-example/repo"
 	"postgres-example/tools"
+
+	"github.com/cloudspannerecosystem/memefish"
 )
 
 // TestFileResult holds the results for a single SQL file test
 type TestFileResult struct {
-	Filename         string
-	TotalStatements  int
+	Filename        string
+	TotalStatements int
+	// Parsing results
+	ParsedCount     int
+	ParseErrors     []string
+	ParseErrorCodes map[string]int // error_type -> count
+	// Statement type counts (from parsing)
 	CreateStatements int
 	InsertStatements int
 	SelectStatements int
 	DropStatements   int
-	ExecutedCount    int
-	FailedCount      int
-	ErrorRate        float64
-	ExecutionTime    time.Duration
-	Errors           []string
-	ErrorCodes       map[string]int // error_code -> count
-	ErrorCategories  map[string]int // detailed_category -> count
+	// Execution results
+	ExecutedCount   int
+	FailedCount     int
+	ErrorRate       float64
+	ExecutionTime   time.Duration
+	ExecutionErrors []string
+	ErrorCodes      map[string]int // error_code -> count
+	ErrorCategories map[string]int // detailed_category -> count
+}
+
+// ParseResult holds the result of parsing a single statement
+type ParseResult struct {
+	Statement string
+	Parsed    bool
+	Error     error
+	Type      string // CREATE, INSERT, SELECT, DROP, etc.
 }
 
 type SpannerDBTeardown struct {
@@ -76,7 +92,7 @@ func TestGeneratedSQLFiles(t *testing.T) {
 
 	for _, sqlFile := range sqlFiles {
 		t.Run(filepath.Base(sqlFile), func(t *testing.T) {
-			result := testSQLFileExecution(t, sqlFile)
+			result := testSQLFileWithParsing(t, sqlFile)
 			results = append(results, result)
 		})
 	}
@@ -89,103 +105,229 @@ func TestGeneratedSQLFiles(t *testing.T) {
 	}
 }
 
-func testSQLFileExecution(t *testing.T, sqlFile string) TestFileResult {
+func testSQLFileWithParsing(t *testing.T, sqlFile string) TestFileResult {
 	start := time.Now()
 	filename := filepath.Base(sqlFile)
 
 	result := TestFileResult{
 		Filename:        filename,
+		ParseErrorCodes: make(map[string]int),
 		ErrorCodes:      make(map[string]int),
 		ErrorCategories: make(map[string]int),
 	}
 
-	// Setup database
-	dbT := setupSpannerDB(t)
-	defer dbT.Close()
-
-	// Create SQL executor
-	executor := repo.NewSQLExecutor(dbT.db, dbT.repo)
-	defer func() {
-		if err := executor.Cleanup(); err != nil {
-			t.Logf("Warning: cleanup failed: %v", err)
-		}
-	}()
-
-	// Execute SQL from file
-	execResult, err := executor.ExecuteFromFile(sqlFile)
+	// Step 1: Parse SQL file to extract statements using memefish
+	statements, err := tools.ExtractStatementsFromFile(sqlFile)
 	if err != nil {
-		t.Fatalf("Failed to execute SQL file %s: %v", sqlFile, err)
+		t.Fatalf("Failed to extract SQL statements from %s: %v", sqlFile, err)
+	}
+
+	result.TotalStatements = len(statements)
+
+	// Step 2: Parse each statement with memefish
+	parseResults := parseStatementsWithMemefish(statements, filename)
+
+	// Analyze parsing results
+	var validStatements []string
+	for _, pr := range parseResults {
+		if pr.Parsed {
+			result.ParsedCount++
+			validStatements = append(validStatements, pr.Statement)
+
+			// Count statement types from successful parsing
+			switch strings.ToUpper(pr.Type) {
+			case "CREATE":
+				result.CreateStatements++
+			case "INSERT":
+				result.InsertStatements++
+			case "SELECT":
+				result.SelectStatements++
+			case "DROP":
+				result.DropStatements++
+			}
+		} else {
+			errMsg := pr.Error.Error()
+			result.ParseErrors = append(result.ParseErrors, errMsg)
+
+			// Categorize parsing errors
+			errorType := categorizeMemefishError(errMsg)
+			result.ParseErrorCodes[errorType]++
+		}
+	}
+
+	// Log parsing results
+	t.Logf("Parsing results for %s:", filename)
+	t.Logf("  Total statements: %d", result.TotalStatements)
+	t.Logf("  Successfully parsed: %d", result.ParsedCount)
+	t.Logf("  Parse failures: %d", len(result.ParseErrors))
+	if len(result.ParseErrors) > 0 {
+		parseErrorRate := float64(len(result.ParseErrors)) / float64(result.TotalStatements) * 100
+		t.Logf("  Parse error rate: %.1f%%", parseErrorRate)
+	}
+
+	// Step 3: Execute only valid statements if any were parsed successfully
+	if len(validStatements) > 0 {
+		dbT := setupSpannerDB(t)
+		defer dbT.Close()
+
+		executor := repo.NewSQLExecutor(dbT.db, dbT.repo)
+		defer func() {
+			if err := executor.Cleanup(); err != nil {
+				t.Logf("Warning: cleanup failed: %v", err)
+			}
+		}()
+
+		// Execute the valid statements
+		execResult, err := executor.ExecuteStatements(validStatements)
+		if err != nil {
+			t.Logf("Warning: ExecuteStatements returned error: %v", err)
+		}
+
+		// Collect execution results
+		if execResult != nil {
+			result.ExecutedCount = execResult.ExecutedCount
+			result.FailedCount = len(execResult.Errors)
+
+			for _, err := range execResult.Errors {
+				errMsg := err.Error()
+				result.ExecutionErrors = append(result.ExecutionErrors, errMsg)
+
+				// Extract and count error codes
+				errorCode := extractSpannerErrorCode(errMsg)
+				if errorCode != "" {
+					result.ErrorCodes[errorCode]++
+
+					// Categorize InvalidArgument errors further
+					if errorCode == "InvalidArgument" {
+						category := categorizeInvalidArgumentError(errMsg)
+						if category != "" {
+							result.ErrorCategories[category]++
+						}
+					} else {
+						result.ErrorCategories[errorCode]++
+					}
+				}
+			}
+
+			// Test additional queries if data was inserted
+			if len(execResult.InsertedRecords) > 0 {
+				testDataIntegrity(t, dbT, execResult)
+			}
+		}
+	} else {
+		t.Logf("No valid statements to execute for %s", filename)
 	}
 
 	result.ExecutionTime = time.Since(start)
-	result.TotalStatements = execResult.TotalStatements
-	result.CreateStatements = execResult.CreateStatements
-	result.InsertStatements = execResult.InsertStatements
-	result.SelectStatements = execResult.SelectStatements
-	result.DropStatements = execResult.DropStatements
-	result.ExecutedCount = execResult.ExecutedCount
-	result.FailedCount = len(execResult.Errors)
 
+	// Calculate error rate based on total statements
 	if result.TotalStatements > 0 {
-		result.ErrorRate = float64(result.FailedCount) / float64(result.TotalStatements) * 100
+		totalErrors := len(result.ParseErrors) + result.FailedCount
+		result.ErrorRate = float64(totalErrors) / float64(result.TotalStatements) * 100
 	}
 
-	for _, err := range execResult.Errors {
-		errMsg := err.Error()
-		result.Errors = append(result.Errors, errMsg)
-
-		// Extract and count error codes
-		errorCode := extractSpannerErrorCode(errMsg)
-		if errorCode != "" {
-			result.ErrorCodes[errorCode]++
-
-			// Categorize InvalidArgument errors further
-			if errorCode == "InvalidArgument" {
-				category := categorizeInvalidArgumentError(errMsg)
-				if category != "" {
-					result.ErrorCategories[category]++
-				}
-			} else {
-				// For non-InvalidArgument errors, use the error code as category
-				result.ErrorCategories[errorCode]++
-			}
-		}
-	}
-
-	// Log execution results
-	t.Logf("Execution results for %s:", filename)
-	t.Logf("  Total statements: %d", result.TotalStatements)
+	// Log comprehensive results
+	t.Logf("Final results for %s:", filename)
 	t.Logf("  CREATE: %d, INSERT: %d, SELECT: %d, DROP: %d",
 		result.CreateStatements, result.InsertStatements, result.SelectStatements, result.DropStatements)
 	t.Logf("  Executed: %d, Failed: %d", result.ExecutedCount, result.FailedCount)
-	t.Logf("  Error rate: %.1f%%", result.ErrorRate)
-	t.Logf("  Execution time: %v", result.ExecutionTime)
+	t.Logf("  Overall error rate: %.1f%%", result.ErrorRate)
+	t.Logf("  Total execution time: %v", result.ExecutionTime)
 
-	// Log error codes summary
+	// Log parsing error summary
+	if len(result.ParseErrorCodes) > 0 {
+		t.Logf("  Parse error types:")
+		for errorType, count := range result.ParseErrorCodes {
+			t.Logf("    %s: %d occurrences", errorType, count)
+		}
+	}
+
+	// Log execution error codes summary
 	if len(result.ErrorCodes) > 0 {
-		t.Logf("  Error codes:")
+		t.Logf("  Execution error codes:")
 		for code, count := range result.ErrorCodes {
 			t.Logf("    %s: %d occurrences", code, count)
 		}
 	}
 
-	// Log error categories summary
-	if len(result.ErrorCategories) > 0 {
-		t.Logf("  Error categories:")
-		for category, count := range result.ErrorCategories {
-			t.Logf("    %s: %d occurrences", category, count)
-		}
-	}
-
-	// Validate results (but don't fail the test)
-	validateExecutionResult(t, execResult, filename)
-
-	// Test additional queries if data was inserted
-	if len(execResult.InsertedRecords) > 0 {
-		testDataIntegrity(t, dbT, execResult)
-	}
-
 	return result
+}
+
+// parseStatementsWithMemefish parses each statement using memefish
+func parseStatementsWithMemefish(statements []string, filename string) []ParseResult {
+	var results []ParseResult
+
+	for _, stmt := range statements {
+		result := ParseResult{
+			Statement: stmt,
+		}
+
+		// Try to parse the statement with memefish
+		parsedStmt, err := memefish.ParseStatement(filename, stmt)
+		if err != nil {
+			result.Parsed = false
+			result.Error = err
+		} else {
+			result.Parsed = true
+			result.Type = getStatementType(parsedStmt, stmt)
+		}
+
+		results = append(results, result)
+	}
+
+	return results
+}
+
+// getStatementType determines the type of a parsed statement
+func getStatementType(parsedStmt interface{}, originalStmt string) string {
+	// For now, use a simple approach based on the original statement
+	// since memefish AST types might be complex to analyze
+	upperStmt := strings.ToUpper(strings.TrimSpace(originalStmt))
+
+	switch {
+	case strings.HasPrefix(upperStmt, "CREATE"):
+		return "CREATE"
+	case strings.HasPrefix(upperStmt, "INSERT"):
+		return "INSERT"
+	case strings.HasPrefix(upperStmt, "SELECT"):
+		return "SELECT"
+	case strings.HasPrefix(upperStmt, "DROP"):
+		return "DROP"
+	case strings.HasPrefix(upperStmt, "ALTER"):
+		return "ALTER"
+	case strings.HasPrefix(upperStmt, "UPDATE"):
+		return "UPDATE"
+	case strings.HasPrefix(upperStmt, "DELETE"):
+		return "DELETE"
+	default:
+		return "OTHER"
+	}
+}
+
+// categorizeMemefishError categorizes memefish parsing errors
+func categorizeMemefishError(errMsg string) string {
+	errLower := strings.ToLower(errMsg)
+
+	// Common memefish error patterns
+	switch {
+	case strings.Contains(errLower, "syntax error"):
+		if strings.Contains(errLower, "expecting") {
+			return "Syntax Error: Missing Token"
+		}
+		return "Syntax Error: General"
+	case strings.Contains(errLower, "unexpected token"):
+		return "Syntax Error: Unexpected Token"
+	case strings.Contains(errLower, "expecting"):
+		return "Syntax Error: Expected Token"
+	case strings.Contains(errLower, "invalid"):
+		return "Invalid Syntax"
+	case strings.Contains(errLower, "not supported"):
+		return "Unsupported Feature"
+	case strings.Contains(errLower, "unknown"):
+		return "Unknown Element"
+	default:
+		return "Parse Error: Other"
+	}
 }
 
 // extractSpannerErrorCode extracts the error code from Spanner error messages
@@ -233,15 +375,20 @@ func generateMarkdownReport(results []TestFileResult) error {
 	// Write summary
 	totalFiles := len(results)
 	totalStatements := 0
+	totalParsed := 0
 	totalExecuted := 0
-	totalFailed := 0
+	totalParseErrors := 0
+	totalExecutionErrors := 0
 	allErrorCodes := make(map[string]int)      // Global error code counts
 	allErrorCategories := make(map[string]int) // Global error category counts
+	allParseErrorCodes := make(map[string]int) // Global parse error counts
 
 	for _, result := range results {
 		totalStatements += result.TotalStatements
+		totalParsed += result.ParsedCount
 		totalExecuted += result.ExecutedCount
-		totalFailed += result.FailedCount
+		totalParseErrors += len(result.ParseErrors)
+		totalExecutionErrors += len(result.ExecutionErrors)
 
 		// Aggregate error codes
 		for code, count := range result.ErrorCodes {
@@ -252,18 +399,66 @@ func generateMarkdownReport(results []TestFileResult) error {
 		for category, count := range result.ErrorCategories {
 			allErrorCategories[category] += count
 		}
+
+		// Aggregate parse error codes
+		for code, count := range result.ParseErrorCodes {
+			allParseErrorCodes[code] += count
+		}
 	}
 
 	fmt.Fprintf(file, "## Summary\n\n")
 	fmt.Fprintf(file, "- **Total SQL Files**: %d\n", totalFiles)
 	fmt.Fprintf(file, "- **Total Statements**: %d\n", totalStatements)
+	fmt.Fprintf(file, "- **Successfully Parsed**: %d\n", totalParsed)
+	fmt.Fprintf(file, "- **Parse Errors**: %d\n", totalParseErrors)
 	fmt.Fprintf(file, "- **Successfully Executed**: %d\n", totalExecuted)
-	fmt.Fprintf(file, "- **Failed**: %d\n", totalFailed)
-	fmt.Fprintf(file, "- **Overall Success Rate**: %.1f%%\n\n", float64(totalExecuted)/float64(totalStatements)*100)
+	fmt.Fprintf(file, "- **Execution Errors**: %d\n", totalExecutionErrors)
+	if totalStatements > 0 {
+		parseSuccessRate := float64(totalParsed) / float64(totalStatements) * 100
+		fmt.Fprintf(file, "- **Parse Success Rate**: %.1f%%\n", parseSuccessRate)
+		if totalParsed > 0 {
+			execSuccessRate := float64(totalExecuted) / float64(totalParsed) * 100
+			fmt.Fprintf(file, "- **Execution Success Rate** (of parsed): %.1f%%\n", execSuccessRate)
+		}
+		overallSuccessRate := float64(totalExecuted) / float64(totalStatements) * 100
+		fmt.Fprintf(file, "- **Overall Success Rate**: %.1f%%\n\n", overallSuccessRate)
+	}
+
+	// Write parse error summary
+	if len(allParseErrorCodes) > 0 {
+		fmt.Fprintf(file, "## Parse Error Summary\n\n")
+		fmt.Fprintf(file, "| Parse Error Type | Total Occurrences | Description |\n")
+		fmt.Fprintf(file, "|------------------|-------------------|-------------|\n")
+
+		// Sort parse error codes by frequency
+		type parseErrorCount struct {
+			errorType string
+			count     int
+		}
+		var sortedParseErrors []parseErrorCount
+		for errorType, count := range allParseErrorCodes {
+			sortedParseErrors = append(sortedParseErrors, parseErrorCount{errorType, count})
+		}
+
+		// Simple bubble sort by count (descending)
+		for i := 0; i < len(sortedParseErrors); i++ {
+			for j := i + 1; j < len(sortedParseErrors); j++ {
+				if sortedParseErrors[i].count < sortedParseErrors[j].count {
+					sortedParseErrors[i], sortedParseErrors[j] = sortedParseErrors[j], sortedParseErrors[i]
+				}
+			}
+		}
+
+		for _, pec := range sortedParseErrors {
+			description := getParseErrorDescription(pec.errorType)
+			fmt.Fprintf(file, "| %s | %d | %s |\n", pec.errorType, pec.count, description)
+		}
+		fmt.Fprintf(file, "\n")
+	}
 
 	// Write error code summary
 	if len(allErrorCodes) > 0 {
-		fmt.Fprintf(file, "## Error Code Summary\n\n")
+		fmt.Fprintf(file, "## Execution Error Code Summary\n\n")
 		fmt.Fprintf(file, "| Error Code | Total Occurrences | Description |\n")
 		fmt.Fprintf(file, "|------------|-------------------|-------------|\n")
 
@@ -302,7 +497,7 @@ func generateMarkdownReport(results []TestFileResult) error {
 		// Track which files have each error category
 		categoryFileCount := make(map[string]int)
 		for _, result := range results {
-			if len(result.Errors) > 0 { // Only count files that have errors
+			if len(result.ExecutionErrors) > 0 { // Only count files that have execution errors
 				fileCategories := make(map[string]bool) // Track unique categories per file
 				for category := range result.ErrorCategories {
 					fileCategories[category] = true
@@ -314,11 +509,11 @@ func generateMarkdownReport(results []TestFileResult) error {
 			}
 		}
 
-		// Count files with errors
-		filesWithErrors := 0
+		// Count files with execution errors
+		filesWithExecutionErrors := 0
 		for _, result := range results {
-			if len(result.Errors) > 0 {
-				filesWithErrors++
+			if len(result.ExecutionErrors) > 0 {
+				filesWithExecutionErrors++
 			}
 		}
 
@@ -342,31 +537,43 @@ func generateMarkdownReport(results []TestFileResult) error {
 		}
 
 		for _, ec := range sortedCategories {
-			percentage := float64(ec.count) / float64(totalFailed) * 100
+			percentage := float64(ec.count) / float64(totalExecutionErrors) * 100
 			filesAffected := categoryFileCount[ec.category]
 			fmt.Fprintf(file, "| %s | %d | %d/%d | %.1f%% |\n",
-				ec.category, ec.count, filesAffected, filesWithErrors, percentage)
+				ec.category, ec.count, filesAffected, filesWithExecutionErrors, percentage)
 		}
 		fmt.Fprintf(file, "\n")
 	}
 
 	// Write detailed results table
 	fmt.Fprintf(file, "## Detailed Results\n\n")
-	fmt.Fprintf(file, "| File | Total | CREATE | INSERT | SELECT | DROP | Executed | Failed | Success Rate | Execution Time |\n")
-	fmt.Fprintf(file, "|------|-------|--------|--------|--------|------|----------|--------|--------------|----------------|\n")
+	fmt.Fprintf(file, "| File | Total | Parsed | Parse Errors | CREATE | INSERT | SELECT | DROP | Executed | Exec Errors | Parse Success | Exec Success | Total Time |\n")
+	fmt.Fprintf(file, "|------|-------|--------|--------------|--------|--------|--------|------|----------|-------------|---------------|--------------|------------|\n")
 
 	for _, result := range results {
-		fmt.Fprintf(file, "| [%s](../../generated_sql/%s) | %d | %d | %d | %d | %d | %d | %d | %.1f%% | %v |\n",
+		parseSuccessRate := 0.0
+		if result.TotalStatements > 0 {
+			parseSuccessRate = float64(result.ParsedCount) / float64(result.TotalStatements) * 100
+		}
+		execSuccessRate := 0.0
+		if result.ParsedCount > 0 {
+			execSuccessRate = float64(result.ExecutedCount) / float64(result.ParsedCount) * 100
+		}
+
+		fmt.Fprintf(file, "| [%s](../../generated_sql/%s) | %d | %d | %d | %d | %d | %d | %d | %d | %d | %.1f%% | %.1f%% | %v |\n",
 			result.Filename,
 			result.Filename,
 			result.TotalStatements,
+			result.ParsedCount,
+			len(result.ParseErrors),
 			result.CreateStatements,
 			result.InsertStatements,
 			result.SelectStatements,
 			result.DropStatements,
 			result.ExecutedCount,
-			result.FailedCount,
-			100-result.ErrorRate, // Show success rate instead of error rate
+			len(result.ExecutionErrors),
+			parseSuccessRate,
+			execSuccessRate,
 			result.ExecutionTime.Round(time.Millisecond),
 		)
 	}
@@ -374,31 +581,58 @@ func generateMarkdownReport(results []TestFileResult) error {
 	// Write error details with error codes
 	fmt.Fprintf(file, "\n## Error Details\n\n")
 	for _, result := range results {
-		if len(result.Errors) > 0 {
+		if len(result.ParseErrors) > 0 || len(result.ExecutionErrors) > 0 {
 			fmt.Fprintf(file, "### %s\n\n", result.Filename)
-			fmt.Fprintf(file, "**Error Rate**: %.1f%% (%d/%d failed)\n\n", result.ErrorRate, result.FailedCount, result.TotalStatements)
 
-			// Write error codes for this file
-			if len(result.ErrorCodes) > 0 {
-				fmt.Fprintf(file, "**Error Codes**:\n")
-				for code, count := range result.ErrorCodes {
-					fmt.Fprintf(file, "- `%s`: %d occurrences\n", code, count)
+			// Parse errors section
+			if len(result.ParseErrors) > 0 {
+				parseErrorRate := float64(len(result.ParseErrors)) / float64(result.TotalStatements) * 100
+				fmt.Fprintf(file, "**Parse Error Rate**: %.1f%% (%d/%d failed to parse)\n\n", parseErrorRate, len(result.ParseErrors), result.TotalStatements)
+
+				// Write parse error codes for this file
+				if len(result.ParseErrorCodes) > 0 {
+					fmt.Fprintf(file, "**Parse Error Types**:\n")
+					for errorType, count := range result.ParseErrorCodes {
+						fmt.Fprintf(file, "- `%s`: %d occurrences\n", errorType, count)
+					}
+					fmt.Fprintf(file, "\n")
+				}
+
+				fmt.Fprintf(file, "**Parse Errors**:\n")
+				for i, errMsg := range result.ParseErrors {
+					fmt.Fprintf(file, "%d. %s\n", i+1, errMsg)
 				}
 				fmt.Fprintf(file, "\n")
 			}
 
-			// Write error categories for this file
-			if len(result.ErrorCategories) > 0 {
-				fmt.Fprintf(file, "**Error Categories**:\n")
-				for category, count := range result.ErrorCategories {
-					fmt.Fprintf(file, "- `%s`: %d occurrences\n", category, count)
+			// Execution errors section
+			if len(result.ExecutionErrors) > 0 {
+				execErrorRate := 0.0
+				if result.ParsedCount > 0 {
+					execErrorRate = float64(len(result.ExecutionErrors)) / float64(result.ParsedCount) * 100
 				}
-				fmt.Fprintf(file, "\n")
-			}
+				fmt.Fprintf(file, "**Execution Error Rate**: %.1f%% (%d/%d parsed statements failed)\n\n", execErrorRate, len(result.ExecutionErrors), result.ParsedCount)
 
-			if len(result.Errors) > 0 {
-				fmt.Fprintf(file, "**Errors**:\n")
-				for i, errMsg := range result.Errors {
+				// Write error codes for this file
+				if len(result.ErrorCodes) > 0 {
+					fmt.Fprintf(file, "**Execution Error Codes**:\n")
+					for code, count := range result.ErrorCodes {
+						fmt.Fprintf(file, "- `%s`: %d occurrences\n", code, count)
+					}
+					fmt.Fprintf(file, "\n")
+				}
+
+				// Write error categories for this file
+				if len(result.ErrorCategories) > 0 {
+					fmt.Fprintf(file, "**Error Categories**:\n")
+					for category, count := range result.ErrorCategories {
+						fmt.Fprintf(file, "- `%s`: %d occurrences\n", category, count)
+					}
+					fmt.Fprintf(file, "\n")
+				}
+
+				fmt.Fprintf(file, "**Execution Errors**:\n")
+				for i, errMsg := range result.ExecutionErrors {
 					fmt.Fprintf(file, "%d. %s\n", i+1, errMsg)
 				}
 				fmt.Fprintf(file, "\n")
@@ -408,7 +642,51 @@ func generateMarkdownReport(results []TestFileResult) error {
 
 	// Write compatibility insights
 	fmt.Fprintf(file, "## Compatibility Insights\n\n")
-	fmt.Fprintf(file, "### Most Common Error Categories\n\n")
+
+	// Parse errors insights
+	if len(allParseErrorCodes) > 0 {
+		fmt.Fprintf(file, "### Most Common Parse Issues\n\n")
+
+		// Get top parse error types
+		type parseInsight struct {
+			errorType   string
+			count       int
+			percentage  float64
+			description string
+		}
+
+		var parseInsights []parseInsight
+		for errorType, count := range allParseErrorCodes {
+			percentage := float64(count) / float64(totalParseErrors) * 100
+			description := getParseErrorDescription(errorType)
+			parseInsights = append(parseInsights, parseInsight{errorType, count, percentage, description})
+		}
+
+		// Sort by count (descending)
+		for i := 0; i < len(parseInsights); i++ {
+			for j := i + 1; j < len(parseInsights); j++ {
+				if parseInsights[i].count < parseInsights[j].count {
+					parseInsights[i], parseInsights[j] = parseInsights[j], parseInsights[i]
+				}
+			}
+		}
+
+		// Show top 5
+		maxShow := 5
+		if len(parseInsights) < maxShow {
+			maxShow = len(parseInsights)
+		}
+
+		for i := 0; i < maxShow; i++ {
+			insight := parseInsights[i]
+			fmt.Fprintf(file, "1. **%s** (%.1f%% of parse errors)\n", insight.errorType, insight.percentage)
+			fmt.Fprintf(file, "   - %d occurrences across all files\n", insight.count)
+			fmt.Fprintf(file, "   - %s\n\n", insight.description)
+		}
+	}
+
+	// Execution errors insights
+	fmt.Fprintf(file, "### Most Common Execution Issues\n\n")
 
 	// Show top error categories with descriptions
 	if len(allErrorCategories) > 0 {
@@ -422,7 +700,7 @@ func generateMarkdownReport(results []TestFileResult) error {
 
 		var insights []categoryInsight
 		for category, count := range allErrorCategories {
-			percentage := float64(count) / float64(totalFailed) * 100
+			percentage := float64(count) / float64(totalExecutionErrors) * 100
 			description := getErrorCategoryDescription(category)
 			insights = append(insights, categoryInsight{category, count, percentage, description})
 		}
@@ -444,7 +722,7 @@ func generateMarkdownReport(results []TestFileResult) error {
 
 		for i := 0; i < maxShow; i++ {
 			insight := insights[i]
-			fmt.Fprintf(file, "1. **%s** (%.1f%% of all errors)\n", insight.category, insight.percentage)
+			fmt.Fprintf(file, "1. **%s** (%.1f%% of execution errors)\n", insight.category, insight.percentage)
 			fmt.Fprintf(file, "   - %d occurrences across all files\n", insight.count)
 			fmt.Fprintf(file, "   - %s\n\n", insight.description)
 		}
@@ -534,91 +812,6 @@ func getErrorCategoryDescription(category string) string {
 		return desc
 	}
 	return "No description available for this error category"
-}
-
-// analyzeCommonIssues finds common error patterns across all files
-func analyzeCommonIssues(results []TestFileResult) map[string]int {
-	issues := make(map[string]int)
-
-	for _, result := range results {
-		fileIssues := make(map[string]bool) // Track unique issues per file
-
-		for _, errMsg := range result.Errors {
-			switch {
-			case strings.Contains(errMsg, "CURRENT_TIMESTAMP"):
-				fileIssues["CURRENT_TIMESTAMP syntax"] = true
-			case strings.Contains(errMsg, "SQL SECURITY"):
-				fileIssues["Missing SQL SECURITY clause in views"] = true
-			case strings.Contains(errMsg, "GENERATE_UUID"):
-				fileIssues["GENERATE_UUID() compatibility"] = true
-			case strings.Contains(errMsg, "DEFAULT"):
-				fileIssues["DEFAULT value syntax"] = true
-			case strings.Contains(errMsg, "CONSTRAINT"):
-				fileIssues["CHECK constraints not supported"] = true
-			case strings.Contains(errMsg, "FOREIGN KEY"):
-				fileIssues["FOREIGN KEY constraints"] = true
-			case strings.Contains(errMsg, "IDENTITY"):
-				fileIssues["IDENTITY column issues"] = true
-			case strings.Contains(errMsg, "Table not found"):
-				fileIssues["Table dependency issues"] = true
-			}
-		}
-
-		// Count each unique issue once per file
-		for issue := range fileIssues {
-			issues[issue]++
-		}
-	}
-
-	return issues
-}
-
-func validateExecutionResult(t *testing.T, result *repo.ExecutionResult, filename string) {
-	// Report any errors without treating them as test failures
-	if len(result.Errors) > 0 {
-		t.Logf("Execution errors for %s:", filename)
-		for i, err := range result.Errors {
-			t.Logf("  Error %d: %v", i+1, err)
-		}
-
-		// Report error statistics but don't fail the test
-		errorRate := float64(len(result.Errors)) / float64(result.TotalStatements)
-		t.Logf("Error rate for %s: %d/%d statements failed (%.1f%%)",
-			filename, len(result.Errors), result.TotalStatements, errorRate*100)
-	}
-
-	// Report execution statistics
-	t.Logf("Execution summary for %s:", filename)
-	t.Logf("  Total statements: %d", result.TotalStatements)
-	t.Logf("  Successfully executed: %d", result.ExecutedCount)
-	t.Logf("  Failed: %d", len(result.Errors))
-
-	// Log successful inserts
-	successfulInserts := 0
-	for _, insert := range result.InsertedRecords {
-		if insert.Error == nil {
-			successfulInserts++
-			if insert.ID != nil {
-				t.Logf("  INSERT returned ID: %v", insert.ID)
-			}
-		}
-	}
-	if successfulInserts > 0 {
-		t.Logf("  Successful inserts: %d", successfulInserts)
-	}
-
-	// Log successful queries
-	successfulQueries := 0
-	totalRows := 0
-	for _, query := range result.QueryResults {
-		if query.Error == nil {
-			successfulQueries++
-			totalRows += query.RowCount
-		}
-	}
-	if successfulQueries > 0 {
-		t.Logf("  Successful queries: %d, Total rows returned: %d", successfulQueries, totalRows)
-	}
 }
 
 func testDataIntegrity(t *testing.T, dbT *SpannerDBTeardown, result *repo.ExecutionResult) {
@@ -825,4 +1018,23 @@ func categorizeInvalidArgumentError(errMsg string) string {
 	}
 
 	return "InvalidArgument: Other"
+}
+
+// getParseErrorDescription returns a human-readable description for memefish parse errors
+func getParseErrorDescription(errorType string) string {
+	descriptions := map[string]string{
+		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.)",
+		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns",
+		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected",
+		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax",
+		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar",
+		"Unsupported Feature":            "SQL features that are not supported by Spanner",
+		"Unknown Element":                "Unknown SQL elements or identifiers",
+		"Parse Error: Other":             "Other parsing errors not categorized above",
+	}
+
+	if desc, exists := descriptions[errorType]; exists {
+		return desc
+	}
+	return "No description available for this parse error type"
 }

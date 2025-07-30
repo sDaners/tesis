@@ -2,14 +2,14 @@
 -- Extracted from valid_spanner_sql.go
 
 -- Table Creation Statements
-CREATE TABLE IF NOT EXISTS departments (
+CREATE TABLE departments (
     dept_id STRING(36) DEFAULT (GENERATE_UUID()),
     dept_name STRING(50) NOT NULL,
     location STRING(100),
     created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP())
 ) PRIMARY KEY (dept_id);
 
-CREATE TABLE IF NOT EXISTS employees (
+CREATE TABLE employees (
     emp_id STRING(36) DEFAULT (GENERATE_UUID()),
     first_name STRING(50) NOT NULL,
     last_name STRING(50) NOT NULL,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS employees (
     CONSTRAINT fk_manager FOREIGN KEY (manager_id) REFERENCES employees(emp_id)
 ) PRIMARY KEY (emp_id);
 
-CREATE TABLE IF NOT EXISTS projects (
+CREATE TABLE projects (
     project_id STRING(36) DEFAULT (GENERATE_UUID()),
     project_name STRING(100) NOT NULL,
     start_date TIMESTAMP,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS projects (
     CONSTRAINT check_status CHECK (status IN ('ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED'))
 ) PRIMARY KEY (project_id);
 
-CREATE TABLE IF NOT EXISTS project_assignments (
+CREATE TABLE project_assignments (
     emp_id STRING(36) NOT NULL,
     project_id STRING(36) NOT NULL,
     role STRING(50),

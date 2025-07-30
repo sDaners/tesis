@@ -1,0 +1,1 @@
+Para cada tipo de statement ejecutar tests que verifiquen su correcto funcionamiento (si no hubo error sql) (Test de correctitud) 
