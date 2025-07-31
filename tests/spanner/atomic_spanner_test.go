@@ -14,6 +14,8 @@ import (
 
 	"github.com/cloudspannerecosystem/memefish"
 	"github.com/stretchr/testify/assert"
+
+	"postgres-example/models"
 )
 
 // Global statement cache: Map[fileName][statementType] = []string
@@ -102,38 +104,6 @@ func determineStatementType(filename string, stmt string) string {
 	}
 
 	return getAtomicStatementType(stmt)
-}
-
-// AtomicStatementResult holds the results for a single SQL statement test
-type AtomicStatementResult struct {
-	Filename      string
-	StatementNum  int
-	Statement     string
-	StatementType string
-	ParseSuccess  bool
-	ParseError    string
-	ExecSuccess   bool
-	ExecError     string
-	ExecutionTime time.Duration
-}
-
-// AtomicFileResult aggregates results for all statements in a file
-type AtomicFileResult struct {
-	Filename         string
-	TotalStatements  int
-	ParsedCount      int
-	ExecutedCount    int
-	StatementResults []AtomicStatementResult
-}
-
-// AtomicTestSummary holds overall atomic test results
-type AtomicTestSummary struct {
-	TotalFiles      int
-	TotalStatements int
-	ParsedCount     int
-	ExecutedCount   int
-	FileResults     []AtomicFileResult
-	ExecutionTime   time.Duration
 }
 
 // Valid Spanner schema setup - hardcoded from valid_spanner_database.sql
@@ -313,7 +283,7 @@ func testAtomicStatementsByType(t *testing.T, statementType string) {
 
 	fmt.Printf("Testing cached statements for %s type atomically\n", statementType)
 
-	summary := AtomicTestSummary{
+	summary := models.AtomicTestSummary{
 		TotalFiles: 0, // Will count files that have this statement type
 	}
 
@@ -338,6 +308,15 @@ func testAtomicStatementsByType(t *testing.T, statementType string) {
 		t.Logf("Warning: Failed to generate atomic report for %s: %v", statementType, err)
 	} else {
 		t.Logf("Generated atomic report for %s: atomic_%s_results.md", statementType, strings.ToLower(statementType))
+	}
+
+	// Generate Allure report for this statement type
+	allureOutputDir := fmt.Sprintf("allure-results-%s", strings.ToLower(statementType))
+	allureReporter := tools.NewAllureReporter(allureOutputDir)
+	if err := allureReporter.GenerateAtomicAllureReport(summary); err != nil {
+		t.Logf("Warning: Failed to generate Allure report for %s: %v", statementType, err)
+	} else {
+		t.Logf("Generated Allure reports for %s in: %s/", statementType, allureOutputDir)
 	}
 
 	// Log summary
@@ -370,9 +349,9 @@ func testAtomicStatementsByType(t *testing.T, statementType string) {
 	assert.True(t, true, "TestAtomicSQLStatements")
 }
 
-func testAtomicSQLFile(t *testing.T, sqlFile string) AtomicFileResult {
+func testAtomicSQLFile(t *testing.T, sqlFile string) models.AtomicFileResult {
 	filename := filepath.Base(sqlFile)
-	result := AtomicFileResult{
+	result := models.AtomicFileResult{
 		Filename: filename,
 	}
 
@@ -421,8 +400,8 @@ func testAtomicSQLFile(t *testing.T, sqlFile string) AtomicFileResult {
 }
 
 // testAtomicSQLFileByTypeFromCache tests statements from the cache for a specific type
-func testAtomicSQLFileByTypeFromCache(t *testing.T, filename string, statementType string, statements []StatementInfo) AtomicFileResult {
-	result := AtomicFileResult{
+func testAtomicSQLFileByTypeFromCache(t *testing.T, filename string, statementType string, statements []StatementInfo) models.AtomicFileResult {
+	result := models.AtomicFileResult{
 		Filename: filename,
 	}
 
@@ -443,8 +422,8 @@ func testAtomicSQLFileByTypeFromCache(t *testing.T, filename string, statementTy
 }
 
 // testCreateStatementsSequentially tests CREATE statements in sequence, building upon each other
-func testCreateStatementsSequentially(t *testing.T, filename string, statements []StatementInfo) AtomicFileResult {
-	result := AtomicFileResult{
+func testCreateStatementsSequentially(t *testing.T, filename string, statements []StatementInfo) models.AtomicFileResult {
+	result := models.AtomicFileResult{
 		Filename:        filename,
 		TotalStatements: len(statements),
 	}
@@ -479,8 +458,8 @@ func testCreateStatementsSequentially(t *testing.T, filename string, statements 
 }
 
 // testStatementsAtomically tests non-CREATE statements with full atomic isolation
-func testStatementsAtomically(t *testing.T, filename string, statementType string, statements []StatementInfo) AtomicFileResult {
-	result := AtomicFileResult{
+func testStatementsAtomically(t *testing.T, filename string, statementType string, statements []StatementInfo) models.AtomicFileResult {
+	result := models.AtomicFileResult{
 		Filename:        filename,
 		TotalStatements: len(statements),
 	}
@@ -512,10 +491,10 @@ func testStatementsAtomically(t *testing.T, filename string, statementType strin
 }
 
 // testSingleCreateStatement tests a single CREATE statement without schema setup/cleanup
-func testSingleCreateStatement(t *testing.T, dbT *AtomicSpannerDBTeardown, filename string, stmtNum int, stmt string) AtomicStatementResult {
+func testSingleCreateStatement(t *testing.T, dbT *AtomicSpannerDBTeardown, filename string, stmtNum int, stmt string) models.AtomicStatementResult {
 	start := time.Now()
 
-	result := AtomicStatementResult{
+	result := models.AtomicStatementResult{
 		Filename:     filename,
 		StatementNum: stmtNum,
 		Statement:    strings.TrimSpace(stmt),
@@ -625,10 +604,10 @@ func isCommentOnlyStatement(stmt string) bool {
 	return true
 }
 
-func testAtomicSingleStatement(t *testing.T, dbT *AtomicSpannerDBTeardown, filename string, stmtNum int, stmt string) AtomicStatementResult {
+func testAtomicSingleStatement(t *testing.T, dbT *AtomicSpannerDBTeardown, filename string, stmtNum int, stmt string) models.AtomicStatementResult {
 	start := time.Now()
 
-	result := AtomicStatementResult{
+	result := models.AtomicStatementResult{
 		Filename:     filename,
 		StatementNum: stmtNum,
 		Statement:    strings.TrimSpace(stmt),
@@ -722,7 +701,7 @@ func getAtomicStatementType(originalStmt string) string {
 }
 
 // generateAtomicReport creates a markdown file with atomic test results
-func generateAtomicReport(summary AtomicTestSummary) error {
+func generateAtomicReport(summary models.AtomicTestSummary) error {
 	filename := "atomic_statement_results.md"
 	file, err := os.Create(filename)
 	if err != nil {
@@ -862,7 +841,7 @@ func generateAtomicReport(summary AtomicTestSummary) error {
 }
 
 // generateAtomicReportByType creates a markdown file with atomic test results for a specific statement type
-func generateAtomicReportByType(summary AtomicTestSummary, statementType string) error {
+func generateAtomicReportByType(summary models.AtomicTestSummary, statementType string) error {
 	filename := fmt.Sprintf("atomic_%s_results.md", strings.ToLower(statementType))
 	file, err := os.Create(filename)
 	if err != nil {

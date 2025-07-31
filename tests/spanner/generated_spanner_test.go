@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"postgres-example/models"
 	"postgres-example/repo"
 	"postgres-example/tools"
 
@@ -16,37 +17,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-// TestFileResult holds the results for a single SQL file test
-type TestFileResult struct {
-	Filename        string
-	TotalStatements int
-	// Parsing results
-	ParsedCount     int
-	ParseErrors     []string
-	ParseErrorCodes map[string]int // error_type -> count
-	// Statement type counts (from parsing)
-	CreateStatements int
-	InsertStatements int
-	SelectStatements int
-	DropStatements   int
-	// Execution results
-	ExecutedCount   int
-	FailedCount     int
-	ErrorRate       float64
-	ExecutionTime   time.Duration
-	ExecutionErrors []string
-	ErrorCodes      map[string]int // error_code -> count
-	ErrorCategories map[string]int // detailed_category -> count
-}
-
-// ParseResult holds the result of parsing a single statement
-type ParseResult struct {
-	Statement string
-	Parsed    bool
-	Error     error
-	Type      string // CREATE, INSERT, SELECT, DROP, etc.
-}
 
 type SpannerDBTeardown struct {
 	db        *sql.DB
@@ -91,7 +61,7 @@ func TestGeneratedSQLFiles(t *testing.T) {
 		}
 
 		// Collect results for markdown report
-		var results []TestFileResult
+		var results []models.TestFileResult
 
 		for _, sqlFile := range sqlFiles {
 			t.Run(filepath.Base(sqlFile), func(t *testing.T) {
@@ -107,8 +77,16 @@ func TestGeneratedSQLFiles(t *testing.T) {
 			t.Logf("Generated markdown report: sql_test_results.md")
 		}
 
+		// Generate Allure report
+		allureReporter := tools.NewAllureReporter("allure-results")
+		if err := allureReporter.GenerateAllureReport(results); err != nil {
+			t.Logf("Warning: Failed to generate Allure report: %v", err)
+		} else {
+			t.Logf("Generated Allure reports in: allure-results/")
+		}
+
 		// Test results for valid_spanner_database.sql should be 100%
-		var validSpannerDatabaseResult TestFileResult
+		var validSpannerDatabaseResult models.TestFileResult
 
 		for _, result := range results {
 			if result.Filename == "valid_spanner_database.sql" {
@@ -131,11 +109,11 @@ func TestGeneratedSQLFiles(t *testing.T) {
 	})
 }
 
-func testSQLFileWithParsing(t *testing.T, sqlFile string) TestFileResult {
+func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult {
 	start := time.Now()
 	filename := filepath.Base(sqlFile)
 
-	result := TestFileResult{
+	result := models.TestFileResult{
 		Filename:        filename,
 		ParseErrorCodes: make(map[string]int),
 		ErrorCodes:      make(map[string]int),
@@ -280,11 +258,11 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) TestFileResult {
 }
 
 // parseStatementsWithMemefish parses each statement using memefish
-func parseStatementsWithMemefish(statements []string, filename string) []ParseResult {
-	var results []ParseResult
+func parseStatementsWithMemefish(statements []string, filename string) []models.ParseResult {
+	var results []models.ParseResult
 
 	for _, stmt := range statements {
-		result := ParseResult{
+		result := models.ParseResult{
 			Statement: stmt,
 		}
 
@@ -386,7 +364,7 @@ func extractSpannerErrorCode(errMsg string) string {
 }
 
 // generateMarkdownReport creates a markdown file with test results
-func generateMarkdownReport(results []TestFileResult) error {
+func generateMarkdownReport(results []models.TestFileResult) error {
 	filename := "sql_test_results.md"
 	file, err := os.Create(filename)
 	if err != nil {
