@@ -4,14 +4,21 @@ import (
 	"time"
 )
 
+// ParseError holds detailed information about a parse error
+type ParseError struct {
+	Statement string
+	Error     string
+}
+
 // TestFileResult holds the results for a single SQL file test
 type TestFileResult struct {
 	Filename        string
 	TotalStatements int
 	// Parsing results
-	ParsedCount     int
-	ParseErrors     []string
-	ParseErrorCodes map[string]int // error_type -> count
+	ParsedCount       int
+	ParseErrors       []string       // Deprecated: use ParseErrorDetails instead
+	ParseErrorDetails []ParseError   // Detailed parse errors with statements
+	ParseErrorCodes   map[string]int // error_type -> count
 	// Statement type counts (from parsing)
 	CreateStatements int
 	InsertStatements int

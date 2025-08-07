@@ -103,7 +103,6 @@ func TestGeneratedSQLFiles(t *testing.T) {
 		assert.Zero(t, validSpannerDatabaseResult.ErrorRate)
 		assert.Zero(t, validSpannerDatabaseResult.FailedCount)
 		assert.Empty(t, validSpannerDatabaseResult.ParseErrors)
-		assert.Empty(t, validSpannerDatabaseResult.ExecutionErrors)
 		assert.Empty(t, validSpannerDatabaseResult.ErrorCodes)
 		assert.Empty(t, validSpannerDatabaseResult.ErrorCategories)
 	})
@@ -152,6 +151,12 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 		} else {
 			errMsg := pr.Error.Error()
 			result.ParseErrors = append(result.ParseErrors, errMsg)
+
+			// Add detailed parse error with statement
+			result.ParseErrorDetails = append(result.ParseErrorDetails, models.ParseError{
+				Statement: pr.Statement,
+				Error:     errMsg,
+			})
 
 			// Categorize parsing errors
 			errorType := categorizeMemefishError(errMsg)
@@ -603,10 +608,23 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 				}
 
 				fmt.Fprintf(file, "**Parse Errors**:\n")
-				for i, errMsg := range result.ParseErrors {
-					fmt.Fprintf(file, "%d. %s\n", i+1, errMsg)
+				if len(result.ParseErrorDetails) > 0 {
+					// Use detailed parse errors if available
+					for _, parseErr := range result.ParseErrorDetails {
+						fmt.Fprintf(file, "- %s\n", parseErr.Error)
+						// Truncate long statements for readability, showing first and last parts
+						stmt := parseErr.Statement
+						if len(stmt) > 200 {
+							stmt = stmt[:100] + "..." + stmt[len(stmt)-100:]
+						}
+						fmt.Fprintf(file, "  Statement: `%s`\n\n", stmt)
+					}
+				} else {
+					// Fallback to legacy parse errors for backward compatibility
+					for _, errMsg := range result.ParseErrors {
+						fmt.Fprintf(file, "- %s\n", errMsg)
+					}
 				}
-				fmt.Fprintf(file, "\n")
 			}
 
 			// Execution errors section
