@@ -81,12 +81,12 @@ LEFT JOIN employees m ON e.manager_id = m.emp_id
 LEFT JOIN project_assignments pa ON e.emp_id = pa.emp_id
 LEFT JOIN projects p ON pa.project_id = p.project_id;
 
-DROP VIEW IF EXISTS employee_details;
-DROP INDEX IF EXISTS idx_project_status;
-DROP INDEX IF EXISTS idx_dept_location;
-DROP INDEX IF EXISTS idx_emp_name;
-DROP INDEX IF EXISTS idx_emp_email;
-DROP TABLE IF EXISTS project_assignments;
-DROP TABLE IF EXISTS projects;
-DROP TABLE IF EXISTS employees;
-DROP TABLE IF EXISTS departments;
+DROP VIEW  employee_details;
+DROP INDEX  idx_project_status;
+DROP INDEX  idx_dept_location;
+DROP INDEX  idx_emp_name;
+DROP INDEX  idx_emp_email;
+DROP TABLE  project_assignments;
+DROP TABLE  projects;
+DROP TABLE  employees;
+DROP TABLE  departments;

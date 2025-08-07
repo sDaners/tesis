@@ -102,11 +102,11 @@ LEFT JOIN projects p ON pa.project_id = p.project_id;
 
 -- Cleanup Statements (Execute in this order to respect dependencies)
 DROP VIEW employee_details;
-DROP INDEX IF EXISTS idx_project_status;
-DROP INDEX IF EXISTS idx_dept_location;
-DROP INDEX IF EXISTS idx_emp_name;
-DROP INDEX IF EXISTS idx_emp_email;
-DROP TABLE IF EXISTS project_assignments;
-DROP TABLE IF EXISTS projects;
-DROP TABLE IF EXISTS employees;
-DROP TABLE IF EXISTS departments; 
+DROP INDEX  idx_project_status;
+DROP INDEX  idx_dept_location;
+DROP INDEX  idx_emp_name;
+DROP INDEX  idx_emp_email;
+DROP TABLE  project_assignments;
+DROP TABLE  projects;
+DROP TABLE  employees;
+DROP TABLE  departments; 

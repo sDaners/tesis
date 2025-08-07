@@ -37,7 +37,7 @@ CREATE TABLE projects (
 -- 
 -- FOREIGN KEYS (without INTERLEAVE, but even those are more for locality than strict FK enforcement)
 -- 
--- IF NOT EXISTS or DROP IF EXISTS
+-- IF NOT EXISTS or DROP 
 -- 
 -- So we simulate them with comments or in application logic:
 

@@ -1,4 +1,5 @@
-We need to translate the following PostgreSQL code to work with a new Spanner database running on GoogleSQL. Constraints, foreign keys and self generated primary keys need to be kept. ALL code must be translated
+We need to translate the following PostgreSQL code to work with a new Spanner database running on GoogleSQL. 
+Constraints, foreign keys and self generated primary keys need to be kept. ALL code must be translated
 
 CREATE TABLE IF NOT EXISTS departments (
     dept_id SERIAL PRIMARY KEY,

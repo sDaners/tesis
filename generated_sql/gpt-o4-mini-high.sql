@@ -109,12 +109,12 @@ LEFT JOIN Projects            AS p  ON pa.project_id= p.project_id;
 
 DROP VIEW employee_details;
 
-DROP INDEX IF EXISTS idx_project_status;
-DROP INDEX IF EXISTS idx_dept_location;
-DROP INDEX IF EXISTS idx_emp_name;
-DROP INDEX IF EXISTS idx_emp_email;
+DROP INDEX  idx_project_status;
+DROP INDEX  idx_dept_location;
+DROP INDEX  idx_emp_name;
+DROP INDEX  idx_emp_email;
 
-DROP TABLE IF EXISTS ProjectAssignments;
-DROP TABLE IF EXISTS Projects;
-DROP TABLE IF EXISTS Employees;
-DROP TABLE IF EXISTS Departments;
+DROP TABLE  ProjectAssignments;
+DROP TABLE  Projects;
+DROP TABLE  Employees;
+DROP TABLE  Departments;

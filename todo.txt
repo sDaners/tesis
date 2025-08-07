@@ -1,1 +1,3 @@
-Para cada tipo de statement ejecutar tests que verifiquen su correcto funcionamiento (si no hubo error sql) (Test de correctitud) 
+Ideas:
+- Hacer esto tipo "tool". Pasarle codigo sql y que lo pueda evaluar
+- Corregir a mano la syntaxis del sql generado para ver errores de ejecucion
