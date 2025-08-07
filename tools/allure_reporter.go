@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"postgres-example/models"
+	"sql-parser/models"
 
 	"github.com/google/uuid"
 )

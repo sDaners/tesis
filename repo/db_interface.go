@@ -1,6 +1,6 @@
 package repo
 
-import "postgres-example/models"
+import "sql-parser/models"
 
 // Database defines the interface for database operations.
 type Database interface {

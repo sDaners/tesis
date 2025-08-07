@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"time"
 
-	"postgres-example/models"
+	"sql-parser/models"
 
 	"github.com/georgysavva/scany/v2/sqlscan"
 )

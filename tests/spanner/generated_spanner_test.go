@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	"postgres-example/models"
-	"postgres-example/repo"
-	"postgres-example/tools"
+	"sql-parser/models"
+	"sql-parser/repo"
+	"sql-parser/tools"
 
 	"github.com/cloudspannerecosystem/memefish"
 	"github.com/stretchr/testify/assert"

@@ -1,4 +1,4 @@
-module postgres-example
+module sql-parser
 
 go 1.24
 
@@ -10,11 +10,10 @@ require (
 	github.com/docker/docker v28.1.1+incompatible
 	github.com/docker/go-connections v0.5.0
 	github.com/georgysavva/scany/v2 v2.1.0
+	github.com/google/uuid v1.6.0
 	github.com/googleapis/go-sql-spanner v1.13.2
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/moby/moby v28.1.1+incompatible
-	github.com/ozontech/allure-go/pkg/allure v0.6.3
-	github.com/ozontech/allure-go/pkg/framework v0.6.17
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.37.0
 )
@@ -53,7 +52,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/google/s2a-go v0.1.9 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.6 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.2 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect

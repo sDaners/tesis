@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"testing"
 
-	"postgres-example/repo"
-	"postgres-example/tools"
+	"sql-parser/repo"
+	"sql-parser/tools"
 )
 
 type DBTeardown struct {
