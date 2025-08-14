@@ -156,18 +156,18 @@ func CategorizeInvalidArgumentError(errMsg string) string {
 // GetErrorCodeDescription maps Spanner error codes to readable descriptions.
 func GetErrorCodeDescription(code string) string {
 	descriptions := map[string]string{
-		"InvalidArgument":    "Invalid SQL syntax or unsupported features",
-		"NotFound":           "Referenced table, column, or object not found",
-		"FailedPrecondition": "Constraint violations or prerequisite not met",
-		"AlreadyExists":      "Object already exists (duplicate creation)",
-		"PermissionDenied":   "Insufficient permissions for operation",
-		"Unimplemented":      "Feature not implemented in Spanner",
-		"Internal":           "Internal Spanner error",
-		"Unavailable":        "Service temporarily unavailable",
-		"DeadlineExceeded":   "Operation timeout",
-		"ResourceExhausted":  "Resource limits exceeded",
-		"Cancelled":          "Operation was cancelled",
-		"Unknown":            "Unknown error occurred",
+		"InvalidArgument":    "Invalid SQL syntax or unsupported features. FIX: Check for Spanner-specific syntax requirements (e.g., CURRENT_TIMESTAMP vs CURRENT_TIMESTAMP(), required clauses in views)",
+		"NotFound":           "Referenced table, column, or object not found. FIX: Ensure all tables/columns exist before referencing them, or create them first in dependency order",
+		"FailedPrecondition": "Constraint violations or prerequisite not met. FIX: Check for NOT NULL constraints, foreign key violations, or missing required data",
+		"AlreadyExists":      "Object already exists (duplicate creation). FIX: Use CREATE OR REPLACE, or check if object exists before creating",
+		"PermissionDenied":   "Insufficient permissions for operation. FIX: Verify user has required permissions for the database operation",
+		"Unimplemented":      "Feature not implemented in Spanner. FIX: Use alternative Spanner-supported syntax or features",
+		"Internal":           "Internal Spanner error. FIX: Retry the operation or contact support",
+		"Unavailable":        "Service temporarily unavailable. FIX: Implement retry logic with exponential backoff",
+		"DeadlineExceeded":   "Operation timeout. FIX: Optimize query performance or increase timeout settings",
+		"ResourceExhausted":  "Resource limits exceeded. FIX: Reduce query complexity, add pagination, or increase quotas",
+		"Cancelled":          "Operation was cancelled. FIX: Check for client-side cancellation or timeouts",
+		"Unknown":            "Unknown error occurred. FIX: Check error details for more specific information",
 	}
 	if desc, ok := descriptions[code]; ok {
 		return desc
@@ -178,30 +178,29 @@ func GetErrorCodeDescription(code string) string {
 // GetErrorCategoryDescription maps derived error categories to readable descriptions.
 func GetErrorCategoryDescription(category string) string {
 	descriptions := map[string]string{
-		"Syntax Error: CURRENT_TIMESTAMP":           "CURRENT_TIMESTAMP() function call syntax not supported in Spanner",
-		"Syntax Error: Missing Parentheses":         "SQL statement missing required opening parentheses",
-		"Syntax Error: Missing Closing Parentheses": "SQL statement missing required closing parentheses",
-		"Syntax Error: General":                     "General SQL syntax errors not matching specific patterns",
-		"Type Mismatch: GENERATE_UUID on INT64":     "GENERATE_UUID() function used on INT64 columns instead of STRING",
-		"Type Mismatch: General":                    "Data type mismatches between expected and provided types",
-		"Unsupported Feature: Sequence Kind":        "Identity column sequence kind not specified or unsupported",
-		"Unsupported Feature: General":              "General Spanner unsupported features",
-		"Missing Clause: SQL SECURITY":              "VIEW definitions missing required SQL SECURITY clause",
-		"Missing Clause: General":                   "SQL statements missing required clauses",
-		"Function Not Found: NEXTVAL":               "NEXTVAL() function not available in Spanner",
-		"Function Not Found: General":               "SQL functions not available in Spanner",
-		"Identity Column: Missing Sequence Kind":    "Identity columns require explicit sequence kind specification",
-		"Table Not Found (InvalidArgument)":         "Table references that result in InvalidArgument rather than NotFound",
-		"Foreign Key: Syntax Error":                 "Foreign key constraint syntax errors",
-		"Default Value: Parsing Error":              "Default value expressions that cannot be parsed",
-		"Constraint: Unsupported":                   "CHECK constraints and other constraint types not supported",
-		"View Definition: Error":                    "Errors in view definition syntax or structure",
-		"NotFound":                                  "Referenced objects (tables, columns, etc.) not found",
-		"FailedPrecondition":                        "Constraint violations or prerequisites not met",
-		"AlreadyExists":                             "Attempting to create objects that already exist",
-		"PermissionDenied":                          "Insufficient permissions for the operation",
-		"Unimplemented":                             "Features not yet implemented in Spanner",
-		"InvalidArgument: Other":                    "InvalidArgument errors not matching specific patterns",
+		"Syntax Error: CURRENT_TIMESTAMP":           "Spanner requires DEFAULT values to be between parentheses. FIX: Use (CURRENT_TIMESTAMP()) for timestamp defaults",
+		"Syntax Error: Missing Parentheses":         "SQL statement missing required opening parentheses. FIX: Add missing '(' where expected by parser",
+		"Syntax Error: Missing Closing Parentheses": "SQL statement missing required closing parentheses. FIX: Add missing ')' to complete statement",
+		"Syntax Error: General":                     "General SQL syntax errors not matching specific patterns. FIX: Check statement structure against Spanner SQL reference",
+		"Type Mismatch: GENERATE_UUID on INT64":     "Spanner requires DEFAULT values to be between parentheses. FIX: Use (GENERATE_UUID()) for UUID columns",
+		"Type Mismatch: General":                    "Data type mismatches between expected and provided types. FIX: Verify column types match inserted/compared values",
+		"Unsupported Feature: Sequence Kind":        "The sequence was not properly defined. FIX: Sequence types should be avoided, use GENERATE_UUID() for primary keys",
+		"Unsupported Feature: General":              "General Spanner unsupported features. FIX: Replace with Spanner-compatible alternatives",
+		"Missing Clause: SQL SECURITY":              "VIEW definitions missing required SQL SECURITY clause. FIX: Add 'SQL SECURITY INVOKER' clause to view definition",
+		"Missing Clause: General":                   "SQL statements missing required clauses. FIX: Add required clauses per Spanner SQL syntax",
+		"Function Not Found: NEXTVAL":               "NEXTVAL() function not available in Spanner. FIX: Use GENERATE_UUID() for unique values or application-generated sequences",
+		"Function Not Found: General":               "SQL functions not available in Spanner. FIX: Check Spanner function reference for supported alternatives",
+		"Identity Column: Missing Sequence Kind":    "Identity columns require explicit sequence kind specification. FIX: Sequence types should be avoided, use GENERATE_UUID() for primary keys",
+		"Table Not Found (InvalidArgument)":         "Table references that result in InvalidArgument rather than NotFound. FIX: There is likely a error creating the referenced table, so ignore this error",
+		"Foreign Key: Syntax Error":                 "Foreign key constraint syntax errors. FIX: Use CONSTRAINT name FOREIGN KEY (col) REFERENCES table(col) syntax",
+		"Default Value: Parsing Error":              "Default value expressions that cannot be parsed. FIX: Use simple literals or supported functions like CURRENT_TIMESTAMP",
+		"View Definition: Error":                    "Errors in view definition syntax or structure. FIX: Ensure view uses SELECT statement and includes SQL SECURITY clause",
+		"NotFound":                                  "Referenced objects (tables, columns, etc.) not found. FIX: There is likely a error creating the referenced table, so ignore this error",
+		"FailedPrecondition":                        "Constraint violations or prerequisites not met. FIX: Ensure data meets NOT NULL, foreign key, and other constraints",
+		"AlreadyExists":                             "Attempting to create objects that already exist. FIX: Use CREATE OR REPLACE or check existence first",
+		"PermissionDenied":                          "Insufficient permissions for the operation. FIX: Grant necessary permissions or use appropriate service account",
+		"Unimplemented":                             "Features not yet implemented in Spanner. FIX: Check Spanner roadmap or use alternative approaches",
+		"InvalidArgument: Other":                    "InvalidArgument errors not matching specific patterns. FIX: Review error message details for specific syntax issues",
 	}
 	if desc, ok := descriptions[category]; ok {
 		return desc
@@ -212,17 +211,121 @@ func GetErrorCategoryDescription(category string) string {
 // GetParseErrorDescription maps memefish parse error types to readable descriptions.
 func GetParseErrorDescription(errorType string) string {
 	descriptions := map[string]string{
-		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.)",
-		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns",
-		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected",
-		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax",
-		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar",
-		"Unsupported Feature":            "SQL features that are not supported by Spanner",
-		"Unknown Element":                "Unknown SQL elements or identifiers",
-		"Parse Error: Other":             "Other parsing errors not categorized above",
+		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.). FIX: Add missing syntax elements as indicated by parser",
+		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns. FIX: Review statement structure, check for typos and syntax compliance with Spanner SQL",
+		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected. FIX: Remove or relocate unexpected elements to correct positions",
+		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax. FIX: Add required keywords, punctuation, or identifiers where expected",
+		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar. FIX: Rewrite using valid Spanner SQL syntax patterns",
+		"Unsupported Feature":            "SQL features that are not supported by Spanner. FIX: Replace with Spanner-compatible alternatives (e.g., use ARRAY instead of arrays)",
+		"Unknown Element":                "Unknown SQL elements or identifiers. FIX: Check spelling of keywords, functions, and identifiers against Spanner documentation",
+		"Parse Error: Other":             "Other parsing errors not categorized above. FIX: Review error message for specific guidance",
 	}
 	if desc, ok := descriptions[errorType]; ok {
 		return desc
 	}
 	return "No description available for this parse error type"
+}
+
+// GetAIRecommendations generates AI-specific recommendations based on error patterns
+func GetAIRecommendations(fr models.TestFileResult) []string {
+	var recommendations []string
+
+	// Parse error recommendations
+	if len(fr.ParseErrors) > 0 {
+		recommendations = append(recommendations, "PARSE ERROR PATTERNS DETECTED:")
+
+		if fr.ParseErrorCodes["Syntax Error: General"] > 0 {
+			recommendations = append(recommendations,
+				"• Multiple syntax errors found. Common issues:",
+				"  - CURRENT_TIMESTAMP() should be (CURRENT_TIMESTAMP()). Default values must be between parentheses",
+				"  - Views require 'SQL SECURITY INVOKER' clause after the table name",
+				"  - RETURNING should be replaced with 'THEN RETURN'",
+			)
+		}
+
+		if fr.ParseErrorCodes["Syntax Error: Expected Token"] > 0 || fr.ParseErrorCodes["Syntax Error: Missing Token"] > 0 {
+			recommendations = append(recommendations,
+				"• Missing or unexpected tokens detected:",
+				"  - Check parentheses, commas, and keyword placement",
+				"  - Ensure proper statement termination with semicolons",
+				"  - Verify correct positioning of PRIMARY KEY constraints")
+		}
+	}
+
+	// Execution error recommendations
+	if len(fr.ExecutionErrors) > 0 {
+		recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+
+		if fr.ErrorCodes["NotFound"] > 0 {
+			recommendations = append(recommendations,
+				"• Table/column not found errors:",
+				"  - The table may not be found because it's creation failed earlier, in that case ignore this error",
+				"  - Create tables in dependency order (referenced tables first)",
+				"  - Verify table and column names match exactly",
+				"  - Check for typos in table/column references")
+		}
+
+		if fr.ErrorCodes["FailedPrecondition"] > 0 {
+			recommendations = append(recommendations,
+				"• Constraint violation errors:",
+				"  - Ensure primary keys are auto generated. Example: `key STRING(36) DEFAULT (GENERATE_UUID())`",
+				"  - Ensure NOT NULL columns have values in INSERT statements",
+				"  - Verify foreign key relationships exist before inserting",
+				"  - Check data types match column definitions")
+		}
+
+		if fr.ErrorCodes["InvalidArgument"] > 0 {
+			recommendations = append(recommendations,
+				"• Invalid argument errors (often syntax-related):",
+				"  - Use Spanner-specific SQL syntax and functions",
+				"  - Replace unsupported features with Spanner alternatives",
+				"  - Check function signatures and parameter types")
+		}
+
+		if fr.ErrorCategories["Table Not Found (InvalidArgument)"] > 0 {
+			recommendations = append(recommendations,
+				"• Table references causing InvalidArgument:",
+				"  - The table may not be found because it's creation failed earlier, in that case ignore this error",
+				"  - This usually indicates table creation failed earlier",
+				"  - Fix table creation statements first, then retry queries")
+		}
+	}
+
+	// Success rate recommendations
+	if fr.TotalStatements > 0 {
+		parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100
+		execRate := 0.0
+		if fr.ParsedCount > 0 {
+			execRate = float64(fr.ExecutedCount) / float64(fr.ParsedCount) * 100
+		}
+
+		if parseRate < 90 {
+			recommendations = append(recommendations, "PARSE SUCCESS RATE IS LOW (<90%):")
+			recommendations = append(recommendations,
+				"• Focus on Spanner SQL syntax compliance",
+				"• Remove unsupported SQL features (CHECK constraints, identity columns)",
+				"• Use Spanner-specific function syntax (CURRENT_TIMESTAMP(), GENERATE_UUID())",
+				"• Add required clauses (SQL SECURITY for views)")
+		}
+
+		if execRate < 90 && execRate > 0 {
+			recommendations = append(recommendations, "EXECUTION SUCCESS RATE IS LOW (<90%):")
+			recommendations = append(recommendations,
+				"• Ensure proper statement ordering (CREATE before INSERT/SELECT)",
+				"• Validate data integrity (NOT NULL, foreign keys)",
+				"• Use supported data types and constraints")
+		}
+	}
+
+	// Spanner-specific best practices
+	recommendations = append(recommendations, "SPANNER SQL BEST PRACTICES FOR AI AGENTS:")
+	recommendations = append(recommendations,
+		"• Use GENERATE_UUID() for primary keys instead of auto-increment",
+		"• Create tables before referencing them in foreign keys or queries",
+		"• Use STRING(36) with generated UUIDs for primary keys",
+		"• Include SQL SECURITY INVOKER in all view definitions",
+		"• Use ARRAY<TYPE> for array columns, not array syntax from other databases",
+	)
+
+	return recommendations
 }

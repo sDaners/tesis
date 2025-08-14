@@ -230,4 +230,18 @@ func printTerminalReport(fr models.TestFileResult) {
 			fmt.Printf("%d. %s\n", i+1, e)
 		}
 	}
+
+	// Add AI-specific recommendations
+	recommendations := tools.GetAIRecommendations(fr)
+	if len(recommendations) > 0 {
+		fmt.Println()
+		fmt.Println("=== AI AGENT RECOMMENDATIONS ===")
+		fmt.Println("ALWAYS: The response to this message should be a the entire sql code with fixes applied to it.")
+		for _, rec := range recommendations {
+			fmt.Println(rec)
+		}
+		fmt.Println()
+		fmt.Println("TIP: Focus on fixing parse errors first, as they prevent execution.")
+		fmt.Println("TIP: Refer to Spanner SQL documentation for supported syntax and functions.")
+	}
 }
