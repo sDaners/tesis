@@ -1,3 +1,2 @@
 Ideas:
 - Hacer esto tipo "tool". Pasarle codigo sql y que lo pueda evaluar
-- Corregir a mano la syntaxis del sql generado para ver errores de ejecucion ✅

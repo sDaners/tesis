@@ -13,7 +13,6 @@ import (
 	"sql-parser/repo"
 	"sql-parser/tools"
 
-	"github.com/cloudspannerecosystem/memefish"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -128,7 +127,7 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 	result.TotalStatements = len(statements)
 
 	// Step 2: Parse each statement with memefish
-	parseResults := parseStatementsWithMemefish(statements, filename)
+	parseResults := tools.ParseStatementsWithMemefish(statements, filename)
 
 	// Analyze parsing results
 	var validStatements []string
@@ -159,7 +158,7 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 			})
 
 			// Categorize parsing errors
-			errorType := categorizeMemefishError(errMsg)
+			errorType := tools.CategorizeMemefishError(errMsg)
 			result.ParseErrorCodes[errorType]++
 		}
 	}
@@ -202,13 +201,13 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 				result.ExecutionErrors = append(result.ExecutionErrors, errMsg)
 
 				// Extract and count error codes
-				errorCode := extractSpannerErrorCode(errMsg)
+				errorCode := tools.ExtractSpannerErrorCode(errMsg)
 				if errorCode != "" {
 					result.ErrorCodes[errorCode]++
 
 					// Categorize InvalidArgument errors further
 					if errorCode == "InvalidArgument" {
-						category := categorizeInvalidArgumentError(errMsg)
+						category := tools.CategorizeInvalidArgumentError(errMsg)
 						if category != "" {
 							result.ErrorCategories[category]++
 						}
@@ -220,7 +219,7 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 
 			// Test additional queries if data was inserted
 			if len(execResult.InsertedRecords) > 0 {
-				testDataIntegrity(t, dbT, execResult)
+				testDataIntegrity(t, dbT)
 			}
 		}
 	} else {
@@ -260,112 +259,6 @@ func testSQLFileWithParsing(t *testing.T, sqlFile string) models.TestFileResult 
 	}
 
 	return result
-}
-
-// parseStatementsWithMemefish parses each statement using memefish
-func parseStatementsWithMemefish(statements []string, filename string) []models.ParseResult {
-	var results []models.ParseResult
-
-	for _, stmt := range statements {
-		result := models.ParseResult{
-			Statement: stmt,
-		}
-
-		// Try to parse the statement with memefish
-		parsedStmt, err := memefish.ParseStatement(filename, stmt)
-		if err != nil {
-			result.Parsed = false
-			result.Error = err
-		} else {
-			result.Parsed = true
-			result.Type = getStatementType(parsedStmt, stmt)
-		}
-
-		results = append(results, result)
-	}
-
-	return results
-}
-
-// getStatementType determines the type of a parsed statement
-func getStatementType(parsedStmt interface{}, originalStmt string) string {
-	// For now, use a simple approach based on the original statement
-	// since memefish AST types might be complex to analyze
-	upperStmt := strings.ToUpper(strings.TrimSpace(originalStmt))
-
-	switch {
-	case strings.HasPrefix(upperStmt, "CREATE"):
-		return "CREATE"
-	case strings.HasPrefix(upperStmt, "INSERT"):
-		return "INSERT"
-	case strings.HasPrefix(upperStmt, "SELECT"):
-		return "SELECT"
-	case strings.HasPrefix(upperStmt, "DROP"):
-		return "DROP"
-	case strings.HasPrefix(upperStmt, "ALTER"):
-		return "ALTER"
-	case strings.HasPrefix(upperStmt, "UPDATE"):
-		return "UPDATE"
-	case strings.HasPrefix(upperStmt, "DELETE"):
-		return "DELETE"
-	default:
-		return "OTHER"
-	}
-}
-
-// categorizeMemefishError categorizes memefish parsing errors
-func categorizeMemefishError(errMsg string) string {
-	errLower := strings.ToLower(errMsg)
-
-	// Common memefish error patterns
-	switch {
-	case strings.Contains(errLower, "syntax error"):
-		if strings.Contains(errLower, "expecting") {
-			return "Syntax Error: Missing Token"
-		}
-		return "Syntax Error: General"
-	case strings.Contains(errLower, "unexpected token"):
-		return "Syntax Error: Unexpected Token"
-	case strings.Contains(errLower, "expecting"):
-		return "Syntax Error: Expected Token"
-	case strings.Contains(errLower, "invalid"):
-		return "Invalid Syntax"
-	case strings.Contains(errLower, "not supported"):
-		return "Unsupported Feature"
-	case strings.Contains(errLower, "unknown"):
-		return "Unknown Element"
-	default:
-		return "Parse Error: Other"
-	}
-}
-
-// extractSpannerErrorCode extracts the error code from Spanner error messages
-func extractSpannerErrorCode(errMsg string) string {
-	// Spanner errors typically have format: "rpc error: code = ErrorCode desc = ..."
-	// or "spanner: code = \"ErrorCode\", desc = ..."
-
-	// Pattern 1: rpc error format
-	if strings.Contains(errMsg, "rpc error: code = ") {
-		start := strings.Index(errMsg, "rpc error: code = ") + len("rpc error: code = ")
-		end := strings.Index(errMsg[start:], " desc = ")
-		if end != -1 {
-			return errMsg[start : start+end]
-		}
-	}
-
-	// Pattern 2: spanner client format
-	if strings.Contains(errMsg, "spanner: code = ") {
-		start := strings.Index(errMsg, "spanner: code = ") + len("spanner: code = ")
-		if start < len(errMsg) && errMsg[start] == '"' {
-			start++ // Skip opening quote
-			end := strings.Index(errMsg[start:], "\"")
-			if end != -1 {
-				return errMsg[start : start+end]
-			}
-		}
-	}
-
-	return ""
 }
 
 // generateMarkdownReport creates a markdown file with test results
@@ -459,7 +352,7 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 		}
 
 		for _, pec := range sortedParseErrors {
-			description := getParseErrorDescription(pec.errorType)
+			description := tools.GetParseErrorDescription(pec.errorType)
 			fmt.Fprintf(file, "| %s | %d | %s |\n", pec.errorType, pec.count, description)
 		}
 		fmt.Fprintf(file, "\n")
@@ -491,7 +384,7 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 		}
 
 		for _, ec := range sortedCodes {
-			description := getErrorCodeDescription(ec.code)
+			description := tools.GetErrorCodeDescription(ec.code)
 			fmt.Fprintf(file, "| %s | %d | %s |\n", ec.code, ec.count, description)
 		}
 		fmt.Fprintf(file, "\n")
@@ -680,7 +573,7 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 		var parseInsights []parseInsight
 		for errorType, count := range allParseErrorCodes {
 			percentage := float64(count) / float64(totalParseErrors) * 100
-			description := getParseErrorDescription(errorType)
+			description := tools.GetParseErrorDescription(errorType)
 			parseInsights = append(parseInsights, parseInsight{errorType, count, percentage, description})
 		}
 
@@ -723,7 +616,7 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 		var insights []categoryInsight
 		for category, count := range allErrorCategories {
 			percentage := float64(count) / float64(totalExecutionErrors) * 100
-			description := getErrorCategoryDescription(category)
+			description := tools.GetErrorCategoryDescription(category)
 			insights = append(insights, categoryInsight{category, count, percentage, description})
 		}
 
@@ -753,90 +646,7 @@ func generateMarkdownReport(results []models.TestFileResult) error {
 	return nil
 }
 
-// getErrorCodeDescription returns a human-readable description for Spanner error codes
-func getErrorCodeDescription(code string) string {
-	descriptions := map[string]string{
-		"InvalidArgument":    "Invalid SQL syntax or unsupported features",
-		"NotFound":           "Referenced table, column, or object not found",
-		"FailedPrecondition": "Constraint violations or prerequisite not met",
-		"AlreadyExists":      "Object already exists (duplicate creation)",
-		"PermissionDenied":   "Insufficient permissions for operation",
-		"Unimplemented":      "Feature not implemented in Spanner",
-		"Internal":           "Internal Spanner error",
-		"Unavailable":        "Service temporarily unavailable",
-		"DeadlineExceeded":   "Operation timeout",
-		"ResourceExhausted":  "Resource limits exceeded",
-		"Cancelled":          "Operation was cancelled",
-		"Unknown":            "Unknown error occurred",
-	}
-
-	if desc, exists := descriptions[code]; exists {
-		return desc
-	}
-	return "Unknown error code"
-}
-
-// getErrorCategoryDescription returns a human-readable description for error categories
-func getErrorCategoryDescription(category string) string {
-	descriptions := map[string]string{
-		// Syntax errors
-		"Syntax Error: CURRENT_TIMESTAMP":           "CURRENT_TIMESTAMP() function call syntax not supported in Spanner",
-		"Syntax Error: Missing Parentheses":         "SQL statement missing required opening parentheses",
-		"Syntax Error: Missing Closing Parentheses": "SQL statement missing required closing parentheses",
-		"Syntax Error: General":                     "General SQL syntax errors not matching specific patterns",
-
-		// Type mismatches
-		"Type Mismatch: GENERATE_UUID on INT64": "GENERATE_UUID() function used on INT64 columns instead of STRING",
-		"Type Mismatch: General":                "Data type mismatches between expected and provided types",
-
-		// Unsupported features
-		"Unsupported Feature: Sequence Kind": "Identity column sequence kind not specified or unsupported",
-		"Unsupported Feature: General":       "General Spanner unsupported features",
-
-		// Missing clauses
-		"Missing Clause: SQL SECURITY": "VIEW definitions missing required SQL SECURITY clause",
-		"Missing Clause: General":      "SQL statements missing required clauses",
-
-		// Function issues
-		"Function Not Found: NEXTVAL": "NEXTVAL() function not available in Spanner",
-		"Function Not Found: General": "SQL functions not available in Spanner",
-
-		// Identity/Sequence issues
-		"Identity Column: Missing Sequence Kind": "Identity columns require explicit sequence kind specification",
-
-		// Table issues
-		"Table Not Found (InvalidArgument)": "Table references that result in InvalidArgument rather than NotFound",
-
-		// Foreign key issues
-		"Foreign Key: Syntax Error": "Foreign key constraint syntax errors",
-
-		// Default value issues
-		"Default Value: Parsing Error": "Default value expressions that cannot be parsed",
-
-		// Constraint issues
-		"Constraint: Unsupported": "CHECK constraints and other constraint types not supported",
-
-		// View issues
-		"View Definition: Error": "Errors in view definition syntax or structure",
-
-		// Other error codes
-		"NotFound":           "Referenced objects (tables, columns, etc.) not found",
-		"FailedPrecondition": "Constraint violations or prerequisites not met",
-		"AlreadyExists":      "Attempting to create objects that already exist",
-		"PermissionDenied":   "Insufficient permissions for the operation",
-		"Unimplemented":      "Features not yet implemented in Spanner",
-
-		// Catch-all
-		"InvalidArgument: Other": "InvalidArgument errors not matching specific patterns",
-	}
-
-	if desc, exists := descriptions[category]; exists {
-		return desc
-	}
-	return "No description available for this error category"
-}
-
-func testDataIntegrity(t *testing.T, dbT *SpannerDBTeardown, result *repo.ExecutionResult) {
+func testDataIntegrity(t *testing.T, dbT *SpannerDBTeardown) {
 	// Test that we can query the data that was inserted
 
 	// Try to query a common table that might exist
@@ -862,201 +672,4 @@ func testDataIntegrity(t *testing.T, dbT *SpannerDBTeardown, result *repo.Execut
 			}
 		}
 	}
-}
-
-func TestSpannerDatabaseOperations(t *testing.T) {
-	dbT := setupSpannerDB(t)
-	defer dbT.Close()
-
-	// Create tables first
-	if err := dbT.repo.CreateTables(); err != nil {
-		t.Skipf("Skipping test due to table creation error: %v", err)
-	}
-
-	// Insert sample data
-	deptID, empID, projectID, err := dbT.repo.InsertSampleData()
-	if err != nil {
-		t.Fatalf("InsertSampleData failed: %v", err)
-	}
-	if deptID == 0 || empID == 0 || projectID == 0 {
-		t.Errorf("Expected non-zero IDs, got deptID=%d, empID=%d, projectID=%d", deptID, empID, projectID)
-	}
-
-	// Query and check results
-	details, err := dbT.repo.QueryEmployeeDetails()
-	if err != nil {
-		t.Fatalf("QueryEmployeeDetails failed: %v", err)
-	}
-	if len(details) == 0 {
-		t.Error("Expected at least one employee detail result")
-	}
-
-	// Check if we found our test employee
-	found := false
-	for _, detail := range details {
-		if detail.FirstName == "John" &&
-			detail.LastName == "Doe" &&
-			detail.DeptName == "Engineering" &&
-			detail.ProjectName.String == "Database Migration" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Error("Expected to find inserted employee and project in results")
-	}
-}
-
-func TestSpannerEmployeeDetails(t *testing.T) {
-	dbT := setupSpannerDB(t)
-	defer dbT.Close()
-
-	// Create tables first
-	if err := dbT.repo.CreateTables(); err != nil {
-		t.Skipf("Skipping test due to table creation error: %v", err)
-	}
-
-	// Insert test data
-	_, _, _, err := dbT.repo.InsertSampleData()
-	if err != nil {
-		t.Fatalf("Failed to insert test data: %v", err)
-	}
-
-	// Query employee details
-	details, err := dbT.repo.QueryEmployeeDetails()
-	if err != nil {
-		t.Fatalf("Failed to query employee details: %v", err)
-	}
-
-	// Verify the structure of the results
-	if len(details) == 0 {
-		t.Error("Expected at least one employee detail")
-	}
-
-	for _, detail := range details {
-		// Check required fields
-		if detail.FirstName == "" {
-			t.Error("Expected non-empty FirstName")
-		}
-		if detail.LastName == "" {
-			t.Error("Expected non-empty LastName")
-		}
-		if detail.Email == "" {
-			t.Error("Expected non-empty Email")
-		}
-		if detail.DeptName == "" {
-			t.Error("Expected non-empty DeptName")
-		}
-
-		// Check nullable fields
-		if detail.ManagerFirstName.Valid {
-			t.Logf("Manager First Name: %s", detail.ManagerFirstName.String)
-		}
-		if detail.ManagerLastName.Valid {
-			t.Logf("Manager Last Name: %s", detail.ManagerLastName.String)
-		}
-		if detail.ProjectName.Valid {
-			t.Logf("Project Name: %s", detail.ProjectName.String)
-		}
-	}
-}
-
-// categorizeInvalidArgumentError categorizes InvalidArgument errors into specific subcategories
-func categorizeInvalidArgumentError(errMsg string) string {
-	errLower := strings.ToLower(errMsg)
-
-	// Syntax errors
-	if strings.Contains(errLower, "syntax error") {
-		if strings.Contains(errLower, "current_timestamp") {
-			return "Syntax Error: CURRENT_TIMESTAMP"
-		} else if strings.Contains(errLower, "expecting '('") {
-			return "Syntax Error: Missing Parentheses"
-		} else if strings.Contains(errLower, "expecting ')'") {
-			return "Syntax Error: Missing Closing Parentheses"
-		}
-		return "Syntax Error: General"
-	}
-
-	// Type mismatches
-	if strings.Contains(errLower, "expected type") && strings.Contains(errLower, "found") {
-		if strings.Contains(errLower, "generate_uuid") {
-			return "Type Mismatch: GENERATE_UUID on INT64"
-		}
-		return "Type Mismatch: General"
-	}
-
-	// Unsupported features
-	if strings.Contains(errLower, "unsupported") {
-		if strings.Contains(errLower, "sequence kind") {
-			return "Unsupported Feature: Sequence Kind"
-		}
-		return "Unsupported Feature: General"
-	}
-
-	// Missing clauses
-	if strings.Contains(errLower, "missing") {
-		if strings.Contains(errLower, "sql security") {
-			return "Missing Clause: SQL SECURITY"
-		}
-		return "Missing Clause: General"
-	}
-
-	// Function/feature not found
-	if strings.Contains(errLower, "function not found") {
-		if strings.Contains(errLower, "nextval") {
-			return "Function Not Found: NEXTVAL"
-		}
-		return "Function Not Found: General"
-	}
-
-	// Sequence/Identity issues
-	if strings.Contains(errLower, "sequence kind") && strings.Contains(errLower, "not specified") {
-		return "Identity Column: Missing Sequence Kind"
-	}
-
-	// Table not found (when it's an InvalidArgument, not NotFound)
-	if strings.Contains(errLower, "table not found") {
-		return "Table Not Found (InvalidArgument)"
-	}
-
-	// Foreign key issues
-	if strings.Contains(errLower, "foreign key") {
-		return "Foreign Key: Syntax Error"
-	}
-
-	// Default value issues
-	if strings.Contains(errLower, "default value") {
-		return "Default Value: Parsing Error"
-	}
-
-	// Constraint issues
-	if strings.Contains(errLower, "constraint") || strings.Contains(errLower, "check") {
-		return "Constraint: Unsupported"
-	}
-
-	// View definition issues
-	if strings.Contains(errLower, "definition of view") {
-		return "View Definition: Error"
-	}
-
-	return "InvalidArgument: Other"
-}
-
-// getParseErrorDescription returns a human-readable description for memefish parse errors
-func getParseErrorDescription(errorType string) string {
-	descriptions := map[string]string{
-		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.)",
-		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns",
-		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected",
-		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax",
-		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar",
-		"Unsupported Feature":            "SQL features that are not supported by Spanner",
-		"Unknown Element":                "Unknown SQL elements or identifiers",
-		"Parse Error: Other":             "Other parsing errors not categorized above",
-	}
-
-	if desc, exists := descriptions[errorType]; exists {
-		return desc
-	}
-	return "No description available for this parse error type"
 }

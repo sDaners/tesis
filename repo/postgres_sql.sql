@@ -1,11 +1,11 @@
-CREATE TABLE IF NOT EXISTS departments (
+CREATE TABLE departments (
     dept_id SERIAL PRIMARY KEY,
     dept_name VARCHAR(50) NOT NULL,
     location VARCHAR(100),
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS employees (
+CREATE TABLE employees (
     emp_id SERIAL PRIMARY KEY,
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS employees (
     phone_number VARCHAR(20)
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_emp_email ON employees(email);
+CREATE UNIQUE INDEX idx_emp_email ON employees(email);
 
-CREATE TABLE IF NOT EXISTS projects (
+CREATE TABLE projects (
     project_id SERIAL PRIMARY KEY,
     project_name VARCHAR(100) NOT NULL,
     start_date DATE,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS projects (
     CONSTRAINT check_status CHECK (status IN ('ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED'))
 );
 
-CREATE TABLE IF NOT EXISTS project_assignments (
+CREATE TABLE project_assignments (
     emp_id INTEGER,
     project_id INTEGER,
     role VARCHAR(50),
@@ -40,9 +40,9 @@ CREATE TABLE IF NOT EXISTS project_assignments (
     FOREIGN KEY (project_id) REFERENCES projects(project_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_emp_name ON employees(last_name, first_name);
-CREATE INDEX IF NOT EXISTS idx_dept_location ON departments(location);
-CREATE INDEX IF NOT EXISTS idx_project_status ON projects(status);
+CREATE INDEX idx_emp_name ON employees(last_name, first_name);
+CREATE INDEX idx_dept_location ON departments(location);
+CREATE INDEX idx_project_status ON projects(status);
 
 CREATE OR REPLACE VIEW employee_details AS
 SELECT 
