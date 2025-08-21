@@ -194,7 +194,6 @@ func setupInstance(ctx context.Context) error {
 	if instance.State != instancepb.Instance_READY {
 		fmt.Printf("instance state is not READY yet. Got state %v\n", instance.State)
 	}
-	fmt.Printf("Created emulator instance [%s]\n", testInstance)
 
 	return nil
 }

@@ -53,15 +53,14 @@ func GetStatementType(_ interface{}, originalStmt string) string {
 func CategorizeMemefishError(errMsg string) string {
 	lower := strings.ToLower(errMsg)
 	switch {
-	case strings.Contains(lower, "syntax error"):
-		if strings.Contains(lower, "expecting") {
-			return "Syntax Error: Missing Token"
-		}
-		return "Syntax Error: General"
+	case strings.Contains(lower, "expected token"):
+		return "Syntax Error: Expected Token"
 	case strings.Contains(lower, "unexpected token"):
 		return "Syntax Error: Unexpected Token"
 	case strings.Contains(lower, "expecting"):
-		return "Syntax Error: Expected Token"
+		return "Syntax Error: Missing Token"
+	case strings.Contains(lower, "syntax error"):
+		return "Syntax Error: General"
 	case strings.Contains(lower, "invalid"):
 		return "Invalid Syntax"
 	case strings.Contains(lower, "not supported"):
@@ -214,7 +213,7 @@ func GetParseErrorDescription(errorType string) string {
 		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.). FIX: Add missing syntax elements as indicated by parser",
 		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns. FIX: Review statement structure, check for typos and syntax compliance with Spanner SQL",
 		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected. FIX: Remove or relocate unexpected elements to correct positions",
-		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax. FIX: Add required keywords, punctuation, or identifiers where expected",
+		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax. FIX: Add required keywords, punctuation, or identifiers where expected. After DEFAULT remember to wrap the value in parentheses",
 		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar. FIX: Rewrite using valid Spanner SQL syntax patterns",
 		"Unsupported Feature":            "SQL features that are not supported by Spanner. FIX: Replace with Spanner-compatible alternatives (e.g., use ARRAY instead of arrays)",
 		"Unknown Element":                "Unknown SQL elements or identifiers. FIX: Check spelling of keywords, functions, and identifiers against Spanner documentation",

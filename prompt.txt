@@ -1,5 +1,6 @@
 We need to translate the following PostgreSQL code to work with a new Spanner database running on GoogleSQL. 
 Constraints, foreign keys and self generated primary keys need to be kept (datatype may be changed). ALL code must be translated
+ALWAYS: The response to this message should be a the entire sql code.
 
 CREATE TABLE departments (
     dept_id SERIAL PRIMARY KEY,

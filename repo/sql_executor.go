@@ -63,7 +63,7 @@ func (e *SQLExecutor) ExecuteStatements(statements []string) (*ExecutionResult, 
 	}
 
 	// Categorize statements
-	var createStmts, insertStmts, selectStmts, dropStmts []string
+	var createStmts, insertStmts, selectStmts, dropStmts, otherStmts []string
 
 	for _, stmt := range statements {
 		upperStmt := strings.ToUpper(strings.TrimSpace(stmt))
@@ -80,6 +80,9 @@ func (e *SQLExecutor) ExecuteStatements(statements []string) (*ExecutionResult, 
 		case strings.HasPrefix(upperStmt, "DROP"):
 			dropStmts = append(dropStmts, stmt)
 			result.DropStatements++
+		default:
+			// Handle other statement types (UPDATE, DELETE, ALTER, etc.)
+			otherStmts = append(otherStmts, stmt)
 		}
 	}
 
@@ -126,9 +129,50 @@ func (e *SQLExecutor) ExecuteStatements(statements []string) (*ExecutionResult, 
 		}
 	}
 
+	// 5. Execute other statement types (UPDATE, DELETE, ALTER, etc.)
+	for _, stmt := range otherStmts {
+		if err := e.executeOther(stmt); err != nil {
+			result.Errors = append(result.Errors, fmt.Errorf("statement failed: %w", err))
+		} else {
+			result.ExecutedCount++
+		}
+	}
+
 	result.SkippedCount = result.TotalStatements - result.ExecutedCount
 
 	return result, nil
+}
+
+// executeOther executes other statement types (UPDATE, DELETE, ALTER, etc.)
+func (e *SQLExecutor) executeOther(stmt string) error {
+	// Clean up the statement
+	cleanStmt := e.cleanStatement(stmt)
+
+	// Check if this is a supported statement type
+	upperStmt := strings.ToUpper(strings.TrimSpace(cleanStmt))
+
+	// Support common statement types
+	if strings.HasPrefix(upperStmt, "UPDATE") ||
+		strings.HasPrefix(upperStmt, "DELETE") ||
+		strings.HasPrefix(upperStmt, "ALTER") ||
+		strings.HasPrefix(upperStmt, "GRANT") ||
+		strings.HasPrefix(upperStmt, "REVOKE") ||
+		strings.HasPrefix(upperStmt, "SET") {
+
+		// Execute the statement
+		_, err := e.DB.Exec(cleanStmt)
+		if err != nil {
+			return fmt.Errorf("executing %s statement: %w", strings.Fields(upperStmt)[0], err)
+		}
+		return nil
+	}
+
+	// For unsupported statement types, return an error
+	stmtType := "UNKNOWN"
+	if words := strings.Fields(upperStmt); len(words) > 0 {
+		stmtType = words[0]
+	}
+	return fmt.Errorf("unsupported statement type: %s", stmtType)
 }
 
 // executeDrop executes a DROP statement

@@ -164,8 +164,7 @@ func evaluateSQLFile(sqlFile string) (runResult, error) {
 }
 
 func printTerminalReport(fr models.TestFileResult) {
-	fmt.Printf("SQL Evaluation Results\n\n")
-	fmt.Printf("File: %s\n", fr.Filename)
+	fmt.Printf("The generated sql code has gone through some testing, here are the results:\n\n")
 	fmt.Printf("Total statements: %d\n", fr.TotalStatements)
 	fmt.Printf("Successfully parsed: %d\n", fr.ParsedCount)
 	fmt.Printf("Parse errors: %d\n", len(fr.ParseErrors))
