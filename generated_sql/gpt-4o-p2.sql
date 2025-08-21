@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 27
+-- Successfully parsed: 25
+-- Parse errors: 2
+-- Executed: 9
+-- Execution errors: 16
+-- Parse success rate: 92.6%
+-- Execution success rate (of parsed): 36.0%
+-- Overall success rate: 33.3%
+
 -- Enable required sequence kind
 -- You can set this in your DB options, or specify sequence kind explicitly
 -- assuming DEFAULT type for simplicity

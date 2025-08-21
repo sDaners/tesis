@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 23
+-- Successfully parsed: 16
+-- Parse errors: 7
+-- Executed: 9
+-- Execution errors: 7
+-- Parse success rate: 69.6%
+-- Execution success rate (of parsed): 56.2%
+-- Overall success rate: 39.1%
+
 -- 1) SCHEMA DEFINITION
 
 CREATE TABLE IF NOT EXISTS Departments (

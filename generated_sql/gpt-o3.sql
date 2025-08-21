@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 29
+-- Successfully parsed: 26
+-- Parse errors: 3
+-- Executed: 12
+-- Execution errors: 14
+-- Parse success rate: 89.7%
+-- Execution success rate (of parsed): 46.2%
+-- Overall success rate: 41.4%
+
 -- ─────────────────────────────
 --  SEQUENCES (one per table)
 -- ─────────────────────────────

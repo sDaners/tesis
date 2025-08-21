@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 10
+-- Successfully parsed: 10
+-- Parse errors: 0
+-- Executed: 4
+-- Execution errors: 6
+-- Parse success rate: 100.0%
+-- Execution success rate (of parsed): 40.0%
+-- Overall success rate: 40.0%
+
 CREATE TABLE departments (
   dept_id INT64 NOT NULL,
   dept_name STRING(50) NOT NULL,

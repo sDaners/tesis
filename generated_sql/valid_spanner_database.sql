@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 23
+-- Successfully parsed: 23
+-- Parse errors: 0
+-- Executed: 23
+-- Execution errors: 0
+-- Parse success rate: 100.0%
+-- Execution success rate (of parsed): 100.0%
+-- Overall success rate: 100.0%
+
 -- Spanner Database Schema and Queries
 -- Extracted from valid_spanner_sql.go
 

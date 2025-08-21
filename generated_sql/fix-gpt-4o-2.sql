@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 17
+-- Successfully parsed: 17
+-- Parse errors: 0
+-- Executed: 16
+-- Execution errors: 1
+-- Parse success rate: 100.0%
+-- Execution success rate (of parsed): 94.1%
+-- Overall success rate: 94.1%
+
 -- CHAT: https://chatgpt.com/c/684afdfe-2298-8003-82d7-c6bcb4b215f4
 
 -- Table Creation (GoogleSQL doesn't support IF NOT EXISTS or SERIAL, 

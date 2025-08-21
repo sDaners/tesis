@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 23
+-- Successfully parsed: 18
+-- Parse errors: 5
+-- Executed: 8
+-- Execution errors: 10
+-- Parse success rate: 78.3%
+-- Execution success rate (of parsed): 44.4%
+-- Overall success rate: 34.8%
+
 -- =========================
 -- Schema (GoogleSQL / Spanner)
 -- =========================

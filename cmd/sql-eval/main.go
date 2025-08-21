@@ -47,6 +47,11 @@ func run() int {
 
 	printTerminalReport(result.fileResult)
 
+	// Add test results as comments to the SQL file
+	if err := prependTestResultsToFile(sqlFile, result.fileResult); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: Failed to add results to file: %v\n", err)
+	}
+
 	if len(result.fileResult.ParseErrors) == 0 && len(result.fileResult.ExecutionErrors) == 0 {
 		return 0
 	}
@@ -243,4 +248,58 @@ func printTerminalReport(fr models.TestFileResult) {
 		fmt.Println("TIP: Focus on fixing parse errors first, as they prevent execution.")
 		fmt.Println("TIP: Refer to Spanner SQL documentation for supported syntax and functions.")
 	}
+}
+
+func formatTestResultsAsComments(fr models.TestFileResult) string {
+	var comments strings.Builder
+
+	// Add separator
+	comments.WriteString("--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n")
+	comments.WriteString("\n")
+
+	// Add basic stats
+	comments.WriteString(fmt.Sprintf("-- Total statements: %d\n", fr.TotalStatements))
+	comments.WriteString(fmt.Sprintf("-- Successfully parsed: %d\n", fr.ParsedCount))
+	comments.WriteString(fmt.Sprintf("-- Parse errors: %d\n", len(fr.ParseErrors)))
+	comments.WriteString(fmt.Sprintf("-- Executed: %d\n", fr.ExecutedCount))
+	comments.WriteString(fmt.Sprintf("-- Execution errors: %d\n", len(fr.ExecutionErrors)))
+
+	// Add success rates if we have statements
+	if fr.TotalStatements > 0 {
+		parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100
+		execRate := 0.0
+		if fr.ParsedCount > 0 {
+			execRate = float64(fr.ExecutedCount) / float64(fr.ParsedCount) * 100
+		}
+		overall := float64(fr.ExecutedCount) / float64(fr.TotalStatements) * 100
+		comments.WriteString(fmt.Sprintf("-- Parse success rate: %.1f%%\n", parseRate))
+		comments.WriteString(fmt.Sprintf("-- Execution success rate (of parsed): %.1f%%\n", execRate))
+		comments.WriteString(fmt.Sprintf("-- Overall success rate: %.1f%%\n", overall))
+	}
+
+	comments.WriteString("\n")
+
+	return comments.String()
+}
+
+func prependTestResultsToFile(sqlFile string, fr models.TestFileResult) error {
+	// Read the existing file content
+	content, err := os.ReadFile(sqlFile)
+	if err != nil {
+		return fmt.Errorf("failed to read file: %w", err)
+	}
+
+	// Format the test results as comments
+	resultsComments := formatTestResultsAsComments(fr)
+
+	// Combine new comments with existing content
+	newContent := resultsComments + string(content)
+
+	// Write back to the file
+	err = os.WriteFile(sqlFile, []byte(newContent), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	return nil
 }

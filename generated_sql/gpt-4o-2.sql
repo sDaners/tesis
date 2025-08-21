@@ -1,3 +1,14 @@
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-- Total statements: 17
+-- Successfully parsed: 15
+-- Parse errors: 2
+-- Executed: 11
+-- Execution errors: 4
+-- Parse success rate: 88.2%
+-- Execution success rate (of parsed): 73.3%
+-- Overall success rate: 64.7%
+
 -- CHAT: https://chatgpt.com/c/684afdfe-2298-8003-82d7-c6bcb4b215f4
 
 
