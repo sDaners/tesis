@@ -1,4 +1,13 @@
---  VVVVVVVV
+-- Total statements: 19
+-- Successfully parsed: 18
+-- Parse errors: 1
+-- Executed: 15
+-- Execution errors: 3
+-- Parse success rate: 94.7%
+-- Execution success rate (of parsed): 83.3%
+-- Overall success rate: 78.9%
+
+--  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 -- Total statements: 19
 -- Successfully parsed: 15
@@ -8,17 +17,6 @@
 -- Parse success rate: 78.9%
 -- Execution success rate (of parsed): 33.3%
 -- Overall success rate: 26.3%
-
---  VVVVVVVV
-
--- Total statements: 19
--- Successfully parsed: 18
--- Parse errors: 1
--- Executed: 15
--- Execution errors: 3
--- Parse success rate: 94.7%
--- Execution success rate (of parsed): 83.3%
--- Overall success rate: 78.9%
 
 -- Create departments table first (no dependencies)
 CREATE TABLE departments (

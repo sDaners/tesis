@@ -173,7 +173,7 @@ func printTerminalReport(fr models.TestFileResult) {
 	fmt.Printf("Total statements: %d\n", fr.TotalStatements)
 	fmt.Printf("Successfully parsed: %d\n", fr.ParsedCount)
 	fmt.Printf("Parse errors: %d\n", len(fr.ParseErrors))
-	fmt.Printf("Executed: %d\n", fr.ExecutedCount)
+	fmt.Printf("Successfully executed: %d\n", fr.ExecutedCount)
 	fmt.Printf("Execution errors: %d\n", len(fr.ExecutionErrors))
 	if fr.TotalStatements > 0 {
 		parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100

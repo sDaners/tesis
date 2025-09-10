@@ -10,6 +10,12 @@ type ParseError struct {
 	Error     string
 }
 
+type ExecutionError struct {
+	Statement   string
+	Code        string
+	Description string
+}
+
 // TestFileResult holds the results for a single SQL file test
 type TestFileResult struct {
 	Filename        string

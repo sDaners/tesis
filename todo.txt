@@ -1,2 +1,10 @@
-Ideas:
-- Hacer esto tipo "tool". Pasarle codigo sql y que lo pueda evaluar
+- Empezar con el doc (overleaf)
+
+- Automatizacion con una API al LLM
+
+- Probar con otro codigo de postgres (caso de estudio)
+
+- Pulir la manera en que se van a presentar
+    - Shots
+    - Language models
+    - Starting with recommendations or not
