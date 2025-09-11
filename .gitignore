@@ -1,3 +1,5 @@
 *.md
 allure-results*
 allure-report*
+
+*.env

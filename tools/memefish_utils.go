@@ -9,22 +9,16 @@ import (
 	"github.com/cloudspannerecosystem/memefish"
 )
 
-// ExtractStatementsFromFile extracts SQL statements from a file using memefish
-func ExtractStatementsFromFile(filename string) ([]string, error) {
-	// Read the entire file
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open file %s: %w", filename, err)
-	}
-	defer file.Close()
+// ExtractStatementsFromString extracts SQL statements from a string using memefish
+func ExtractStatementsFromString(content string) ([]string, error) {
+	return ExtractStatementsFromStringWithFilename(content, "")
+}
 
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file %s: %w", filename, err)
-	}
-
+// ExtractStatementsFromStringWithFilename extracts SQL statements from a string using memefish
+// The filename parameter is used by memefish for error reporting purposes
+func ExtractStatementsFromStringWithFilename(content string, filename string) ([]string, error) {
 	// Clean comments before parsing
-	cleanedContent := cleanComments(string(content))
+	cleanedContent := cleanComments(content)
 
 	// Use memefish to split the content into raw statements
 	rawStatements, err := memefish.SplitRawStatements(filename, cleanedContent)
@@ -42,6 +36,24 @@ func ExtractStatementsFromFile(filename string) ([]string, error) {
 	}
 
 	return statements, nil
+}
+
+// ExtractStatementsFromFile extracts SQL statements from a file using memefish
+func ExtractStatementsFromFile(filename string) ([]string, error) {
+	// Read the entire file
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open file %s: %w", filename, err)
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file %s: %w", filename, err)
+	}
+
+	// Use the string-based function to parse the content
+	return ExtractStatementsFromStringWithFilename(string(content), filename)
 }
 
 func cleanComments(content string) string {

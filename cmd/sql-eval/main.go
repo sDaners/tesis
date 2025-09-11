@@ -75,9 +75,8 @@ func validatePath(p string) error {
 	return nil
 }
 
-func evaluateSQLFile(sqlFile string) (runResult, error) {
+func evaluateSQLString(content string, filename string) (runResult, error) {
 	start := time.Now()
-	filename := filepath.Base(sqlFile)
 
 	fr := models.TestFileResult{
 		Filename:        filename,
@@ -86,7 +85,7 @@ func evaluateSQLFile(sqlFile string) (runResult, error) {
 		ErrorCategories: make(map[string]int),
 	}
 
-	statements, err := tools.ExtractStatementsFromFile(sqlFile)
+	statements, err := tools.ExtractStatementsFromString(content)
 	if err != nil {
 		return runResult{}, fmt.Errorf("extract statements: %w", err)
 	}
@@ -166,6 +165,16 @@ func evaluateSQLFile(sqlFile string) (runResult, error) {
 	}
 
 	return runResult{fileResult: fr}, nil
+}
+
+func evaluateSQLFile(sqlFile string) (runResult, error) {
+	content, err := os.ReadFile(sqlFile)
+	if err != nil {
+		return runResult{}, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	filename := filepath.Base(sqlFile)
+	return evaluateSQLString(string(content), filename)
 }
 
 func printTerminalReport(fr models.TestFileResult) {
