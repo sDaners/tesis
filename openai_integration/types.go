@@ -49,17 +49,26 @@ type OpenAIResponse struct {
 	} `json:"usage"`
 }
 
+// IterationResult represents the outcome of a single iteration
+type IterationResult struct {
+	Iteration    int                   `json:"iteration"`
+	TestResults  models.TestFileResult `json:"test_results"`
+	Success      bool                  `json:"success"`
+	GeneratedSQL string                `json:"generated_sql"`
+}
+
 // PipelineResult represents the outcome of a complete pipeline run
 type PipelineResult struct {
-	SessionID        string                  `json:"session_id"`
-	InitialPrompt    string                  `json:"initial_prompt"`
-	GeneratedSQL     string                  `json:"generated_sql"`
-	TestResults      models.TestFileResult   `json:"test_results"`
-	Iterations       int                     `json:"iterations"`
-	Success          bool                    `json:"success"`
-	Messages         []ConversationMessage   `json:"messages"`
-	TotalTime        time.Duration           `json:"total_time"`
-	TokensUsed       int                     `json:"tokens_used"`
+	SessionID        string                `json:"session_id"`
+	InitialPrompt    string                `json:"initial_prompt"`
+	GeneratedSQL     string                `json:"generated_sql"`
+	TestResults      models.TestFileResult `json:"test_results"`
+	Iterations       int                   `json:"iterations"`
+	IterationResults []IterationResult     `json:"iteration_results"`
+	Success          bool                  `json:"success"`
+	Messages         []ConversationMessage `json:"messages"`
+	TotalTime        time.Duration         `json:"total_time"`
+	TokensUsed       int                   `json:"tokens_used"`
 }
 
 // OpenAIConfig holds configuration for OpenAI API calls

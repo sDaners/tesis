@@ -17,11 +17,13 @@ func main() {
 }
 
 func run() int {
+	start := time.Now()
 	var (
 		mode          = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
-		maxIterations = flag.Int("iterations", 3, "Maximum iterations for iterative mode")
+		maxIterations = flag.Int("iterations", 2, "Maximum iterations for iterative mode")
 		outputFile    = flag.String("output", "", "Output file for generated SQL (optional)")
 		verbose       = flag.Bool("verbose", false, "Verbose output")
+		debugPrompt   = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
 	)
 
 	flag.Usage = func() {
@@ -31,6 +33,8 @@ func run() int {
 		fmt.Fprintf(os.Stderr, "  OPENAI_API_KEY  - Your OpenAI API key\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "\nDebugging:\n")
+		fmt.Fprintf(os.Stderr, "  --debug-prompt saves all prompts to debug_prompts_<timestamp>.txt\n")
 	}
 
 	flag.Parse()
@@ -50,17 +54,23 @@ func run() int {
 	}
 
 	// Create pipeline
+	pipelineStart := time.Now()
 	pipeline, err := integration.NewPipeline(basePath, *maxIterations)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error creating pipeline: %v\n", err)
 		return 2
 	}
+	pipeline.SetVerbose(*verbose)
+	pipeline.SetDebugPrompt(*debugPrompt)
+	fmt.Printf("[%.3fs] Created pipeline\n", time.Since(pipelineStart).Seconds())
 
-	fmt.Printf("Starting OpenAI integration pipeline in %s mode...\n\n", *mode)
+	fmt.Printf("\nStarting OpenAI integration pipeline in %s mode...\n", *mode)
+	fmt.Printf("=== ITERATION PROGRESS ===\n")
 
 	var result *integration.PipelineResult
 
 	// Run pipeline based on mode
+	executionStart := time.Now()
 	switch *mode {
 	case "single":
 		result, err = pipeline.RunSingleShot()
@@ -70,23 +80,29 @@ func run() int {
 		fmt.Fprintf(os.Stderr, "Error: Invalid mode '%s'. Use 'single' or 'iterative'\n", *mode)
 		return 2
 	}
+	executionTime := time.Since(executionStart)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Pipeline error: %v\n", err)
 		return 2
 	}
 
+	fmt.Printf("\n[%.3fs] Pipeline execution completed\n", executionTime.Seconds())
+
 	// Print results
 	printResults(result, *verbose)
 
 	// Save output file if specified
 	if *outputFile != "" {
+		saveStart := time.Now()
 		if err := pipeline.SaveResultToFile(result, *outputFile); err != nil {
 			fmt.Fprintf(os.Stderr, "Warning: Failed to save output file: %v\n", err)
 		} else {
-			fmt.Printf("Generated SQL saved to: %s\n", filepath.Join("generated_sql", *outputFile))
+			fmt.Printf("[%.3fs] Generated SQL saved to: %s\n", time.Since(saveStart).Seconds(), filepath.Join("generated_sql", *outputFile))
 		}
 	}
+
+	fmt.Printf("[%.3fs] Total execution time\n", time.Since(start).Seconds())
 
 	// Return appropriate exit code
 	if result.Success {
@@ -96,7 +112,7 @@ func run() int {
 }
 
 func printResults(result *integration.PipelineResult, verbose bool) {
-	fmt.Printf("=== PIPELINE RESULTS ===\n")
+	fmt.Printf("\n=== PIPELINE RESULTS ===\n")
 	fmt.Printf("Success: %v\n", result.Success)
 	fmt.Printf("Iterations: %d\n", result.Iterations)
 	fmt.Printf("Total time: %v\n", result.TotalTime.Round(time.Millisecond))
