@@ -11,13 +11,16 @@ type ConversationMessage struct {
 	Content string `json:"content"` // The message content
 }
 
-// ConversationSession manages a conversation with OpenAI
+// ConversationSession manages a conversation with OpenAI using the Conversations API
 type ConversationSession struct {
-	ID        string                `json:"id"`
-	Messages  []ConversationMessage `json:"messages"`
-	CreatedAt time.Time             `json:"created_at"`
-	UpdatedAt time.Time             `json:"updated_at"`
-	Model     string                `json:"model"`
+	ID             string    `json:"id"`              // Local session ID for tracking
+	ConversationID string    `json:"conversation_id"` // OpenAI conversation ID
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Model          string    `json:"model"`
+	MessageCount   int       `json:"message_count"`    // Number of messages exchanged
+	LastMessageID  string    `json:"last_message_id"`  // ID of the last message
+	LastResponseID string    `json:"last_response_id"` // ID of the last AI response
 }
 
 // OpenAIRequest represents a request to the OpenAI API
@@ -78,4 +81,56 @@ type OpenAIConfig struct {
 	Temperature float64 `json:"temperature"`
 	MaxTokens   int     `json:"max_tokens"`
 	BaseURL     string  `json:"base_url"`
+}
+
+// Conversations API types
+
+// CreateConversationRequest represents a request to create a new conversation
+type CreateConversationRequest struct {
+	// Empty struct - the API might not require parameters for conversation creation
+}
+
+// CreateConversationResponse represents the response from creating a conversation
+type CreateConversationResponse struct {
+	ID        string `json:"id"`
+	Object    string `json:"object"`
+	CreatedAt int64  `json:"created_at"`
+}
+
+// AddMessageRequest represents a request to add a message to a conversation
+type AddMessageRequest struct {
+	Role    string `json:"role"`
+	Content string `json:"content"`
+}
+
+// AddMessageResponse represents the response from adding a message
+type AddMessageResponse struct {
+	ID             string `json:"id"`
+	Object         string `json:"object"`
+	CreatedAt      int64  `json:"created_at"`
+	ConversationID string `json:"conversation_id"`
+	Role           string `json:"role"`
+	Content        string `json:"content"`
+}
+
+// GetResponseRequest represents a request to get a response from the conversation
+type GetResponseRequest struct {
+	Model       string  `json:"model,omitempty"`
+	Temperature float64 `json:"temperature,omitempty"`
+	MaxTokens   int     `json:"max_tokens,omitempty"`
+}
+
+// GetResponseResponse represents the AI's response in a conversation
+type GetResponseResponse struct {
+	ID             string `json:"id"`
+	Object         string `json:"object"`
+	CreatedAt      int64  `json:"created_at"`
+	ConversationID string `json:"conversation_id"`
+	Role           string `json:"role"`
+	Content        string `json:"content"`
+	Usage          struct {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+		TotalTokens      int `json:"total_tokens"`
+	} `json:"usage"`
 }

@@ -11,9 +11,10 @@ import (
 )
 
 const (
-	DefaultOpenAIURL = "https://api.openai.com/v1/chat/completions"
-	DefaultModel     = "gpt-4o-mini"
-	DefaultTimeout   = 60 * time.Second
+	DefaultOpenAIURL     = "https://api.openai.com/v1/chat/completions"
+	ConversationsBaseURL = "https://api.openai.com/v1/conversations"
+	DefaultModel         = "chatgpt-4o-latest"
+	DefaultTimeout       = 60 * time.Second
 )
 
 // OpenAIClient handles communication with OpenAI API
@@ -133,4 +134,68 @@ func (c *OpenAIClient) SendSingleMessage(content string) (string, error) {
 // GetUsageFromResponse extracts token usage from OpenAI response
 func (c *OpenAIClient) GetUsageFromResponse(response *OpenAIResponse) (int, int, int) {
 	return response.Usage.PromptTokens, response.Usage.CompletionTokens, response.Usage.TotalTokens
+}
+
+// Conversations API methods
+
+// CreateConversation creates a new conversation (fallback implementation using chat completions)
+func (c *OpenAIClient) CreateConversation() (*CreateConversationResponse, error) {
+	// Since the Conversations API might not be available yet, we'll simulate it
+	// by generating a conversation ID and managing state locally
+	conversationID := fmt.Sprintf("conv_%d", time.Now().Unix())
+
+	return &CreateConversationResponse{
+		ID:        conversationID,
+		Object:    "conversation",
+		CreatedAt: time.Now().Unix(),
+	}, nil
+}
+
+// AddMessage adds a message to an existing conversation (fallback implementation)
+func (c *OpenAIClient) AddMessage(conversationID, role, content string) (*AddMessageResponse, error) {
+	// Simulate adding a message by generating a message ID
+	messageID := fmt.Sprintf("msg_%d", time.Now().UnixNano())
+
+	return &AddMessageResponse{
+		ID:             messageID,
+		Object:         "message",
+		CreatedAt:      time.Now().Unix(),
+		ConversationID: conversationID,
+		Role:           role,
+		Content:        content,
+	}, nil
+}
+
+// GetResponse gets an AI response from the conversation using chat completions
+func (c *OpenAIClient) GetResponse(conversationID string, messages []ConversationMessage) (*GetResponseResponse, error) {
+	// Use the standard chat completions API with the conversation history
+	response, err := c.SendMessage(messages)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get response from chat completions: %w", err)
+	}
+
+	if len(response.Choices) == 0 {
+		return nil, fmt.Errorf("no choices in response")
+	}
+
+	// Convert to GetResponseResponse format
+	responseID := fmt.Sprintf("resp_%d", time.Now().UnixNano())
+
+	return &GetResponseResponse{
+		ID:             responseID,
+		Object:         "response",
+		CreatedAt:      time.Now().Unix(),
+		ConversationID: conversationID,
+		Role:           "assistant",
+		Content:        response.Choices[0].Message.Content,
+		Usage: struct {
+			PromptTokens     int `json:"prompt_tokens"`
+			CompletionTokens int `json:"completion_tokens"`
+			TotalTokens      int `json:"total_tokens"`
+		}{
+			PromptTokens:     response.Usage.PromptTokens,
+			CompletionTokens: response.Usage.CompletionTokens,
+			TotalTokens:      response.Usage.TotalTokens,
+		},
+	}, nil
 }

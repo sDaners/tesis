@@ -105,13 +105,8 @@ func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFil
 		overall = float64(testResult.ExecutedCount) / float64(testResult.TotalStatements) * 100
 	}
 
-	status := "❌"
-	if success {
-		status = "✅"
-	}
-
-	fmt.Printf("Iteration %d %s: Parse %.1f%% | Execution %.1f%% | Overall %.1f%%\n",
-		iteration, status, parseRate, execRate, overall)
+	fmt.Printf("Iteration %d: Parse %.1f%% | Execution %.1f%% | Overall %.1f%%\n",
+		iteration, parseRate, execRate, overall)
 }
 
 // RunSingleShot runs a single-shot prompt without iteration
@@ -119,7 +114,7 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	start := time.Now()
 
 	// Read the initial prompt
-	initialPrompt, err := p.promptReader.FormatInitialPrompt()
+	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
 	}
@@ -196,7 +191,7 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 	}
 
 	// Read initial prompt
-	initialPrompt, err := p.promptReader.FormatInitialPrompt()
+	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
 	}
@@ -277,23 +272,16 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 		if iteration < p.maxIterations {
 			aiStart := time.Now()
 			testResultsString := p.formatTestResultsForPrompt(testResult)
-			feedbackPrompt := p.promptReader.FormatTestResultsPrompt(generatedSQL, testResultsString)
 
 			// Save feedback prompt to debug file if enabled
-			p.savePromptToDebugFile(fmt.Sprintf("FEEDBACK PROMPT (Iteration %d)", iteration+1), feedbackPrompt)
+			p.savePromptToDebugFile(fmt.Sprintf("PROMPT (Iteration %d)", iteration+1), testResultsString)
 
-			response, err = p.sessionMgr.SendMessage(session.ID, feedbackPrompt)
+			response, err = p.sessionMgr.SendMessage(session.ID, testResultsString)
 			if err != nil {
 				return nil, fmt.Errorf("failed to send feedback on iteration %d: %w", iteration, err)
 			}
 
-			// Save AI feedback response to debug file if enabled
-			p.savePromptToDebugFile(fmt.Sprintf("AI RESPONSE (Iteration %d)", iteration+1), response)
-
 			generatedSQL = p.promptReader.ExtractSQLFromResponse(response)
-
-			// Save extracted SQL from feedback to debug file if enabled
-			p.savePromptToDebugFile(fmt.Sprintf("EXTRACTED SQL (Iteration %d)", iteration+1), generatedSQL)
 
 			fmt.Printf("  └─ [%.3fs] AI response received for iteration %d\n", time.Since(aiStart).Seconds(), iteration+1)
 		}

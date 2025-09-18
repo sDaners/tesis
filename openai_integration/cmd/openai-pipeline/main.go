@@ -137,28 +137,28 @@ func printResults(result *integration.PipelineResult, verbose bool) {
 		fmt.Printf("Overall success rate: %.1f%%\n", overall)
 	}
 
-	if len(result.TestResults.ParseErrors) > 0 {
-		fmt.Printf("\n=== PARSE ERRORS ===\n")
-		for _, e := range result.TestResults.ParseErrorDetails {
-			stmt := e.Statement
-			if len(stmt) > 100 {
-				stmt = stmt[:50] + "..." + stmt[len(stmt)-50:]
-			}
-			fmt.Printf("- %s\n  Statement: %s\n", e.Error, stmt)
-		}
-	}
-
-	if len(result.TestResults.ExecutionErrors) > 0 {
-		fmt.Printf("\n=== EXECUTION ERRORS ===\n")
-		for i, e := range result.TestResults.ExecutionErrors {
-			fmt.Printf("%d. %s\n", i+1, e)
-		}
-	}
-
-	fmt.Printf("\n=== GENERATED SQL ===\n")
-	fmt.Println(result.GeneratedSQL)
-
 	if verbose {
+		if len(result.TestResults.ParseErrors) > 0 {
+			fmt.Printf("\n=== PARSE ERRORS ===\n")
+			for _, e := range result.TestResults.ParseErrorDetails {
+				stmt := e.Statement
+				if len(stmt) > 100 {
+					stmt = stmt[:50] + "..." + stmt[len(stmt)-50:]
+				}
+				fmt.Printf("- %s\n  Statement: %s\n", e.Error, stmt)
+			}
+		}
+
+		if len(result.TestResults.ExecutionErrors) > 0 {
+			fmt.Printf("\n=== EXECUTION ERRORS ===\n")
+			for i, e := range result.TestResults.ExecutionErrors {
+				fmt.Printf("%d. %s\n", i+1, e)
+			}
+		}
+
+		fmt.Printf("\n=== GENERATED SQL ===\n")
+		fmt.Println(result.GeneratedSQL)
+
 		fmt.Printf("\n=== CONVERSATION HISTORY ===\n")
 		for i, msg := range result.Messages {
 			fmt.Printf("\n--- Message %d (%s) ---\n", i+1, msg.Role)

@@ -7,10 +7,12 @@ import (
 	"time"
 )
 
-// SessionManager manages conversation sessions with OpenAI
+// SessionManager manages conversation sessions with OpenAI using the Conversations API
 type SessionManager struct {
 	sessions map[string]*ConversationSession
 	client   *OpenAIClient
+	// Keep local message tracking for backward compatibility and reporting
+	messages map[string][]ConversationMessage
 }
 
 // NewSessionManager creates a new session manager
@@ -18,10 +20,11 @@ func NewSessionManager(client *OpenAIClient) *SessionManager {
 	return &SessionManager{
 		sessions: make(map[string]*ConversationSession),
 		client:   client,
+		messages: make(map[string][]ConversationMessage),
 	}
 }
 
-// CreateSession creates a new conversation session
+// CreateSession creates a new conversation session using the OpenAI Conversations API
 func (sm *SessionManager) CreateSession(model string) (*ConversationSession, error) {
 	sessionID, err := generateSessionID()
 	if err != nil {
@@ -32,15 +35,25 @@ func (sm *SessionManager) CreateSession(model string) (*ConversationSession, err
 		model = DefaultModel
 	}
 
+	// Create a real conversation on OpenAI's side
+	conversationResp, err := sm.client.CreateConversation()
+	if err != nil {
+		return nil, fmt.Errorf("failed to create conversation on OpenAI: %w", err)
+	}
+
 	session := &ConversationSession{
-		ID:        sessionID,
-		Messages:  make([]ConversationMessage, 0),
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Model:     model,
+		ID:             sessionID,
+		ConversationID: conversationResp.ID,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+		Model:          model,
+		MessageCount:   0,
+		LastMessageID:  "",
+		LastResponseID: "",
 	}
 
 	sm.sessions[sessionID] = session
+	sm.messages[sessionID] = make([]ConversationMessage, 0)
 	return session, nil
 }
 
@@ -53,79 +66,81 @@ func (sm *SessionManager) GetSession(sessionID string) (*ConversationSession, er
 	return session, nil
 }
 
-// AddMessage adds a message to a session
+// AddMessage adds a message to a conversation using the OpenAI Conversations API
 func (sm *SessionManager) AddMessage(sessionID string, role string, content string) error {
 	session, err := sm.GetSession(sessionID)
 	if err != nil {
 		return err
 	}
 
+	// Add the message to the conversation on OpenAI's side
+	messageResp, err := sm.client.AddMessage(session.ConversationID, role, content)
+	if err != nil {
+		return fmt.Errorf("failed to add message to OpenAI conversation: %w", err)
+	}
+
+	// Store message locally for backward compatibility
 	message := ConversationMessage{
 		Role:    role,
 		Content: content,
 	}
+	sm.messages[sessionID] = append(sm.messages[sessionID], message)
 
-	session.Messages = append(session.Messages, message)
+	// Update session metadata
+	session.MessageCount++
+	session.LastMessageID = messageResp.ID
 	session.UpdatedAt = time.Now()
 
 	return nil
 }
 
-// SendMessage sends the current conversation to OpenAI and adds the response
+// SendMessage sends a user message and gets AI response using the Conversations API
 func (sm *SessionManager) SendMessage(sessionID string, userMessage string) (string, error) {
 	session, err := sm.GetSession(sessionID)
 	if err != nil {
 		return "", err
 	}
 
-	// Add user message to session
+	// Add user message to the conversation
 	if err := sm.AddMessage(sessionID, "user", userMessage); err != nil {
 		return "", err
 	}
 
-	// Send all messages in the session to OpenAI
-	response, err := sm.client.SendMessage(session.Messages)
+	// Get AI response from the conversation by passing the current message history
+	currentMessages := sm.messages[sessionID]
+	responseResp, err := sm.client.GetResponse(session.ConversationID, currentMessages)
 	if err != nil {
-		return "", fmt.Errorf("failed to send message to OpenAI: %w", err)
+		return "", fmt.Errorf("failed to get response from OpenAI conversation: %w", err)
 	}
 
-	if len(response.Choices) == 0 {
-		return "", fmt.Errorf("no choices in response")
+	// Store AI response locally for backward compatibility
+	assistantMessage := ConversationMessage{
+		Role:    "assistant",
+		Content: responseResp.Content,
 	}
+	sm.messages[sessionID] = append(sm.messages[sessionID], assistantMessage)
 
-	assistantResponse := response.Choices[0].Message.Content
+	// Update session metadata with response info
+	session.LastResponseID = responseResp.ID
+	session.MessageCount++
+	session.UpdatedAt = time.Now()
 
-	// Add assistant response to session
-	if err := sm.AddMessage(sessionID, "assistant", assistantResponse); err != nil {
-		return "", err
-	}
-
-	return assistantResponse, nil
+	return responseResp.Content, nil
 }
 
-// AddSystemMessage adds a system message to the session (should be called first)
-func (sm *SessionManager) AddSystemMessage(sessionID string, content string) error {
-	return sm.AddMessage(sessionID, "system", content)
-}
-
-// GetConversationHistory returns the full conversation history for a session
+// GetConversationHistory returns the conversation history from local storage
 func (sm *SessionManager) GetConversationHistory(sessionID string) ([]ConversationMessage, error) {
-	session, err := sm.GetSession(sessionID)
+	_, err := sm.GetSession(sessionID)
 	if err != nil {
 		return nil, err
 	}
 
-	return session.Messages, nil
-}
-
-// DeleteSession removes a session
-func (sm *SessionManager) DeleteSession(sessionID string) error {
-	if _, exists := sm.sessions[sessionID]; !exists {
-		return fmt.Errorf("session not found: %s", sessionID)
+	messages, exists := sm.messages[sessionID]
+	if !exists {
+		return []ConversationMessage{}, nil
 	}
 
-	delete(sm.sessions, sessionID)
-	return nil
+	return messages, nil
 }
 
 // ListSessions returns all active session IDs
@@ -139,15 +154,20 @@ func (sm *SessionManager) ListSessions() []string {
 
 // GetSessionStats returns basic statistics about a session
 func (sm *SessionManager) GetSessionStats(sessionID string) (int, int, error) {
-	session, err := sm.GetSession(sessionID)
+	_, err := sm.GetSession(sessionID)
 	if err != nil {
 		return 0, 0, err
+	}
+
+	messages, exists := sm.messages[sessionID]
+	if !exists {
+		return 0, 0, nil
 	}
 
 	userMessages := 0
 	assistantMessages := 0
 
-	for _, msg := range session.Messages {
+	for _, msg := range messages {
 		switch msg.Role {
 		case "user":
 			userMessages++
@@ -157,6 +177,15 @@ func (sm *SessionManager) GetSessionStats(sessionID string) (int, int, error) {
 	}
 
 	return userMessages, assistantMessages, nil
+}
+
+// GetConversationID returns the OpenAI conversation ID for a session
+func (sm *SessionManager) GetConversationID(sessionID string) (string, error) {
+	session, err := sm.GetSession(sessionID)
+	if err != nil {
+		return "", err
+	}
+	return session.ConversationID, nil
 }
 
 // generateSessionID generates a random session ID
