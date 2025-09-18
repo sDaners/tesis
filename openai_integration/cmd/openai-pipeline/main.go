@@ -19,11 +19,12 @@ func main() {
 func run() int {
 	start := time.Now()
 	var (
-		mode          = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
-		maxIterations = flag.Int("iterations", 2, "Maximum iterations for iterative mode")
-		outputFile    = flag.String("output", "", "Output file for generated SQL (optional)")
-		verbose       = flag.Bool("verbose", false, "Verbose output")
-		debugPrompt   = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
+		mode            = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
+		maxIterations   = flag.Int("iterations", 2, "Maximum iterations for iterative mode")
+		outputFile      = flag.String("output", "", "Output file for generated SQL (optional)")
+		verbose         = flag.Bool("verbose", false, "Verbose output")
+		debugPrompt     = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
+		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
 	)
 
 	flag.Usage = func() {
@@ -35,6 +36,8 @@ func run() int {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nDebugging:\n")
 		fmt.Fprintf(os.Stderr, "  --debug-prompt saves all prompts to debug_prompts_<timestamp>.txt\n")
+		fmt.Fprintf(os.Stderr, "\nData Collection:\n")
+		fmt.Fprintf(os.Stderr, "  --save-results=false disables saving to pipeline_results.json for graphing\n")
 	}
 
 	flag.Parse()
@@ -88,6 +91,16 @@ func run() int {
 	}
 
 	fmt.Printf("\n[%.3fs] Pipeline execution completed\n", executionTime.Seconds())
+
+	// Save results to accumulated JSON file (if enabled)
+	if *saveAccumulated {
+		saveAccumStart := time.Now()
+		if err := pipeline.AddResultToAccumulated(result, *mode); err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: Failed to save to accumulated results: %v\n", err)
+		} else {
+			fmt.Printf("[%.3fs] Results added to accumulated file\n", time.Since(saveAccumStart).Seconds())
+		}
+	}
 
 	// Print results
 	printResults(result, *verbose)

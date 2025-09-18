@@ -1,0 +1,138 @@
+{
+  "executions": {
+    "2a72b3a35ed31349": {
+      "conversation_id": "2a72b3a35ed31349",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 19,
+          "successfully_parsed": 14,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 5,
+          "parse_success_rate": 73.68421052631578,
+          "execution_success_rate": 64.28571428571429,
+          "overall_success_rate": 47.368421052631575,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 19,
+          "successfully_parsed": 15,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 78.94736842105263,
+          "execution_success_rate": 60,
+          "overall_success_rate": 47.368421052631575,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-18T12:54:47.019451-03:00"
+    },
+    "35185ea7684cbe6b": {
+      "conversation_id": "35185ea7684cbe6b",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 15,
+          "parse_errors": 8,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 65.21739130434783,
+          "execution_success_rate": 60,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 10,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 47.368421052631575,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-18T12:53:39.594574-03:00"
+    },
+    "6db6e76c60ea94e5": {
+      "conversation_id": "6db6e76c60ea94e5",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 27,
+          "successfully_parsed": 23,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 14,
+          "parse_success_rate": 85.18518518518519,
+          "execution_success_rate": 39.130434782608695,
+          "overall_success_rate": 33.33333333333333,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-18T12:51:56.639929-03:00"
+    },
+    "745da50240f622c0": {
+      "conversation_id": "745da50240f622c0",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 10,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 47.368421052631575,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-18T12:53:02.944057-03:00"
+    }
+  },
+  "updated_at": "2025-09-18T12:54:47.019461-03:00",
+  "count": 4
+}

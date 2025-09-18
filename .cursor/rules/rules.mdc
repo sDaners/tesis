@@ -4,3 +4,5 @@ globs:
 alwaysApply: true
 ---
 This project contains code which is meant for research purposes. It's purpose is to be a tool which will help identify problems with GoogleSQL code. The results from valid_spanner_database.sql should under no circumstances fail, as it is the baseline for valid code. If it fails it means the tests/tool has issues and never the sql code inside valid_spanner_database.
+
+Asume the .env file with proper environment variables exists.

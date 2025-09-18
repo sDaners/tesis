@@ -72,6 +72,8 @@ type PipelineResult struct {
 	Messages         []ConversationMessage `json:"messages"`
 	TotalTime        time.Duration         `json:"total_time"`
 	TokensUsed       int                   `json:"tokens_used"`
+	ExecutionMode    string                `json:"execution_mode"` // "single" or "iterative"
+	Timestamp        time.Time             `json:"timestamp"`      // When this execution occurred
 }
 
 // OpenAIConfig holds configuration for OpenAI API calls
@@ -133,4 +135,35 @@ type GetResponseResponse struct {
 		CompletionTokens int `json:"completion_tokens"`
 		TotalTokens      int `json:"total_tokens"`
 	} `json:"usage"`
+}
+
+// IterationMetrics contains metrics for a single iteration
+type IterationMetrics struct {
+	IterationNumber      int     `json:"iteration_number"`
+	TotalStatements      int     `json:"total_statements"`
+	SuccessfullyParsed   int     `json:"successfully_parsed"`
+	ParseErrors          int     `json:"parse_errors"`
+	Executed             int     `json:"executed"`
+	ExecutionErrors      int     `json:"execution_errors"`
+	ParseSuccessRate     float64 `json:"parse_success_rate"`     // %
+	ExecutionSuccessRate float64 `json:"execution_success_rate"` // % of parsed
+	OverallSuccessRate   float64 `json:"overall_success_rate"`   // %
+	Success              bool    `json:"success"`                // true if no errors
+}
+
+// ExecutionMetrics contains metrics for an entire execution with all iterations
+type ExecutionMetrics struct {
+	ConversationID   string             `json:"conversation_id"`
+	Mode             string             `json:"mode"`          // "single" or "iterative"
+	Success          bool               `json:"final_success"` // final outcome
+	TotalIterations  int                `json:"total_iterations"`
+	IterationResults []IterationMetrics `json:"iteration_results"` // metrics for each iteration
+	Timestamp        time.Time          `json:"timestamp"`
+}
+
+// AccumulatedResults stores all pipeline executions for analysis and graphing
+type AccumulatedResults struct {
+	Executions map[string]*ExecutionMetrics `json:"executions"` // Key: conversation_id
+	UpdatedAt  time.Time                    `json:"updated_at"`
+	Count      int                          `json:"count"` // Total number of executions stored
 }

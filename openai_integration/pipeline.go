@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -518,4 +519,134 @@ func (p *Pipeline) SaveResultToFile(result *PipelineResult, filename string) err
 // EvaluationResult wraps the file result for internal use
 type EvaluationResult struct {
 	FileResult models.TestFileResult
+}
+
+// LoadAccumulatedResults loads accumulated results from file, or creates a new structure if file doesn't exist
+func LoadAccumulatedResults(filePath string) (*AccumulatedResults, error) {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		// File doesn't exist, create new structure
+		return &AccumulatedResults{
+			Executions: make(map[string]*ExecutionMetrics),
+			UpdatedAt:  time.Now(),
+			Count:      0,
+		}, nil
+	}
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read accumulated results file: %w", err)
+	}
+
+	var results AccumulatedResults
+	if err := json.Unmarshal(data, &results); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal accumulated results: %w", err)
+	}
+
+	return &results, nil
+}
+
+// SaveAccumulatedResults saves accumulated results to file
+func SaveAccumulatedResults(results *AccumulatedResults, filePath string) error {
+	// Create directory if it doesn't exist
+	dir := filepath.Dir(filePath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	// Update metadata
+	results.UpdatedAt = time.Now()
+	results.Count = len(results.Executions)
+
+	// Marshal to JSON with pretty formatting for readability
+	data, err := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		return fmt.Errorf("failed to marshal accumulated results: %w", err)
+	}
+
+	if err := os.WriteFile(filePath, data, 0644); err != nil {
+		return fmt.Errorf("failed to write accumulated results file: %w", err)
+	}
+
+	return nil
+}
+
+// AddResultToAccumulated adds a pipeline result to the accumulated results (lightweight version)
+func (p *Pipeline) AddResultToAccumulated(result *PipelineResult, mode string) error {
+	filePath := filepath.Join(p.basePath, "pipeline_results.json")
+
+	// Load existing results
+	accumulated, err := LoadAccumulatedResults(filePath)
+	if err != nil {
+		return fmt.Errorf("failed to load accumulated results: %w", err)
+	}
+
+	// Create lightweight metrics from the full result
+	metrics := p.createExecutionMetrics(result, mode)
+
+	// Add the new metrics using conversation ID as key
+	accumulated.Executions[result.SessionID] = metrics
+
+	// Save back to file
+	if err := SaveAccumulatedResults(accumulated, filePath); err != nil {
+		return fmt.Errorf("failed to save accumulated results: %w", err)
+	}
+
+	fmt.Printf("✅ Results saved to accumulated file: %s (total executions: %d)\n", filePath, len(accumulated.Executions))
+	return nil
+}
+
+// createExecutionMetrics extracts metrics from a PipelineResult including all iterations
+func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *ExecutionMetrics {
+	var iterationResults []IterationMetrics
+
+	// For single mode, we have only one iteration
+	if mode == "single" {
+		iteration := p.createIterationMetrics(1, result.TestResults)
+		iterationResults = append(iterationResults, iteration)
+	} else {
+		// For iterative mode, process each iteration result
+		for _, iterResult := range result.IterationResults {
+			iteration := p.createIterationMetrics(iterResult.Iteration, iterResult.TestResults)
+			iterationResults = append(iterationResults, iteration)
+		}
+	}
+
+	return &ExecutionMetrics{
+		ConversationID:   result.SessionID,
+		Mode:             mode,
+		Success:          result.Success,
+		TotalIterations:  result.Iterations,
+		IterationResults: iterationResults,
+		Timestamp:        time.Now(),
+	}
+}
+
+// createIterationMetrics creates metrics for a single iteration
+func (p *Pipeline) createIterationMetrics(iterationNum int, testResults models.TestFileResult) IterationMetrics {
+	parseRate := 0.0
+	execRate := 0.0
+	overall := 0.0
+
+	if testResults.TotalStatements > 0 {
+		parseRate = float64(testResults.ParsedCount) / float64(testResults.TotalStatements) * 100
+		if testResults.ParsedCount > 0 {
+			execRate = float64(testResults.ExecutedCount) / float64(testResults.ParsedCount) * 100
+		}
+		overall = float64(testResults.ExecutedCount) / float64(testResults.TotalStatements) * 100
+	}
+
+	success := len(testResults.ParseErrors) == 0 && len(testResults.ExecutionErrors) == 0
+
+	return IterationMetrics{
+		IterationNumber:      iterationNum,
+		TotalStatements:      testResults.TotalStatements,
+		SuccessfullyParsed:   testResults.ParsedCount,
+		ParseErrors:          len(testResults.ParseErrors),
+		Executed:             testResults.ExecutedCount,
+		ExecutionErrors:      len(testResults.ExecutionErrors),
+		ParseSuccessRate:     parseRate,
+		ExecutionSuccessRate: execRate,
+		OverallSuccessRate:   overall,
+		Success:              success,
+	}
 }
