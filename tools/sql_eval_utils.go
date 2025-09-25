@@ -53,6 +53,12 @@ func GetStatementType(_ interface{}, originalStmt string) string {
 func CategorizeMemefishError(errMsg string) string {
 	lower := strings.ToLower(errMsg)
 	switch {
+	case strings.Contains(lower, "expected token: ), but: ("):
+		return "Syntax Error: PRIMARY/FOREIGN KEY Placement"
+	case strings.Contains(lower, "expected token: (, but: <ident>") && strings.Contains(lower, "current_timestamp"):
+		return "Syntax Error: CURRENT_TIMESTAMP Parentheses"
+	case strings.Contains(lower, "expected token: (, but: <string>"):
+		return "Syntax Error: String Literal Quotes"
 	case strings.Contains(lower, "expected token"):
 		return "Syntax Error: Expected Token"
 	case strings.Contains(lower, "unexpected token"):
@@ -210,14 +216,17 @@ func GetErrorCategoryDescription(category string) string {
 // GetParseErrorDescription maps memefish parse error types to readable descriptions.
 func GetParseErrorDescription(errorType string) string {
 	descriptions := map[string]string{
-		"Syntax Error: Missing Token":    "SQL statements missing required tokens (parentheses, keywords, etc.). FIX: Add missing syntax elements as indicated by parser",
-		"Syntax Error: General":          "General SQL syntax errors not matching specific patterns. FIX: Review statement structure, check for typos and syntax compliance with Spanner SQL",
-		"Syntax Error: Unexpected Token": "Unexpected tokens found where different syntax was expected. FIX: Remove or relocate unexpected elements to correct positions",
-		"Syntax Error: Expected Token":   "Missing expected tokens in SQL syntax. FIX: Add required keywords, punctuation, or identifiers where expected. After DEFAULT remember to wrap the value in parentheses",
-		"Invalid Syntax":                 "SQL syntax that doesn't conform to Spanner SQL grammar. FIX: Rewrite using valid Spanner SQL syntax patterns",
-		"Unsupported Feature":            "SQL features that are not supported by Spanner. FIX: Replace with Spanner-compatible alternatives (e.g., use ARRAY instead of arrays)",
-		"Unknown Element":                "Unknown SQL elements or identifiers. FIX: Check spelling of keywords, functions, and identifiers against Spanner documentation",
-		"Parse Error: Other":             "Other parsing errors not categorized above. FIX: Review error message for specific guidance",
+		"Syntax Error: PRIMARY/FOREIGN KEY Placement": "PRIMARY KEY constraints MUST be placed OUTSIDE the column definition parentheses in Spanner. FIX: Move PRIMARY KEY clause to after the closing parenthesis of column definitions. CORRECT: ') PRIMARY KEY (column_name);' WRONG: 'PRIMARY KEY (column_name)' inside column list. This is a critical Spanner-specific syntax requirement.",
+		"Syntax Error: CURRENT_TIMESTAMP Parentheses": "CURRENT_TIMESTAMP function call in DEFAULT clause needs proper parentheses. FIX: Change 'DEFAULT CURRENT_TIMESTAMP()' to 'DEFAULT (CURRENT_TIMESTAMP())'. In Spanner, DEFAULT values must be wrapped in parentheses.",
+		"Syntax Error: String Literal Quotes":         "String literals in SQL statements are using incorrect quote types. FIX: Use single quotes for string literals instead of double quotes. Change \"ACTIVE\" to 'ACTIVE'. Spanner requires single quotes for string constants.",
+		"Syntax Error: Missing Token":                 "SQL statements missing required tokens (parentheses, keywords, etc.). FIX: Add missing syntax elements as indicated by parser",
+		"Syntax Error: General":                       "General SQL syntax errors not matching specific patterns. FIX: Review statement structure, check for typos and syntax compliance with Spanner SQL",
+		"Syntax Error: Unexpected Token":              "Unexpected tokens found where different syntax was expected. FIX: Remove or relocate unexpected elements to correct positions",
+		"Syntax Error: Expected Token":                "Missing expected tokens in SQL syntax. FIX: Add required keywords, punctuation, or identifiers where expected. After DEFAULT remember to wrap the value in parentheses",
+		"Invalid Syntax":                              "SQL syntax that doesn't conform to Spanner SQL grammar. FIX: Rewrite using valid Spanner SQL syntax patterns",
+		"Unsupported Feature":                         "SQL features that are not supported by Spanner. FIX: Replace with Spanner-compatible alternatives (e.g., use ARRAY instead of arrays)",
+		"Unknown Element":                             "Unknown SQL elements or identifiers. FIX: Check spelling of keywords, functions, and identifiers against Spanner documentation",
+		"Parse Error: Other":                          "Other parsing errors not categorized above. FIX: Review error message for specific guidance",
 	}
 	if desc, ok := descriptions[errorType]; ok {
 		return desc
@@ -249,13 +258,44 @@ func GetAIRecommendations(fr models.TestFileResult) []string {
 				"  - Ensure proper statement termination with semicolons",
 				"  - Verify correct positioning of PRIMARY KEY constraints")
 		}
+
+		if fr.ParseErrorCodes["Syntax Error: PRIMARY/FOREIGN KEY Placement"] > 0 {
+			recommendations = append(recommendations,
+				"• PRIMARY KEY or FOREIGN KEY placement issues - CRITICAL SPANNER SYNTAX:",
+				"  - PRIMARY KEY must be OUTSIDE column definitions: ') PRIMARY KEY (column_name);'",
+				"  - WRONG: 'PRIMARY KEY (column_name)' inside the column list",
+				"  - CORRECT: Close column list with ), then add PRIMARY KEY (column_name);",
+				"  - FOREIGN KEY constraints go INSIDE column definitions, before closing )")
+		}
+
+		if fr.ParseErrorCodes["Syntax Error: CURRENT_TIMESTAMP Parentheses"] > 0 {
+			recommendations = append(recommendations,
+				"• CURRENT_TIMESTAMP parentheses issues:",
+				"  - Change 'DEFAULT CURRENT_TIMESTAMP()' to 'DEFAULT (CURRENT_TIMESTAMP())'",
+				"  - Spanner requires DEFAULT values to be wrapped in parentheses",
+				"  - This is a very common Spanner-specific syntax requirement")
+		}
+
+		if fr.ParseErrorCodes["Syntax Error: String Literal Quotes"] > 0 {
+			recommendations = append(recommendations,
+				"• String literal quote issues:",
+				"  - Use single quotes for strings: 'ACTIVE' not \"ACTIVE\"",
+				"  - Change all double-quoted strings to single quotes in CHECK constraints",
+				"  - Spanner requires single quotes for string literals")
+		}
 	}
 
 	// Execution error recommendations
 	if len(fr.ExecutionErrors) > 0 {
-		recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+		hasParseErrors := len(fr.ParseErrors) > 0
+		executionRecommendationsAdded := false
 
-		if fr.ErrorCodes["NotFound"] > 0 {
+		// Skip NotFound errors if there are parse errors (they're likely caused by failed table creation)
+		if fr.ErrorCodes["NotFound"] > 0 && !hasParseErrors {
+			if !executionRecommendationsAdded {
+				recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+				executionRecommendationsAdded = true
+			}
 			recommendations = append(recommendations,
 				"• Table/column not found errors:",
 				"  - The table may not be found because it's creation failed earlier, in that case ignore this error",
@@ -265,6 +305,10 @@ func GetAIRecommendations(fr models.TestFileResult) []string {
 		}
 
 		if fr.ErrorCodes["FailedPrecondition"] > 0 {
+			if !executionRecommendationsAdded {
+				recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+				executionRecommendationsAdded = true
+			}
 			recommendations = append(recommendations,
 				"• Constraint violation errors:",
 				"  - Ensure primary keys are auto generated. Example: `key STRING(36) DEFAULT (GENERATE_UUID())`",
@@ -274,6 +318,10 @@ func GetAIRecommendations(fr models.TestFileResult) []string {
 		}
 
 		if fr.ErrorCodes["InvalidArgument"] > 0 {
+			if !executionRecommendationsAdded {
+				recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+				executionRecommendationsAdded = true
+			}
 			recommendations = append(recommendations,
 				"• Invalid argument errors (often syntax-related):",
 				"  - Use Spanner-specific SQL syntax and functions",
@@ -281,7 +329,12 @@ func GetAIRecommendations(fr models.TestFileResult) []string {
 				"  - Check function signatures and parameter types")
 		}
 
-		if fr.ErrorCategories["Table Not Found (InvalidArgument)"] > 0 {
+		// Skip Table Not Found (InvalidArgument) errors if there are parse errors
+		if fr.ErrorCategories["Table Not Found (InvalidArgument)"] > 0 && !hasParseErrors {
+			if !executionRecommendationsAdded {
+				recommendations = append(recommendations, "EXECUTION ERROR PATTERNS DETECTED:")
+				executionRecommendationsAdded = true
+			}
 			recommendations = append(recommendations,
 				"• Table references causing InvalidArgument:",
 				"  - The table may not be found because it's creation failed earlier, in that case ignore this error",
@@ -290,35 +343,10 @@ func GetAIRecommendations(fr models.TestFileResult) []string {
 		}
 	}
 
-	// Success rate recommendations
-	if fr.TotalStatements > 0 {
-		parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100
-		execRate := 0.0
-		if fr.ParsedCount > 0 {
-			execRate = float64(fr.ExecutedCount) / float64(fr.ParsedCount) * 100
-		}
-
-		if parseRate < 90 {
-			recommendations = append(recommendations, "PARSE SUCCESS RATE IS LOW (<90%):")
-			recommendations = append(recommendations,
-				"• Focus on Spanner SQL syntax compliance",
-				"• Remove unsupported SQL features (CHECK constraints, identity columns)",
-				"• Use Spanner-specific function syntax (CURRENT_TIMESTAMP(), GENERATE_UUID())",
-				"• Add required clauses (SQL SECURITY for views)")
-		}
-
-		if execRate < 90 && execRate > 0 {
-			recommendations = append(recommendations, "EXECUTION SUCCESS RATE IS LOW (<90%):")
-			recommendations = append(recommendations,
-				"• Ensure proper statement ordering (CREATE before INSERT/SELECT)",
-				"• Validate data integrity (NOT NULL, foreign keys)",
-				"• Use supported data types and constraints")
-		}
-	}
-
 	// Spanner-specific best practices
 	recommendations = append(recommendations, "SPANNER SQL BEST PRACTICES FOR AI AGENTS:")
 	recommendations = append(recommendations,
+		"• CRITICAL: PRIMARY KEY must be OUTSIDE column definitions: ') PRIMARY KEY (column_name);'",
 		"• Use GENERATE_UUID() for primary keys instead of auto-increment",
 		"• Create tables before referencing them in foreign keys or queries",
 		"• Use STRING(36) with generated UUIDs for primary keys",

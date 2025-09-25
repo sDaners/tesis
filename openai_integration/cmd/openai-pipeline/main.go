@@ -25,6 +25,7 @@ func run() int {
 		verbose         = flag.Bool("verbose", false, "Verbose output")
 		debugPrompt     = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
 		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
+		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
 	)
 
 	flag.Usage = func() {
@@ -36,6 +37,7 @@ func run() int {
 		flag.PrintDefaults()
 		fmt.Fprintf(os.Stderr, "\nDebugging:\n")
 		fmt.Fprintf(os.Stderr, "  --debug-prompt saves all prompts to debug_prompts_<timestamp>.txt\n")
+		fmt.Fprintf(os.Stderr, "  --short-prompts generates shorter iterative prompts by removing summaries\n")
 		fmt.Fprintf(os.Stderr, "\nData Collection:\n")
 		fmt.Fprintf(os.Stderr, "  --save-results=false disables saving to pipeline_results.json for graphing\n")
 	}
@@ -65,6 +67,7 @@ func run() int {
 	}
 	pipeline.SetVerbose(*verbose)
 	pipeline.SetDebugPrompt(*debugPrompt)
+	pipeline.SetShortPrompts(*shortPrompts)
 	fmt.Printf("[%.3fs] Created pipeline\n", time.Since(pipelineStart).Seconds())
 
 	fmt.Printf("\nStarting OpenAI integration pipeline in %s mode...\n", *mode)

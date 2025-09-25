@@ -2,4 +2,6 @@
 allure-results*
 allure-report*
 
+debug_prompts_*.txt
+
 *.env

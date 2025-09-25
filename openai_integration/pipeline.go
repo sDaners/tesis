@@ -23,6 +23,7 @@ type Pipeline struct {
 	verbose       bool
 	debugPrompt   bool
 	debugFile     string
+	shortPrompts  bool
 }
 
 // NewPipeline creates a new pipeline instance
@@ -44,6 +45,7 @@ func NewPipeline(basePath string, maxIterations int) (*Pipeline, error) {
 		verbose:       false,
 		debugPrompt:   false,
 		debugFile:     "",
+		shortPrompts:  false,
 	}, nil
 }
 
@@ -68,6 +70,11 @@ func (p *Pipeline) SetDebugPrompt(debug bool) {
 			fmt.Printf("Debug prompts will be saved to: %s\n", p.debugFile)
 		}
 	}
+}
+
+// SetShortPrompts enables/disables shorter prompt generation for iterative feedback
+func (p *Pipeline) SetShortPrompts(short bool) {
+	p.shortPrompts = short
 }
 
 // savePromptToDebugFile appends a prompt to the debug file
@@ -137,9 +144,6 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 
 	// Extract SQL from response
 	generatedSQL := p.promptReader.ExtractSQLFromResponse(response)
-
-	// Save extracted SQL to debug file if enabled
-	p.savePromptToDebugFile("EXTRACTED SQL (Single Shot)", generatedSQL)
 
 	// Test the generated SQL
 	testStart := time.Now()
@@ -218,9 +222,6 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 	p.savePromptToDebugFile("AI RESPONSE (Initial - Iterative)", response)
 
 	generatedSQL = p.promptReader.ExtractSQLFromResponse(response)
-
-	// Save initial extracted SQL to debug file if enabled
-	p.savePromptToDebugFile("EXTRACTED SQL (Initial - Iterative)", generatedSQL)
 
 	fmt.Printf("  └─ [%.3fs] Initial AI response received\n", time.Since(aiInitialStart).Seconds())
 
@@ -416,58 +417,73 @@ func (p *Pipeline) formatTestResultsForPrompt(fr models.TestFileResult) string {
 	var results strings.Builder
 
 	results.WriteString("The generated sql code has gone through some testing, here are the results:\n\n")
-	results.WriteString(fmt.Sprintf("Total statements: %d\n", fr.TotalStatements))
-	results.WriteString(fmt.Sprintf("Successfully parsed: %d\n", fr.ParsedCount))
-	results.WriteString(fmt.Sprintf("Parse errors: %d\n", len(fr.ParseErrors)))
-	results.WriteString(fmt.Sprintf("Successfully executed: %d\n", fr.ExecutedCount))
-	results.WriteString(fmt.Sprintf("Execution errors: %d\n", len(fr.ExecutionErrors)))
 
-	if fr.TotalStatements > 0 {
-		parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100
-		execRate := 0.0
-		if fr.ParsedCount > 0 {
-			execRate = float64(fr.ExecutedCount) / float64(fr.ParsedCount) * 100
+	if !p.shortPrompts {
+		// Full format - include all summaries and statistics
+		results.WriteString(fmt.Sprintf("Total statements: %d\n", fr.TotalStatements))
+		results.WriteString(fmt.Sprintf("Successfully parsed: %d\n", fr.ParsedCount))
+		results.WriteString(fmt.Sprintf("Parse errors: %d\n", len(fr.ParseErrors)))
+		results.WriteString(fmt.Sprintf("Successfully executed: %d\n", fr.ExecutedCount))
+		results.WriteString(fmt.Sprintf("Execution errors: %d\n", len(fr.ExecutionErrors)))
+
+		if fr.TotalStatements > 0 {
+			parseRate := float64(fr.ParsedCount) / float64(fr.TotalStatements) * 100
+			execRate := 0.0
+			if fr.ParsedCount > 0 {
+				execRate = float64(fr.ExecutedCount) / float64(fr.ParsedCount) * 100
+			}
+			overall := float64(fr.ExecutedCount) / float64(fr.TotalStatements) * 100
+			results.WriteString(fmt.Sprintf("Parse success rate: %.1f%%\n", parseRate))
+			results.WriteString(fmt.Sprintf("Execution success rate (of parsed): %.1f%%\n", execRate))
+			results.WriteString(fmt.Sprintf("Overall success rate: %.1f%%\n", overall))
 		}
-		overall := float64(fr.ExecutedCount) / float64(fr.TotalStatements) * 100
-		results.WriteString(fmt.Sprintf("Parse success rate: %.1f%%\n", parseRate))
-		results.WriteString(fmt.Sprintf("Execution success rate (of parsed): %.1f%%\n", execRate))
-		results.WriteString(fmt.Sprintf("Overall success rate: %.1f%%\n", overall))
+
+		if len(fr.ParseErrorCodes) > 0 {
+			results.WriteString("\n")
+			results.WriteString("Parse Error Summary:\n")
+			for typ, cnt := range fr.ParseErrorCodes {
+				desc := tools.GetParseErrorDescription(typ)
+				results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", typ, cnt, desc))
+			}
+		}
+
+		if len(fr.ErrorCodes) > 0 {
+			results.WriteString("\n")
+			results.WriteString("Execution Error Code Summary:\n")
+			for code, cnt := range fr.ErrorCodes {
+				desc := tools.GetErrorCodeDescription(code)
+				results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", code, cnt, desc))
+			}
+		}
+
+		if len(fr.ErrorCategories) > 0 {
+			results.WriteString("\n")
+			results.WriteString("Execution Error Categories:\n")
+			for cat, cnt := range fr.ErrorCategories {
+				desc := tools.GetErrorCategoryDescription(cat)
+				results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", cat, cnt, desc))
+			}
+		}
 	}
 
-	if len(fr.ParseErrorCodes) > 0 {
-		results.WriteString("\n")
-		results.WriteString("Parse Error Summary:\n")
-		for typ, cnt := range fr.ParseErrorCodes {
-			desc := tools.GetParseErrorDescription(typ)
-			results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", typ, cnt, desc))
-		}
-	}
-
-	if len(fr.ErrorCodes) > 0 {
-		results.WriteString("\n")
-		results.WriteString("Execution Error Code Summary:\n")
-		for code, cnt := range fr.ErrorCodes {
-			desc := tools.GetErrorCodeDescription(code)
-			results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", code, cnt, desc))
-		}
-	}
-
-	if len(fr.ErrorCategories) > 0 {
-		results.WriteString("\n")
-		results.WriteString("Execution Error Categories:\n")
-		for cat, cnt := range fr.ErrorCategories {
-			desc := tools.GetErrorCategoryDescription(cat)
-			results.WriteString(fmt.Sprintf("- %s: %d (%s)\n", cat, cnt, desc))
-		}
-	}
-
+	// Error details - for short prompts, only show the first line of each statement
 	if len(fr.ParseErrors) > 0 {
 		results.WriteString("\n")
 		results.WriteString("Parse Errors:\n")
 		for _, e := range fr.ParseErrorDetails {
 			stmt := e.Statement
-			if len(stmt) > 200 {
-				stmt = stmt[:100] + "..." + stmt[len(stmt)-100:]
+			if p.shortPrompts {
+				// For short prompts, only show the first line
+				lines := strings.Split(stmt, "\n")
+				stmt = lines[0]
+				if len(lines) > 1 {
+					stmt += "..."
+				}
+			} else {
+				// For full prompts, use the original truncation logic
+				if len(stmt) > 200 {
+					stmt = stmt[:100] + "..." + stmt[len(stmt)-100:]
+				}
 			}
 			results.WriteString(fmt.Sprintf("- %s\n  Statement: %s\n", e.Error, stmt))
 		}
