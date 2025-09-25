@@ -5,6 +5,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 4,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -62,6 +63,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 3,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -107,6 +109,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -140,6 +143,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -173,6 +177,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -206,6 +211,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -239,6 +245,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 3,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -279,11 +286,34 @@
       ],
       "timestamp": "2025-09-20T17:25:45.603218-03:00"
     },
+    "587d2be7c791bb96": {
+      "conversation_id": "587d2be7c791bb96",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:13:20.881749-03:00"
+    },
     "6db6e76c60ea94e5": {
       "conversation_id": "6db6e76c60ea94e5",
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -317,6 +347,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -350,6 +381,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 6,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -431,6 +463,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 6,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -512,6 +545,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 5,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -581,6 +615,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 2,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -614,6 +649,7 @@
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 1,
+      "short_prompts": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -629,8 +665,30 @@
         }
       ],
       "timestamp": "2025-09-24T23:23:36.035965-03:00"
+    },
+    "f3c1c305c83b8fb9": {
+      "conversation_id": "f3c1c305c83b8fb9",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 1,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:12:58.557182-03:00"
     }
   },
-  "updated_at": "2025-09-24T23:42:07.09192-03:00",
-  "count": 14
+  "updated_at": "2025-09-25T00:13:20.881759-03:00",
+  "count": 16
 }

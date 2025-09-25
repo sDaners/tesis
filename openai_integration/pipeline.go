@@ -632,6 +632,7 @@ func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *
 		Mode:             mode,
 		Success:          result.Success,
 		TotalIterations:  result.Iterations,
+		ShortPrompts:     p.shortPrompts,
 		IterationResults: iterationResults,
 		Timestamp:        time.Now(),
 	}

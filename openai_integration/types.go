@@ -157,6 +157,7 @@ type ExecutionMetrics struct {
 	Mode             string             `json:"mode"`          // "single" or "iterative"
 	Success          bool               `json:"final_success"` // final outcome
 	TotalIterations  int                `json:"total_iterations"`
+	ShortPrompts     bool               `json:"short_prompts"`     // whether --short-prompts flag was used
 	IterationResults []IterationMetrics `json:"iteration_results"` // metrics for each iteration
 	Timestamp        time.Time          `json:"timestamp"`
 }
