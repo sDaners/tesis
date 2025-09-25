@@ -6,12 +6,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"sql-parser/models"
 	"sql-parser/repo"
 	"sql-parser/tools"
 )
+
+// Global mutex to protect concurrent writes to pipeline_results.json
+var pipelineResultsMutex sync.Mutex
 
 // Pipeline orchestrates the complete workflow from prompt to tested SQL
 type Pipeline struct {
@@ -24,6 +28,7 @@ type Pipeline struct {
 	debugPrompt   bool
 	debugFile     string
 	shortPrompts  bool
+	uniqueID      string
 }
 
 // NewPipeline creates a new pipeline instance
@@ -46,6 +51,7 @@ func NewPipeline(basePath string, maxIterations int) (*Pipeline, error) {
 		debugPrompt:   false,
 		debugFile:     "",
 		shortPrompts:  false,
+		uniqueID:      "",
 	}, nil
 }
 
@@ -75,6 +81,11 @@ func (p *Pipeline) SetDebugPrompt(debug bool) {
 // SetShortPrompts enables/disables shorter prompt generation for iterative feedback
 func (p *Pipeline) SetShortPrompts(short bool) {
 	p.shortPrompts = short
+}
+
+// SetUniqueID sets a unique identifier for this pipeline instance (for concurrent execution)
+func (p *Pipeline) SetUniqueID(uniqueID string) {
+	p.uniqueID = uniqueID
 }
 
 // savePromptToDebugFile appends a prompt to the debug file
@@ -363,7 +374,7 @@ func (p *Pipeline) evaluateSQLString(content string, filename string) (*Evaluati
 	}
 
 	if len(validStatements) > 0 {
-		db, terminate, err := tools.GetDB(true)
+		db, terminate, err := tools.GetDBWithIdentifier(true, p.uniqueID)
 		if err != nil {
 			return nil, fmt.Errorf("connect DB: %w", err)
 		}
@@ -588,6 +599,10 @@ func SaveAccumulatedResults(results *AccumulatedResults, filePath string) error 
 
 // AddResultToAccumulated adds a pipeline result to the accumulated results (lightweight version)
 func (p *Pipeline) AddResultToAccumulated(result *PipelineResult, mode string) error {
+	// Lock to ensure thread-safe access to pipeline_results.json
+	pipelineResultsMutex.Lock()
+	defer pipelineResultsMutex.Unlock()
+
 	filePath := filepath.Join(p.basePath, "pipeline_results.json")
 
 	// Load existing results

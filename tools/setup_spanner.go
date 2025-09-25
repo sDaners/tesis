@@ -22,7 +22,11 @@ import (
 )
 
 func GetDB(spanner bool) (*sql.DB, func(), error) {
-	dsn, terminate, err := SetupSpannerDSN(spanner)
+	return GetDBWithIdentifier(spanner, "")
+}
+
+func GetDBWithIdentifier(spanner bool, uniqueID string) (*sql.DB, func(), error) {
+	dsn, terminate, err := SetupSpannerDSNWithIdentifier(spanner, uniqueID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -47,11 +51,15 @@ func GetDB(spanner bool) (*sql.DB, func(), error) {
 // DBOptions is kept mostly for compatibility with the postgres container setup function.
 // The only option that will actually be used is SpannerDialect.
 func SetupSpannerDSN(spanner bool) (dsn string, terminate func(), err error) {
+	return SetupSpannerDSNWithIdentifier(spanner, "")
+}
+
+func SetupSpannerDSNWithIdentifier(spanner bool, uniqueID string) (dsn string, terminate func(), err error) {
 	switch spanner {
 	case false:
 		dsn, terminate, err = setupSpannerForPGAdapter()
 	case true:
-		dsn, terminate, err = setupSpannerForGoogleSQL()
+		dsn, terminate, err = setupSpannerForGoogleSQLWithIdentifier(uniqueID)
 	}
 
 	return dsn, terminate, err
@@ -113,8 +121,19 @@ const (
 )
 
 func setupSpannerForGoogleSQL() (dsn string, terminate func(), err error) {
+	return setupSpannerForGoogleSQLWithIdentifier("")
+}
+
+func setupSpannerForGoogleSQLWithIdentifier(uniqueID string) (dsn string, terminate func(), err error) {
 	ctx := context.Background()
-	dsn = fmt.Sprintf("projects/%s/instances/%s/databases/%s?x-clean-statements=true", testProject, testInstance, SpannerDB)
+
+	// Generate unique database name
+	dbName := SpannerDB
+	if uniqueID != "" {
+		dbName = fmt.Sprintf("%s-%s", SpannerDB, uniqueID)
+	}
+
+	dsn = fmt.Sprintf("projects/%s/instances/%s/databases/%s?x-clean-statements=true", testProject, testInstance, dbName)
 	terminate = func() {}
 
 	req := testcontainers.GenericContainerRequest{
@@ -158,7 +177,7 @@ func setupSpannerForGoogleSQL() (dsn string, terminate func(), err error) {
 		return dsn, terminate, err
 	}
 
-	if err := createDatabase(ctx); err != nil {
+	if err := createDatabaseWithName(ctx, dbName); err != nil {
 		return dsn, terminate, err
 	}
 
@@ -172,33 +191,61 @@ func setupInstance(ctx context.Context) error {
 	}
 	defer instanceAdmin.Close()
 
-	op, err := instanceAdmin.CreateInstance(ctx, &instancepb.CreateInstanceRequest{
-		Parent:     fmt.Sprintf("projects/%s", testProject),
-		InstanceId: testInstance,
-		Instance: &instancepb.Instance{
-			Config:      fmt.Sprintf("projects/%s/instanceConfigs/%s", testProject, "emulator-config"),
-			DisplayName: testInstance,
-			NodeCount:   1,
-		},
+	// Try to get the instance first to see if it already exists
+	instancePath := fmt.Sprintf("projects/%s/instances/%s", testProject, testInstance)
+	existingInstance, err := instanceAdmin.GetInstance(ctx, &instancepb.GetInstanceRequest{
+		Name: instancePath,
 	})
-	if err != nil {
-		return fmt.Errorf("could not create instance %s: %w", fmt.Sprintf("projects/%s/instances/%s", testProject, testInstance), err)
-	}
 
-	instance, err := op.Wait(ctx)
-	if err != nil {
-		return fmt.Errorf("waiting for instance creation to finish failed: %w", err)
-	}
+	if err == nil {
+		// Instance already exists, check if it's ready
+		if existingInstance.State == instancepb.Instance_READY {
+			return nil // Instance exists and is ready
+		}
+		// Instance exists but not ready, continue to wait for it
+	} else {
+		// Instance doesn't exist, create it
+		op, err := instanceAdmin.CreateInstance(ctx, &instancepb.CreateInstanceRequest{
+			Parent:     fmt.Sprintf("projects/%s", testProject),
+			InstanceId: testInstance,
+			Instance: &instancepb.Instance{
+				Config:      fmt.Sprintf("projects/%s/instanceConfigs/%s", testProject, "emulator-config"),
+				DisplayName: testInstance,
+				NodeCount:   1,
+			},
+		})
+		if err != nil {
+			// Check if error is because instance already exists (race condition)
+			if existingInstance, getErr := instanceAdmin.GetInstance(ctx, &instancepb.GetInstanceRequest{
+				Name: instancePath,
+			}); getErr == nil {
+				// Instance was created by another concurrent process
+				if existingInstance.State == instancepb.Instance_READY {
+					return nil
+				}
+			}
+			return fmt.Errorf("could not create instance %s: %w", instancePath, err)
+		}
 
-	// The instance may not be ready to serve yet.
-	if instance.State != instancepb.Instance_READY {
-		fmt.Printf("instance state is not READY yet. Got state %v\n", instance.State)
+		createdInstance, err := op.Wait(ctx)
+		if err != nil {
+			return fmt.Errorf("waiting for instance creation to finish failed: %w", err)
+		}
+
+		// The instance may not be ready to serve yet.
+		if createdInstance.State != instancepb.Instance_READY {
+			fmt.Printf("instance state is not READY yet. Got state %v\n", createdInstance.State)
+		}
 	}
 
 	return nil
 }
 
 func createDatabase(ctx context.Context) error {
+	return createDatabaseWithName(ctx, SpannerDB)
+}
+
+func createDatabaseWithName(ctx context.Context, dbName string) error {
 	adminClient, err := database.NewDatabaseAdminClient(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to create database admin client: %w", err)
@@ -207,13 +254,13 @@ func createDatabase(ctx context.Context) error {
 
 	op, err := adminClient.CreateDatabase(ctx, &databasepb.CreateDatabaseRequest{
 		Parent:          fmt.Sprintf("projects/%s/instances/%s", testProject, testInstance),
-		CreateStatement: fmt.Sprintf("CREATE DATABASE `%s`", SpannerDB),
+		CreateStatement: fmt.Sprintf("CREATE DATABASE `%s`", dbName),
 	})
 	if err != nil {
-		return fmt.Errorf("failed to create database: %w", err)
+		return fmt.Errorf("failed to create database %s: %w", dbName, err)
 	}
 	if _, err := op.Wait(ctx); err != nil {
-		return fmt.Errorf("waiting for database creation failed: %w", err)
+		return fmt.Errorf("waiting for database %s creation failed: %w", dbName, err)
 	}
 	return nil
 }

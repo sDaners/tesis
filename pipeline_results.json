@@ -1,217 +1,11 @@
 {
   "executions": {
-    "0b47272043c353da": {
-      "conversation_id": "0b47272043c353da",
+    "1c4178db6e8d9dd2": {
+      "conversation_id": "1c4178db6e8d9dd2",
       "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 4,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 4,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-24T23:35:50.201796-03:00"
-    },
-    "1954004162a6ebed": {
-      "conversation_id": "1954004162a6ebed",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 3,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 27,
-          "successfully_parsed": 25,
-          "parse_errors": 2,
-          "executed": 16,
-          "execution_errors": 9,
-          "parse_success_rate": 92.5925925925926,
-          "execution_success_rate": 64,
-          "overall_success_rate": 59.25925925925925,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 27,
-          "successfully_parsed": 25,
-          "parse_errors": 2,
-          "executed": 16,
-          "execution_errors": 9,
-          "parse_success_rate": 92.5925925925926,
-          "execution_success_rate": 64,
-          "overall_success_rate": 59.25925925925925,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-24T23:42:07.091898-03:00"
-    },
-    "19ee51fa5a5fc884": {
-      "conversation_id": "19ee51fa5a5fc884",
-      "mode": "iterative",
-      "final_success": false,
+      "final_success": true,
       "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-20T17:24:53.115007-03:00"
-    },
-    "2a72b3a35ed31349": {
-      "conversation_id": "2a72b3a35ed31349",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 19,
-          "successfully_parsed": 14,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 73.68421052631578,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 47.368421052631575,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 19,
-          "successfully_parsed": 15,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 78.94736842105263,
-          "execution_success_rate": 60,
-          "overall_success_rate": 47.368421052631575,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-18T12:54:47.019451-03:00"
-    },
-    "34a7fc74ab010dc2": {
-      "conversation_id": "34a7fc74ab010dc2",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 20,
-          "successfully_parsed": 15,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 75,
-          "execution_success_rate": 60,
-          "overall_success_rate": 45,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 20,
-          "successfully_parsed": 16,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 7,
-          "parse_success_rate": 80,
-          "execution_success_rate": 56.25,
-          "overall_success_rate": 45,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-20T17:18:35.484654-03:00"
-    },
-    "35185ea7684cbe6b": {
-      "conversation_id": "35185ea7684cbe6b",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
+      "short_prompts": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -227,429 +21,25 @@
         },
         {
           "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-18T12:53:39.594574-03:00"
-    },
-    "5476c020dfa9034a": {
-      "conversation_id": "5476c020dfa9034a",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 3,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-20T17:25:45.603218-03:00"
-    },
-    "587d2be7c791bb96": {
-      "conversation_id": "587d2be7c791bb96",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 1,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-25T00:13:20.881749-03:00"
-    },
-    "6db6e76c60ea94e5": {
-      "conversation_id": "6db6e76c60ea94e5",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 27,
-          "successfully_parsed": 23,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 14,
-          "parse_success_rate": 85.18518518518519,
-          "execution_success_rate": 39.130434782608695,
-          "overall_success_rate": 33.33333333333333,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-18T12:51:56.639929-03:00"
-    },
-    "745da50240f622c0": {
-      "conversation_id": "745da50240f622c0",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-18T12:53:02.944057-03:00"
-    },
-    "74ea9d655e60c5cd": {
-      "conversation_id": "74ea9d655e60c5cd",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 6,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 22,
-          "parse_errors": 1,
-          "executed": 20,
-          "execution_errors": 2,
-          "parse_success_rate": 95.65217391304348,
-          "execution_success_rate": 90.9090909090909,
-          "overall_success_rate": 86.95652173913044,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 23,
-          "successfully_parsed": 22,
-          "parse_errors": 1,
-          "executed": 20,
-          "execution_errors": 2,
-          "parse_success_rate": 95.65217391304348,
-          "execution_success_rate": 90.9090909090909,
-          "overall_success_rate": 86.95652173913044,
-          "success": false
-        },
-        {
-          "iteration_number": 4,
-          "total_statements": 23,
-          "successfully_parsed": 22,
-          "parse_errors": 1,
-          "executed": 20,
-          "execution_errors": 2,
-          "parse_success_rate": 95.65217391304348,
-          "execution_success_rate": 90.9090909090909,
-          "overall_success_rate": 86.95652173913044,
-          "success": false
-        },
-        {
-          "iteration_number": 5,
-          "total_statements": 23,
-          "successfully_parsed": 22,
-          "parse_errors": 1,
-          "executed": 20,
-          "execution_errors": 2,
-          "parse_success_rate": 95.65217391304348,
-          "execution_success_rate": 90.9090909090909,
-          "overall_success_rate": 86.95652173913044,
-          "success": false
-        },
-        {
-          "iteration_number": 6,
-          "total_statements": 23,
-          "successfully_parsed": 22,
-          "parse_errors": 1,
-          "executed": 20,
-          "execution_errors": 2,
-          "parse_success_rate": 95.65217391304348,
-          "execution_success_rate": 90.9090909090909,
-          "overall_success_rate": 86.95652173913044,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-20T17:30:08.004392-03:00"
-    },
-    "984b7fa0f1edb5d8": {
-      "conversation_id": "984b7fa0f1edb5d8",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 6,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 4,
           "total_statements": 29,
-          "successfully_parsed": 25,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 16,
-          "parse_success_rate": 86.20689655172413,
-          "execution_success_rate": 36,
-          "overall_success_rate": 31.03448275862069,
-          "success": false
-        },
-        {
-          "iteration_number": 5,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 6,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
+          "successfully_parsed": 29,
+          "parse_errors": 0,
+          "executed": 29,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
         }
       ],
-      "timestamp": "2025-09-20T17:32:15.543283-03:00"
+      "timestamp": "2025-09-25T00:40:48.494962-03:00"
     },
-    "9cd8545ea6b8d256": {
-      "conversation_id": "9cd8545ea6b8d256",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 5,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 3,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 4,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 5,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-24T23:38:58.503095-03:00"
-    },
-    "9ee8184213c12eb5": {
-      "conversation_id": "9ee8184213c12eb5",
-      "mode": "iterative",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 18,
-          "parse_errors": 5,
-          "executed": 9,
-          "execution_errors": 9,
-          "parse_success_rate": 78.26086956521739,
-          "execution_success_rate": 50,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 19,
-          "parse_errors": 4,
-          "executed": 9,
-          "execution_errors": 10,
-          "parse_success_rate": 82.6086956521739,
-          "execution_success_rate": 47.368421052631575,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-09-24T23:23:06.581981-03:00"
-    },
-    "f0f217251cb2f2a3": {
-      "conversation_id": "f0f217251cb2f2a3",
+    "44bc8b2bf638588e": {
+      "conversation_id": "44bc8b2bf638588e",
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 1,
-      "short_prompts": false,
+      "short_prompts": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -664,10 +54,78 @@
           "success": false
         }
       ],
-      "timestamp": "2025-09-24T23:23:36.035965-03:00"
+      "timestamp": "2025-09-25T01:23:26.971732-03:00"
     },
-    "f3c1c305c83b8fb9": {
-      "conversation_id": "f3c1c305c83b8fb9",
+    "4b43127c52474bdc": {
+      "conversation_id": "4b43127c52474bdc",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 21,
+          "parse_errors": 2,
+          "executed": 9,
+          "execution_errors": 12,
+          "parse_success_rate": 91.30434782608695,
+          "execution_success_rate": 42.857142857142854,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:40:18.056285-03:00"
+    },
+    "6d76905ebdfc5101": {
+      "conversation_id": "6d76905ebdfc5101",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 19,
+          "successfully_parsed": 15,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 78.94736842105263,
+          "execution_success_rate": 60,
+          "overall_success_rate": 47.368421052631575,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 21,
+          "parse_errors": 2,
+          "executed": 15,
+          "execution_errors": 6,
+          "parse_success_rate": 91.30434782608695,
+          "execution_success_rate": 71.42857142857143,
+          "overall_success_rate": 65.21739130434783,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:10:26.538198-03:00"
+    },
+    "71578b1f901d08bf": {
+      "conversation_id": "71578b1f901d08bf",
       "mode": "iterative",
       "final_success": false,
       "total_iterations": 1,
@@ -686,9 +144,381 @@
           "success": false
         }
       ],
-      "timestamp": "2025-09-25T00:12:58.557182-03:00"
+      "timestamp": "2025-09-25T01:22:38.841635-03:00"
+    },
+    "76afa935cfcf2b62": {
+      "conversation_id": "76afa935cfcf2b62",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 1,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 20,
+          "successfully_parsed": 15,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 75,
+          "execution_success_rate": 60,
+          "overall_success_rate": 45,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:54:41.084363-03:00"
+    },
+    "77cab281d1d8f957": {
+      "conversation_id": "77cab281d1d8f957",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 29,
+          "successfully_parsed": 29,
+          "parse_errors": 0,
+          "executed": 28,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 96.55172413793103,
+          "overall_success_rate": 96.55172413793103,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:08:11.128108-03:00"
+    },
+    "8cff6bddcd62c8f9": {
+      "conversation_id": "8cff6bddcd62c8f9",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 15,
+          "parse_errors": 8,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 65.21739130434783,
+          "execution_success_rate": 60,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 29,
+          "successfully_parsed": 28,
+          "parse_errors": 1,
+          "executed": 21,
+          "execution_errors": 7,
+          "parse_success_rate": 96.55172413793103,
+          "execution_success_rate": 75,
+          "overall_success_rate": 72.41379310344827,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:40:18.211136-03:00"
+    },
+    "8da30d4e55b1f539": {
+      "conversation_id": "8da30d4e55b1f539",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 29,
+          "successfully_parsed": 29,
+          "parse_errors": 0,
+          "executed": 28,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 96.55172413793103,
+          "overall_success_rate": 96.55172413793103,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:23:57.188624-03:00"
+    },
+    "a8709064fbe45315": {
+      "conversation_id": "a8709064fbe45315",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 1,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:55:16.514529-03:00"
+    },
+    "aa81eb304f4210d7": {
+      "conversation_id": "aa81eb304f4210d7",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 15,
+          "parse_errors": 8,
+          "executed": 9,
+          "execution_errors": 6,
+          "parse_success_rate": 65.21739130434783,
+          "execution_success_rate": 60,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 21,
+          "parse_errors": 2,
+          "executed": 9,
+          "execution_errors": 12,
+          "parse_success_rate": 91.30434782608695,
+          "execution_success_rate": 42.857142857142854,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:42:48.107513-03:00"
+    },
+    "ab5e125e4f7b0490": {
+      "conversation_id": "ab5e125e4f7b0490",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 29,
+          "successfully_parsed": 29,
+          "parse_errors": 0,
+          "executed": 28,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 96.55172413793103,
+          "overall_success_rate": 96.55172413793103,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:23:54.465211-03:00"
+    },
+    "ac0e00262652133f": {
+      "conversation_id": "ac0e00262652133f",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 10,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 47.368421052631575,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 27,
+          "successfully_parsed": 25,
+          "parse_errors": 2,
+          "executed": 16,
+          "execution_errors": 9,
+          "parse_success_rate": 92.5925925925926,
+          "execution_success_rate": 64,
+          "overall_success_rate": 59.25925925925925,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:23:53.495027-03:00"
+    },
+    "ac3336c030200d7d": {
+      "conversation_id": "ac3336c030200d7d",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 10,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 47.368421052631575,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 29,
+          "successfully_parsed": 29,
+          "parse_errors": 0,
+          "executed": 28,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 96.55172413793103,
+          "overall_success_rate": 96.55172413793103,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:40:18.448274-03:00"
+    },
+    "be29a59a28dfc8b0": {
+      "conversation_id": "be29a59a28dfc8b0",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 1,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T01:23:26.901654-03:00"
+    },
+    "d2c75a69aa33bb0a": {
+      "conversation_id": "d2c75a69aa33bb0a",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:43:43.133385-03:00"
+    },
+    "ddeb68f947c1366c": {
+      "conversation_id": "ddeb68f947c1366c",
+      "mode": "iterative",
+      "final_success": false,
+      "total_iterations": 2,
+      "short_prompts": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 18,
+          "parse_errors": 5,
+          "executed": 9,
+          "execution_errors": 9,
+          "parse_success_rate": 78.26086956521739,
+          "execution_success_rate": 50,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 21,
+          "parse_errors": 2,
+          "executed": 9,
+          "execution_errors": 12,
+          "parse_success_rate": 91.30434782608695,
+          "execution_success_rate": 42.857142857142854,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-09-25T00:39:35.408948-03:00"
     }
   },
-  "updated_at": "2025-09-25T00:13:20.881759-03:00",
-  "count": 16
+  "updated_at": "2025-09-25T01:40:18.448277-03:00",
+  "count": 17
 }
