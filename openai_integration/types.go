@@ -25,10 +25,11 @@ type ConversationSession struct {
 
 // OpenAIRequest represents a request to the OpenAI API
 type OpenAIRequest struct {
-	Model       string                `json:"model"`
-	Messages    []ConversationMessage `json:"messages"`
-	Temperature float64               `json:"temperature,omitempty"`
-	MaxTokens   int                   `json:"max_tokens,omitempty"`
+	Model               string                `json:"model"`
+	Messages            []ConversationMessage `json:"messages"`
+	Temperature         float64               `json:"temperature,omitempty"`
+	MaxTokens           int                   `json:"max_tokens,omitempty"`
+	MaxCompletionTokens int                   `json:"max_completion_tokens,omitempty"`
 }
 
 // OpenAIResponse represents a response from the OpenAI API
@@ -83,13 +84,13 @@ type OpenAIConfig struct {
 	Temperature float64 `json:"temperature"`
 	MaxTokens   int     `json:"max_tokens"`
 	BaseURL     string  `json:"base_url"`
+	Verbose     bool    `json:"verbose"`
 }
 
 // Conversations API types
 
 // CreateConversationRequest represents a request to create a new conversation
 type CreateConversationRequest struct {
-	// Empty struct - the API might not require parameters for conversation creation
 }
 
 // CreateConversationResponse represents the response from creating a conversation
@@ -117,9 +118,10 @@ type AddMessageResponse struct {
 
 // GetResponseRequest represents a request to get a response from the conversation
 type GetResponseRequest struct {
-	Model       string  `json:"model,omitempty"`
-	Temperature float64 `json:"temperature,omitempty"`
-	MaxTokens   int     `json:"max_tokens,omitempty"`
+	Model               string  `json:"model,omitempty"`
+	Temperature         float64 `json:"temperature,omitempty"`
+	MaxTokens           int     `json:"max_tokens,omitempty"`
+	MaxCompletionTokens int     `json:"max_completion_tokens,omitempty"`
 }
 
 // GetResponseResponse represents the AI's response in a conversation
@@ -155,6 +157,7 @@ type IterationMetrics struct {
 type ExecutionMetrics struct {
 	ConversationID   string             `json:"conversation_id"`
 	Mode             string             `json:"mode"`          // "single" or "iterative"
+	Model            string             `json:"model"`         // LLM model used
 	Success          bool               `json:"final_success"` // final outcome
 	TotalIterations  int                `json:"total_iterations"`
 	ShortPrompts     bool               `json:"short_prompts"`     // whether --short-prompts flag was used

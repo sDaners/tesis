@@ -35,7 +35,6 @@ func (sm *SessionManager) CreateSession(model string) (*ConversationSession, err
 		model = DefaultModel
 	}
 
-	// Create a real conversation on OpenAI's side
 	conversationResp, err := sm.client.CreateConversation()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create conversation on OpenAI: %w", err)

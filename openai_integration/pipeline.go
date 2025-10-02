@@ -29,14 +29,28 @@ type Pipeline struct {
 	debugFile     string
 	shortPrompts  bool
 	uniqueID      string
+	model         string
 }
 
-// NewPipeline creates a new pipeline instance
-func NewPipeline(basePath string, maxIterations int) (*Pipeline, error) {
-	client, err := NewOpenAIClientFromEnv()
-	if err != nil {
-		return nil, fmt.Errorf("failed to create OpenAI client: %w", err)
+// NewPipeline creates a new pipeline instance with the default model
+func NewPipeline(basePath string, maxIterations int, verbose bool) (*Pipeline, error) {
+	return NewPipelineWithModel(basePath, maxIterations, "", verbose)
+}
+
+// NewPipelineWithModel creates a new pipeline instance with a specific model
+func NewPipelineWithModel(basePath string, maxIterations int, model string, verbose bool) (*Pipeline, error) {
+	var client *OpenAIClient
+
+	// Create client with custom model
+	config := OpenAIConfig{
+		APIKey:      os.Getenv("OPENAI_API_KEY"),
+		Model:       model,
+		Temperature: 0.7,
+		MaxTokens:   8096,
+		BaseURL:     DefaultOpenAIURL,
+		Verbose:     verbose,
 	}
+	client = NewOpenAIClient(config)
 
 	sessionMgr := NewSessionManager(client)
 	promptReader := NewPromptReader(basePath)
@@ -47,17 +61,13 @@ func NewPipeline(basePath string, maxIterations int) (*Pipeline, error) {
 		promptReader:  promptReader,
 		basePath:      basePath,
 		maxIterations: maxIterations,
-		verbose:       false,
+		verbose:       verbose,
 		debugPrompt:   false,
 		debugFile:     "",
 		shortPrompts:  false,
 		uniqueID:      "",
+		model:         model,
 	}, nil
-}
-
-// SetVerbose sets the verbose mode for the pipeline
-func (p *Pipeline) SetVerbose(verbose bool) {
-	p.verbose = verbose
 }
 
 // SetDebugPrompt enables debug mode and creates a debug file for saving prompts
@@ -111,7 +121,7 @@ func (p *Pipeline) savePromptToDebugFile(promptType, content string) {
 }
 
 // printIterationResult prints the results of a single iteration in real-time
-func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFileResult, success bool) {
+func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFileResult) {
 	parseRate := 0.0
 	execRate := 0.0
 	overall := 0.0
@@ -175,7 +185,7 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	}
 
 	// Print iteration result in real-time
-	p.printIterationResult(1, testResult, success)
+	p.printIterationResult(1, testResult)
 
 	result := &PipelineResult{
 		SessionID:        "single-shot",
@@ -258,7 +268,7 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 		iterationResults = append(iterationResults, iterationResult)
 
 		// Print iteration result in real-time
-		p.printIterationResult(iteration, testResult, success)
+		p.printIterationResult(iteration, testResult)
 		fmt.Printf("  └─ [%.3fs] Iteration %d completed\n", time.Since(iterationStart).Seconds(), iteration)
 
 		if success {
@@ -622,7 +632,7 @@ func (p *Pipeline) AddResultToAccumulated(result *PipelineResult, mode string) e
 		return fmt.Errorf("failed to save accumulated results: %w", err)
 	}
 
-	fmt.Printf("✅ Results saved to accumulated file: %s (total executions: %d)\n", filePath, len(accumulated.Executions))
+	fmt.Printf("Results saved to accumulated file: %s (total executions: %d)\n", filePath, len(accumulated.Executions))
 	return nil
 }
 
@@ -645,6 +655,7 @@ func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *
 	return &ExecutionMetrics{
 		ConversationID:   result.SessionID,
 		Mode:             mode,
+		Model:            p.model,
 		Success:          result.Success,
 		TotalIterations:  result.Iterations,
 		ShortPrompts:     p.shortPrompts,

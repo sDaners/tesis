@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
-	"sql-parser/tools"
+	"strings"
 	"time"
 )
 
@@ -14,8 +15,26 @@ const (
 	DefaultOpenAIURL     = "https://api.openai.com/v1/chat/completions"
 	ConversationsBaseURL = "https://api.openai.com/v1/conversations"
 	DefaultModel         = "chatgpt-4o-latest"
-	DefaultTimeout       = 60 * time.Second
+	DefaultTimeout       = 10 * time.Minute
 )
+
+// isGPT5OrNewer checks if the model uses the new parameter format
+func isGPT5OrNewer(model string) bool {
+	// Models that use max_completion_tokens instead of max_tokens
+	gpt5Models := []string{
+		"gpt-5-2025-08-07",
+		"gpt-5-mini-2025-08-07",
+	}
+
+	for _, gpt5Model := range gpt5Models {
+		if model == gpt5Model ||
+			strings.HasPrefix(model, gpt5Model+"-") ||
+			strings.Contains(model, gpt5Model) {
+			return true
+		}
+	}
+	return false
+}
 
 // OpenAIClient handles communication with OpenAI API
 type OpenAIClient struct {
@@ -31,11 +50,8 @@ func NewOpenAIClient(config OpenAIConfig) *OpenAIClient {
 	if config.Model == "" {
 		config.Model = DefaultModel
 	}
-	if config.Temperature == 0 {
-		config.Temperature = 0.7
-	}
 	if config.MaxTokens == 0 {
-		config.MaxTokens = 4096
+		config.MaxTokens = 8096
 	}
 
 	return &OpenAIClient{
@@ -46,31 +62,20 @@ func NewOpenAIClient(config OpenAIConfig) *OpenAIClient {
 	}
 }
 
-// NewOpenAIClientFromEnv creates a new OpenAI client using environment variables
-func NewOpenAIClientFromEnv() (*OpenAIClient, error) {
-	apiKey := tools.Get().OpenAIAPIKey
-	if apiKey == "" {
-		return nil, fmt.Errorf("OPENAI_API_KEY environment variable not set")
-	}
-
-	config := OpenAIConfig{
-		APIKey:      apiKey,
-		Model:       DefaultModel,
-		Temperature: 0.7,
-		MaxTokens:   4096,
-		BaseURL:     DefaultOpenAIURL,
-	}
-
-	return NewOpenAIClient(config), nil
-}
-
 // SendMessage sends a message to OpenAI and returns the response
 func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIResponse, error) {
 	request := OpenAIRequest{
-		Model:       c.config.Model,
-		Messages:    messages,
-		Temperature: c.config.Temperature,
-		MaxTokens:   c.config.MaxTokens,
+		Model:    c.config.Model,
+		Messages: messages,
+	}
+
+	// Use the appropriate token parameter based on the model
+	if isGPT5OrNewer(c.config.Model) {
+		request.MaxCompletionTokens = c.config.MaxTokens
+		request.Temperature = 1
+	} else {
+		request.MaxTokens = c.config.MaxTokens
+		request.Temperature = c.config.Temperature
 	}
 
 	jsonData, err := json.Marshal(request)
@@ -100,6 +105,11 @@ func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIRespo
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	// Log response body if verbose mode is enabled
+	if c.config.Verbose {
+		log.Printf("OpenAI API Response Body: %s", string(body))
 	}
 
 	var openAIResp OpenAIResponse

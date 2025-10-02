@@ -19,6 +19,7 @@ type PipelineConfig struct {
 	SaveAccumulated bool
 	ShortPrompts    bool
 	UniqueID        string
+	Model           string
 }
 
 // PipelineRunner encapsulates the logic for running a single pipeline instance
@@ -41,11 +42,10 @@ func (pr *PipelineRunner) Run() (*PipelineResult, error) {
 
 	// Create pipeline
 	pipelineStart := time.Now()
-	pipeline, err := NewPipeline(pr.basePath, pr.config.MaxIterations)
+	pipeline, err := NewPipelineWithModel(pr.basePath, pr.config.MaxIterations, pr.config.Model, pr.config.Verbose)
 	if err != nil {
 		return nil, fmt.Errorf("error creating pipeline: %w", err)
 	}
-	pipeline.SetVerbose(pr.config.Verbose)
 	pipeline.SetDebugPrompt(pr.config.DebugPrompt)
 	pipeline.SetShortPrompts(pr.config.ShortPrompts)
 
@@ -119,6 +119,7 @@ func (pr *PipelineRunner) RunWithResults() (result *PipelineResult, exitCode int
 
 	result, err = pr.Run()
 	if err != nil {
+		fmt.Printf("An error occurred while running the pipeline: %v\n", err)
 		return result, 2, err
 	}
 

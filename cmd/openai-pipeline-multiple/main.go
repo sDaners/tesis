@@ -22,7 +22,9 @@ func runMultiple() int {
 		debugPrompt     = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
 		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
 		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
+		saveOutput      = flag.Bool("save-output", false, "Save output to file")
 		verbose         = flag.Bool("verbose", false, "Verbose output for each pipeline")
+		model           = flag.String("model", "chatgpt-4o-latest", "OpenAI model to use")
 	)
 
 	flag.Usage = func() {
@@ -32,11 +34,10 @@ func runMultiple() int {
 		fmt.Fprintf(os.Stderr, "  OPENAI_API_KEY  - Your OpenAI API key\n\n")
 		fmt.Fprintf(os.Stderr, "Options:\n")
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, "\nDebugging:\n")
 		fmt.Fprintf(os.Stderr, "  --debug-prompt saves all prompts to debug_prompts_<timestamp>.txt\n")
 		fmt.Fprintf(os.Stderr, "  --short-prompts generates shorter iterative prompts by removing summaries\n")
-		fmt.Fprintf(os.Stderr, "\nConcurrency:\n")
 		fmt.Fprintf(os.Stderr, "  --concurrent specifies number of concurrent pipeline instances (default: 3)\n")
+		fmt.Fprintf(os.Stderr, "  --save-output saves output to file\n")
 	}
 
 	flag.Parse()
@@ -49,7 +50,7 @@ func runMultiple() int {
 	}
 
 	fmt.Printf("Starting %d concurrent OpenAI pipeline instances...\n", *numConcurrent)
-	fmt.Printf("Mode: %s | Iterations: %d | Short Prompts: %v\n", *mode, *maxIterations, *shortPrompts)
+	fmt.Printf("Mode: %s | Model: %s | Iterations: %d | Short Prompts: %v\n", *mode, *model, *maxIterations, *shortPrompts)
 	fmt.Printf("=== CONCURRENT EXECUTION PROGRESS ===\n")
 
 	start := time.Now()
@@ -57,6 +58,11 @@ func runMultiple() int {
 	// Channel to collect results
 	results := make(chan *PipelineExecutionResult, *numConcurrent)
 	var wg sync.WaitGroup
+
+	outputFile := ""
+	if *saveOutput {
+		outputFile = fmt.Sprintf("concurrent_%d.sql", *numConcurrent)
+	}
 
 	// Launch concurrent pipeline instances
 	for i := 0; i < *numConcurrent; i++ {
@@ -66,12 +72,13 @@ func runMultiple() int {
 			runPipelineInstance(instanceID, integration.PipelineConfig{
 				Mode:            *mode,
 				MaxIterations:   *maxIterations,
-				OutputFile:      fmt.Sprintf("concurrent_%d.sql", instanceID),
+				OutputFile:      outputFile,
 				Verbose:         *verbose,
 				DebugPrompt:     *debugPrompt,
 				SaveAccumulated: *saveAccumulated,
 				ShortPrompts:    *shortPrompts,
 				UniqueID:        fmt.Sprintf("instance-%d", instanceID),
+				Model:           *model,
 			}, basePath, results)
 		}(i + 1)
 	}
@@ -87,9 +94,9 @@ func runMultiple() int {
 	for result := range results {
 		allResults = append(allResults, result)
 		if result.Error != nil {
-			fmt.Printf("Instance %d: ❌ FAILED - %v\n", result.InstanceID, result.Error)
+			fmt.Printf("Instance %d: FAILED - %v\n", result.InstanceID, result.Error)
 		} else {
-			fmt.Printf("Instance %d: ✅ SUCCESS - Parse: %.1f%% | Overall: %.1f%% | Time: %v\n",
+			fmt.Printf("Instance %d: SUCCESS - Parse: %.1f%% | Overall: %.1f%% | Time: %v\n",
 				result.InstanceID,
 				result.ParseSuccessRate,
 				result.OverallSuccessRate,
