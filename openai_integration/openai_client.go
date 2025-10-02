@@ -16,7 +16,27 @@ const (
 	ConversationsBaseURL = "https://api.openai.com/v1/conversations"
 	DefaultModel         = "chatgpt-4o-latest"
 	DefaultTimeout       = 10 * time.Minute
+	RetryDelaySeconds    = 30
+	MaxRetries           = 10
 )
+
+// OpenAIErrorResponse represents an error response from OpenAI API
+type OpenAIErrorResponse struct {
+	Error struct {
+		Message string `json:"message"`
+		Type    string `json:"type"`
+		Param   string `json:"param"`
+		Code    string `json:"code"`
+	} `json:"error"`
+}
+
+func isRateLimitError(body []byte) bool {
+	var errorResp OpenAIErrorResponse
+	if err := json.Unmarshal(body, &errorResp); err != nil {
+		return false
+	}
+	return errorResp.Error.Code == "rate_limit_exceeded"
+}
 
 // isGPT5OrNewer checks if the model uses the new parameter format
 func isGPT5OrNewer(model string) bool {
@@ -62,7 +82,6 @@ func NewOpenAIClient(config OpenAIConfig) *OpenAIClient {
 	}
 }
 
-// SendMessage sends a message to OpenAI and returns the response
 func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIResponse, error) {
 	request := OpenAIRequest{
 		Model:    c.config.Model,
@@ -83,41 +102,60 @@ func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIRespo
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", c.config.BaseURL, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
+	// Retry logic for rate limit errors
+	for attempt := 0; attempt < MaxRetries; attempt++ {
+		req, err := http.NewRequest("POST", c.config.BaseURL, bytes.NewBuffer(jsonData))
+		if err != nil {
+			return nil, fmt.Errorf("failed to create request: %w", err)
+		}
 
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Authorization", "Bearer "+c.config.APIKey)
 
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("failed to send request: %w", err)
+		}
 
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if err != nil {
+			return nil, fmt.Errorf("failed to read response body: %w", err)
+		}
+
+		if c.config.Verbose {
+			log.Printf("OpenAI API Response Body: %s", string(body))
+		}
+
+		if resp.StatusCode == http.StatusOK {
+			// Success - parse and return response
+			if c.config.Verbose {
+				log.Printf("OpenAI API Response Body: %s", string(body))
+			}
+
+			var openAIResp OpenAIResponse
+			if err := json.Unmarshal(body, &openAIResp); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+			}
+
+			return &openAIResp, nil
+		}
+
+		// Check if this is a rate limit error
+		if resp.StatusCode == http.StatusTooManyRequests && isRateLimitError(body) {
+			if attempt < MaxRetries-1 {
+				log.Printf("Rate limit exceeded, retrying in %d seconds (attempt %d/%d)...",
+					RetryDelaySeconds, attempt+1, MaxRetries)
+				time.Sleep(RetryDelaySeconds * time.Second)
+				continue
+			}
+		}
+
+		// Not a rate limit error or max retries exceeded - return the error
 		return nil, fmt.Errorf("OpenAI API error (status %d): %s", resp.StatusCode, string(body))
 	}
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	// Log response body if verbose mode is enabled
-	if c.config.Verbose {
-		log.Printf("OpenAI API Response Body: %s", string(body))
-	}
-
-	var openAIResp OpenAIResponse
-	if err := json.Unmarshal(body, &openAIResp); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-
-	return &openAIResp, nil
+	return nil, fmt.Errorf("OpenAI API error: max retries exceeded for rate limit")
 }
 
 // SendSingleMessage is a convenience method for sending a single user message
