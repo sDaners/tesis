@@ -1,28 +1,5 @@
 {
   "executions": {
-    "06067dab0db9ec1b": {
-      "conversation_id": "06067dab0db9ec1b",
-      "mode": "iterative",
-      "model": "gpt-5-2025-08-07",
-      "final_success": true,
-      "total_iterations": 1,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 0,
-          "successfully_parsed": 0,
-          "parse_errors": 0,
-          "executed": 0,
-          "execution_errors": 0,
-          "parse_success_rate": 0,
-          "execution_success_rate": 0,
-          "overall_success_rate": 0,
-          "success": true
-        }
-      ],
-      "timestamp": "2025-10-02T00:03:03.0895715-03:00"
-    },
     "08ef39130d0e643b": {
       "conversation_id": "08ef39130d0e643b",
       "mode": "iterative",
@@ -571,29 +548,6 @@
         }
       ],
       "timestamp": "2025-10-01T22:32:00.4014828-03:00"
-    },
-    "383c051c2d4250ec": {
-      "conversation_id": "383c051c2d4250ec",
-      "mode": "iterative",
-      "model": "gpt-5-2025-08-07",
-      "final_success": true,
-      "total_iterations": 1,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 0,
-          "successfully_parsed": 0,
-          "parse_errors": 0,
-          "executed": 0,
-          "execution_errors": 0,
-          "parse_success_rate": 0,
-          "execution_success_rate": 0,
-          "overall_success_rate": 0,
-          "success": true
-        }
-      ],
-      "timestamp": "2025-10-01T23:15:39.5718831-03:00"
     },
     "3bc613ca68deab13": {
       "conversation_id": "3bc613ca68deab13",
@@ -2849,29 +2803,6 @@
       ],
       "timestamp": "2025-09-25T01:23:26.901654-03:00"
     },
-    "bec51ff0818ce80d": {
-      "conversation_id": "bec51ff0818ce80d",
-      "mode": "iterative",
-      "model": "gpt-5-2025-08-07",
-      "final_success": true,
-      "total_iterations": 1,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 0,
-          "successfully_parsed": 0,
-          "parse_errors": 0,
-          "executed": 0,
-          "execution_errors": 0,
-          "parse_success_rate": 0,
-          "execution_success_rate": 0,
-          "overall_success_rate": 0,
-          "success": true
-        }
-      ],
-      "timestamp": "2025-10-01T23:38:08.4719962-03:00"
-    },
     "c084428a58b97246": {
       "conversation_id": "c084428a58b97246",
       "mode": "iterative",
@@ -3983,5 +3914,5 @@
     }
   },
   "updated_at": "2025-10-02T01:46:38.0349676-03:00",
-  "count": 105
+  "count": 106
 }
