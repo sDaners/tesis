@@ -28,6 +28,7 @@ type OpenAIRequest struct {
 	Model               string                `json:"model"`
 	Messages            []ConversationMessage `json:"messages"`
 	Temperature         float64               `json:"temperature,omitempty"`
+	TopP                float64               `json:"top_p,omitempty"`
 	MaxTokens           int                   `json:"max_tokens,omitempty"`
 	MaxCompletionTokens int                   `json:"max_completion_tokens,omitempty"`
 }
@@ -64,6 +65,7 @@ type IterationResult struct {
 // PipelineResult represents the outcome of a complete pipeline run
 type PipelineResult struct {
 	SessionID        string                `json:"session_id"`
+	ConversationID   string                `json:"conversation_id"` // OpenAI conversation ID used during testing
 	InitialPrompt    string                `json:"initial_prompt"`
 	GeneratedSQL     string                `json:"generated_sql"`
 	TestResults      models.TestFileResult `json:"test_results"`

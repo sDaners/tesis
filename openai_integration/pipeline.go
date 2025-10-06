@@ -142,6 +142,12 @@ func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFil
 func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	start := time.Now()
 
+	// Create a new session for single-shot execution
+	session, err := p.sessionMgr.CreateSession(DefaultModel)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
 	// Read the initial prompt
 	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
@@ -151,10 +157,10 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	// Save prompt to debug file if enabled
 	p.savePromptToDebugFile("INITIAL PROMPT (Single Shot)", initialPrompt)
 
-	// Send to OpenAI
+	// Send to OpenAI using session manager
 	fmt.Printf("  └─ Sending prompt to AI...\n")
 	aiStart := time.Now()
-	response, err := p.client.SendSingleMessage(initialPrompt)
+	response, err := p.sessionMgr.SendMessage(session.ID, initialPrompt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to send message to OpenAI: %w", err)
 	}
@@ -187,20 +193,23 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	// Print iteration result in real-time
 	p.printIterationResult(1, testResult)
 
+	// Get conversation history for messages
+	allMessages, _ := p.sessionMgr.GetConversationHistory(session.ID)
+
 	result := &PipelineResult{
-		SessionID:        "single-shot",
+		SessionID:        session.ID,
+		ConversationID:   session.ConversationID,
 		InitialPrompt:    initialPrompt,
 		GeneratedSQL:     generatedSQL,
 		TestResults:      testResult,
 		Iterations:       1,
 		IterationResults: []IterationResult{iterationResult},
 		Success:          success,
-		Messages: []ConversationMessage{
-			{Role: "user", Content: initialPrompt},
-			{Role: "assistant", Content: response},
-		},
-		TotalTime:  time.Since(start),
-		TokensUsed: 0, // Would need to track from OpenAI response
+		Messages:         allMessages,
+		TotalTime:        time.Since(start),
+		TokensUsed:       0, // Would need to track from OpenAI response
+		ExecutionMode:    "single",
+		Timestamp:        time.Now(),
 	}
 
 	return result, nil
@@ -277,6 +286,7 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 
 			result := &PipelineResult{
 				SessionID:        session.ID,
+				ConversationID:   session.ConversationID,
 				InitialPrompt:    initialPrompt,
 				GeneratedSQL:     generatedSQL,
 				TestResults:      testResult,
@@ -286,6 +296,8 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 				Messages:         allMessages,
 				TotalTime:        time.Since(start),
 				TokensUsed:       totalTokens,
+				ExecutionMode:    "iterative",
+				Timestamp:        time.Now(),
 			}
 
 			return result, nil
@@ -316,6 +328,7 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 	// Max iterations reached without success
 	result := &PipelineResult{
 		SessionID:        session.ID,
+		ConversationID:   session.ConversationID,
 		InitialPrompt:    initialPrompt,
 		GeneratedSQL:     generatedSQL,
 		TestResults:      testResult,
@@ -325,6 +338,8 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 		Messages:         allMessages,
 		TotalTime:        time.Since(start),
 		TokensUsed:       totalTokens,
+		ExecutionMode:    "iterative",
+		Timestamp:        time.Now(),
 	}
 
 	return result, nil
@@ -625,7 +640,7 @@ func (p *Pipeline) AddResultToAccumulated(result *PipelineResult, mode string) e
 	metrics := p.createExecutionMetrics(result, mode)
 
 	// Add the new metrics using conversation ID as key
-	accumulated.Executions[result.SessionID] = metrics
+	accumulated.Executions[result.ConversationID] = metrics
 
 	// Save back to file
 	if err := SaveAccumulatedResults(accumulated, filePath); err != nil {
@@ -653,7 +668,7 @@ func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *
 	}
 
 	return &ExecutionMetrics{
-		ConversationID:   result.SessionID,
+		ConversationID:   result.ConversationID,
 		Mode:             mode,
 		Model:            p.model,
 		Success:          result.Success,

@@ -61,7 +61,7 @@ func runMultiple() int {
 
 	outputFile := ""
 	if *saveOutput {
-		outputFile = fmt.Sprintf("concurrent_%d.sql", *numConcurrent)
+		outputFile = fmt.Sprintf("%s-%d-%s.sql", *model, *maxIterations, time.Now().Format("20060102150405"))
 	}
 
 	// Launch concurrent pipeline instances

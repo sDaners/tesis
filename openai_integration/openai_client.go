@@ -86,6 +86,7 @@ func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIRespo
 	request := OpenAIRequest{
 		Model:    c.config.Model,
 		Messages: messages,
+		TopP:     0.5,
 	}
 
 	// Use the appropriate token parameter based on the model
@@ -216,7 +217,6 @@ func (c *OpenAIClient) AddMessage(conversationID, role, content string) (*AddMes
 
 // GetResponse gets an AI response from the conversation using chat completions
 func (c *OpenAIClient) GetResponse(conversationID string, messages []ConversationMessage) (*GetResponseResponse, error) {
-	// Use the standard chat completions API with the conversation history
 	response, err := c.SendMessage(messages)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get response from chat completions: %w", err)

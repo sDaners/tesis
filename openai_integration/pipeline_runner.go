@@ -95,10 +95,11 @@ func (pr *PipelineRunner) Run() (*PipelineResult, error) {
 	// Save output file if specified
 	if pr.config.OutputFile != "" {
 		saveStart := time.Now()
-		if err := pipeline.SaveResultToFile(result, pr.config.OutputFile); err != nil {
+		outputFile := fmt.Sprintf("%s-%s", pr.config.UniqueID, pr.config.OutputFile)
+		if err := pipeline.SaveResultToFile(result, outputFile); err != nil {
 			fmt.Printf("Warning: Failed to save output file: %v\n", err)
 		} else if pr.config.Verbose {
-			fmt.Printf("[%.3fs] Generated SQL saved to: %s\n", time.Since(saveStart).Seconds(), filepath.Join("generated_sql", pr.config.OutputFile))
+			fmt.Printf("[%.3fs] Generated SQL saved to: %s\n", time.Since(saveStart).Seconds(), filepath.Join("generated_sql", outputFile))
 		}
 	}
 
