@@ -594,6 +594,11 @@ func LoadAccumulatedResults(filePath string) (*AccumulatedResults, error) {
 		return nil, fmt.Errorf("failed to unmarshal accumulated results: %w", err)
 	}
 
+	// Ensure Executions map is initialized (in case JSON had null or empty map)
+	if results.Executions == nil {
+		results.Executions = make(map[string]*ExecutionMetrics)
+	}
+
 	return &results, nil
 }
 

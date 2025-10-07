@@ -2,6 +2,8 @@ package integration
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -86,7 +88,6 @@ func (c *OpenAIClient) SendMessage(messages []ConversationMessage) (*OpenAIRespo
 	request := OpenAIRequest{
 		Model:    c.config.Model,
 		Messages: messages,
-		TopP:     0.5,
 	}
 
 	// Use the appropriate token parameter based on the model
@@ -187,11 +188,28 @@ func (c *OpenAIClient) GetUsageFromResponse(response *OpenAIResponse) (int, int,
 
 // Conversations API methods
 
+// generateUniqueID generates a unique ID using timestamp and random bytes
+func generateUniqueID(prefix string) (string, error) {
+	// Use 8 bytes of random data for uniqueness
+	randomBytes := make([]byte, 20)
+	if _, err := rand.Read(randomBytes); err != nil {
+		return "", fmt.Errorf("failed to generate random bytes: %w", err)
+	}
+	randomHex := hex.EncodeToString(randomBytes)
+
+	// Combine timestamp (for ordering) with random hex (for uniqueness)
+	return fmt.Sprintf("%s_%d_%s", prefix, time.Now().UnixNano(), randomHex), nil
+}
+
 // CreateConversation creates a new conversation (fallback implementation using chat completions)
 func (c *OpenAIClient) CreateConversation() (*CreateConversationResponse, error) {
 	// Since the Conversations API might not be available yet, we'll simulate it
 	// by generating a conversation ID and managing state locally
-	conversationID := fmt.Sprintf("conv_%d", time.Now().Unix())
+	// Use timestamp + random bytes to ensure unique IDs for concurrent executions
+	conversationID, err := generateUniqueID("conv")
+	if err != nil {
+		return nil, fmt.Errorf("failed to generate conversation ID: %w", err)
+	}
 
 	return &CreateConversationResponse{
 		ID:        conversationID,
