@@ -20,6 +20,7 @@ func run() int {
 		debugPrompt     = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
 		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
 		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
+		ragEnabled      = flag.Bool("rag", false, "Enable RAG mode: combine prompt.txt with spanner_sql_generation_guidelines.txt")
 	)
 
 	flag.Usage = func() {
@@ -54,6 +55,7 @@ func run() int {
 		DebugPrompt:     *debugPrompt,
 		SaveAccumulated: *saveAccumulated,
 		ShortPrompts:    *shortPrompts,
+		RAGEnabled:      *ragEnabled,
 		UniqueID:        "", // Single instance doesn't need unique ID
 	}
 

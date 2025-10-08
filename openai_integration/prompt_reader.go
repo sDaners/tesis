@@ -31,6 +31,18 @@ func (pr *PromptReader) ReadPromptFile() (string, error) {
 	return string(content), nil
 }
 
+// ReadGuidelinesFile reads the contents of spanner_sql_generation_guidelines.txt
+func (pr *PromptReader) ReadGuidelinesFile() (string, error) {
+	guidelinesPath := filepath.Join(pr.basePath, "spanner_sql_generation_guidelines.txt")
+
+	content, err := os.ReadFile(guidelinesPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read guidelines file %s: %w", guidelinesPath, err)
+	}
+
+	return string(content), nil
+}
+
 // ExtractSQLFromResponse attempts to extract SQL code from an AI response
 func (pr *PromptReader) ExtractSQLFromResponse(response string) string {
 	// Try to find SQL code blocks first

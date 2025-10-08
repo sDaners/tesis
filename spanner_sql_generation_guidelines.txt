@@ -1,0 +1,148 @@
+SPANNER SQL CODE GUIDELINES
+==============================================
+
+CRITICAL SYNTAX RULES (Most Common Errors)
+-------------------------------------------
+
+1. PRIMARY KEY Placement (MOST CRITICAL)
+   - PRIMARY KEY MUST be placed OUTSIDE column definitions
+   - CORRECT: ) PRIMARY KEY (column_name);
+   - WRONG: (column_name) PRIMARY KEY inside column list
+   - Place FOREIGN KEY constraints INSIDE column definitions, before closing )
+
+2. DEFAULT Values Must Be Wrapped in Parentheses
+   - CORRECT: DEFAULT (CURRENT_TIMESTAMP())
+   - WRONG: DEFAULT CURRENT_TIMESTAMP()
+   - CORRECT: DEFAULT (GENERATE_UUID())
+   - WRONG: DEFAULT GENERATE_UUID()
+
+3. String Literals
+   - Always use single quotes for strings: 'ACTIVE'
+   - Never use double quotes: "ACTIVE" (WRONG)
+
+4. VIEW Definitions
+   - MUST include SQL SECURITY INVOKER clause
+   - Format: CREATE VIEW view_name SQL SECURITY INVOKER AS SELECT ...
+
+Primary Key Best Practices
+---------------------------
+
+5. Use GENERATE_UUID() for Primary Keys
+   - Recommended type: STRING(36) DEFAULT (GENERATE_UUID())
+   - Avoid NEXTVAL() function (not available in Spanner)
+
+Function Usage
+--------------
+
+- Verify all functions against Spanner function reference
+- NEXTVAL() - replace with GENERATE_UUID() or application-generated values
+
+
+Data Type Guidelines
+--------------------
+
+9. Array Types
+   - Use ARRAY<TYPE> syntax, not array syntax from other databases
+   - Example: ARRAY<STRING(MAX)> not STRING[]
+
+10. Type Matching
+    - Ensure column types match inserted/compared values
+    - GENERATE_UUID() is for STRING columns, not INT64
+
+
+Constraint Syntax
+-----------------
+
+11. Foreign Keys
+    - Use: CONSTRAINT name FOREIGN KEY (col) REFERENCES table(col)
+    - Place INSIDE column definitions
+
+12. CHECK Constraints
+    - Use single quotes for string literals in CHECK constraints
+    - Verify constraint syntax is Spanner-compatible
+
+13. NOT NULL Constraints
+    - Ensure all NOT NULL columns have values in INSERT statements
+    - Consider providing defaults for NOT NULL columns
+
+
+Statement Order & Dependencies
+-------------------------------
+
+14. Creation Order
+    - Create tables in dependency order (referenced tables first)
+    - Verify all referenced objects exist before creating dependencies
+    - Foreign key targets must exist before creation
+
+15. Error Handling for Missing Objects
+    - If table creation fails, subsequent references will fail with NotFound
+    - Fix creation statements before troubleshooting reference errors
+
+
+Common Syntax Patterns to Avoid
+--------------------------------
+
+16. Avoid These Patterns:
+    - RETURNING clause - use THEN RETURN instead
+    - Double-quoted string literals
+    - PRIMARY KEY inside column definition parentheses
+    - Unwrapped DEFAULT values
+    - Views without SQL SECURITY INVOKER
+
+
+Spanner-Specific Features
+--------------------------
+
+17. Interleaved Tables (if needed)
+    - Follow parent-child relationship syntax correctly
+    - Ensure parent table exists first
+
+18. Indexes
+    - Create indexes after table creation
+
+
+Testing & Validation
+---------------------
+
+19. Statement Termination
+    - Properly terminate statements with semicolons
+    - Check parentheses matching throughout
+
+20. Before Generating SQL:
+    - Verify all syntax follows Spanner-specific rules
+    - Double-check PRIMARY KEY placement
+    - Ensure all DEFAULT values are wrapped in parentheses
+    - Use single quotes for all string literals
+    - Add SQL SECURITY INVOKER to all views
+
+COMMON AI GENERATION MISTAKES TO AVOID
+=======================================
+
+1. Placing PRIMARY KEY inside column definition parentheses
+   WRONG: (id INT64, name STRING, PRIMARY KEY (id))
+   RIGHT: (id INT64, name STRING) PRIMARY KEY (id)
+
+2. Unwrapped DEFAULT values
+   WRONG: DEFAULT CURRENT_TIMESTAMP()
+   RIGHT: DEFAULT (CURRENT_TIMESTAMP())
+
+3. Using double quotes for strings
+   WRONG: status = "ACTIVE"
+   RIGHT: status = 'ACTIVE'
+
+4. Missing SQL SECURITY INVOKER in views
+   WRONG: CREATE VIEW v AS SELECT...
+   RIGHT: CREATE VIEW v SQL SECURITY INVOKER AS SELECT...
+
+5. Using NEXTVAL() or sequences for auto-increment
+   WRONG: id INT64 DEFAULT NEXTVAL(sequence)
+   RIGHT: id STRING(36) DEFAULT (GENERATE_UUID())
+
+6. Wrong array syntax
+   WRONG: tags STRING[]
+   RIGHT: tags ARRAY<STRING(MAX)>
+
+
+END OF GUIDELINES
+=================
+

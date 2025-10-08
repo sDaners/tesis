@@ -28,6 +28,7 @@ type Pipeline struct {
 	debugPrompt   bool
 	debugFile     string
 	shortPrompts  bool
+	ragEnabled    bool
 	uniqueID      string
 	model         string
 }
@@ -65,6 +66,7 @@ func NewPipelineWithModel(basePath string, maxIterations int, model string, verb
 		debugPrompt:   false,
 		debugFile:     "",
 		shortPrompts:  false,
+		ragEnabled:    false,
 		uniqueID:      "",
 		model:         model,
 	}, nil
@@ -91,6 +93,11 @@ func (p *Pipeline) SetDebugPrompt(debug bool) {
 // SetShortPrompts enables/disables shorter prompt generation for iterative feedback
 func (p *Pipeline) SetShortPrompts(short bool) {
 	p.shortPrompts = short
+}
+
+// SetRAGEnabled enables/disables RAG (Retrieval-Augmented Generation) mode
+func (p *Pipeline) SetRAGEnabled(enabled bool) {
+	p.ragEnabled = enabled
 }
 
 // SetUniqueID sets a unique identifier for this pipeline instance (for concurrent execution)
@@ -152,6 +159,15 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
+	}
+
+	// If RAG is enabled, append guidelines
+	if p.ragEnabled {
+		guidelines, err := p.promptReader.ReadGuidelinesFile()
+		if err != nil {
+			return nil, fmt.Errorf("failed to read guidelines: %w", err)
+		}
+		initialPrompt = initialPrompt + "\n\n" + guidelines
 	}
 
 	// Save prompt to debug file if enabled
@@ -229,6 +245,15 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
+	}
+
+	// If RAG is enabled, append guidelines
+	if p.ragEnabled {
+		guidelines, err := p.promptReader.ReadGuidelinesFile()
+		if err != nil {
+			return nil, fmt.Errorf("failed to read guidelines: %w", err)
+		}
+		initialPrompt = initialPrompt + "\n\n" + guidelines
 	}
 
 	// Save initial prompt to debug file if enabled
@@ -679,6 +704,7 @@ func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *
 		Success:          result.Success,
 		TotalIterations:  result.Iterations,
 		ShortPrompts:     p.shortPrompts,
+		RAGEnabled:       p.ragEnabled,
 		IterationResults: iterationResults,
 		Timestamp:        time.Now(),
 	}

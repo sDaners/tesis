@@ -18,6 +18,7 @@ type PipelineConfig struct {
 	DebugPrompt     bool
 	SaveAccumulated bool
 	ShortPrompts    bool
+	RAGEnabled      bool
 	UniqueID        string
 	Model           string
 }
@@ -48,6 +49,7 @@ func (pr *PipelineRunner) Run() (*PipelineResult, error) {
 	}
 	pipeline.SetDebugPrompt(pr.config.DebugPrompt)
 	pipeline.SetShortPrompts(pr.config.ShortPrompts)
+	pipeline.SetRAGEnabled(pr.config.RAGEnabled)
 
 	// Set unique ID if provided (for concurrent execution)
 	if pr.config.UniqueID != "" {
