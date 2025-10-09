@@ -2416,41 +2416,6 @@
       ],
       "timestamp": "2025-10-02T01:12:58.1897898-03:00"
     },
-    "099535017f7bba1d": {
-      "conversation_id": "099535017f7bba1d",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:48:48.4213116-03:00"
-    },
     "0fb63fe1ae715f01": {
       "conversation_id": "0fb63fe1ae715f01",
       "mode": "iterative",
@@ -2497,41 +2462,6 @@
         }
       ],
       "timestamp": "2025-10-06T23:16:55.416904-03:00"
-    },
-    "109c4d42d3dcbbc3": {
-      "conversation_id": "109c4d42d3dcbbc3",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 8,
-          "execution_errors": 6,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 57.14285714285714,
-          "overall_success_rate": 34.78260869565217,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:48:48.2373113-03:00"
     },
     "12ef19326d840b19": {
       "conversation_id": "12ef19326d840b19",
@@ -2755,41 +2685,6 @@
         }
       ],
       "timestamp": "2025-10-05T10:13:29.0753906-03:00"
-    },
-    "1d662c410d28706e": {
-      "conversation_id": "1d662c410d28706e",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 15,
-          "parse_errors": 8,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 65.21739130434783,
-          "execution_success_rate": 60,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:48:48.5363128-03:00"
     },
     "1d6dd54659692143": {
       "conversation_id": "1d6dd54659692143",
@@ -3140,41 +3035,6 @@
         }
       ],
       "timestamp": "2025-10-02T00:22:27.0426984-03:00"
-    },
-    "3e3c7dd0aa35e1c8": {
-      "conversation_id": "3e3c7dd0aa35e1c8",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:48:48.6958156-03:00"
     },
     "3f5e6a59e5b2adef": {
       "conversation_id": "3f5e6a59e5b2adef",
@@ -5235,41 +5095,6 @@
       ],
       "timestamp": "2025-10-06T23:25:08.060442-03:00"
     },
-    "a559bb9b4cb7025e": {
-      "conversation_id": "a559bb9b4cb7025e",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:49:42.4997834-03:00"
-    },
     "a8709064fbe45315": {
       "conversation_id": "a8709064fbe45315",
       "mode": "iterative",
@@ -5479,41 +5304,6 @@
         }
       ],
       "timestamp": "2025-10-02T01:29:32.4087266-03:00"
-    },
-    "adc1631cffeae0b4": {
-      "conversation_id": "adc1631cffeae0b4",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 15,
-          "parse_errors": 8,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 65.21739130434783,
-          "execution_success_rate": 60,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:49:42.7572833-03:00"
     },
     "af1395242c8f0ae7": {
       "conversation_id": "af1395242c8f0ae7",
@@ -5948,41 +5738,6 @@
       ],
       "timestamp": "2025-10-02T00:15:57.0233162-03:00"
     },
-    "c0f12c903b81dc60": {
-      "conversation_id": "c0f12c903b81dc60",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:48:48.7423115-03:00"
-    },
     "c2e2dffac879fe4b": {
       "conversation_id": "c2e2dffac879fe4b",
       "mode": "iterative",
@@ -6287,41 +6042,6 @@
       ],
       "timestamp": "2025-10-06T23:49:25.917501-03:00"
     },
-    "d11a30aaf77a4e7a": {
-      "conversation_id": "d11a30aaf77a4e7a",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:49:42.6402828-03:00"
-    },
     "d1bfd481175acb19": {
       "conversation_id": "d1bfd481175acb19",
       "mode": "iterative",
@@ -6496,41 +6216,6 @@
         }
       ],
       "timestamp": "2025-10-01T22:29:10.6105056-03:00"
-    },
-    "d80af07625d45234": {
-      "conversation_id": "d80af07625d45234",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 15,
-          "parse_errors": 8,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 65.21739130434783,
-          "execution_success_rate": 60,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 15,
-          "parse_errors": 8,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 65.21739130434783,
-          "execution_success_rate": 60,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:49:43.3436598-03:00"
     },
     "d857b56ee0535f92": {
       "conversation_id": "d857b56ee0535f92",
@@ -7046,41 +6731,6 @@
         }
       ],
       "timestamp": "2025-10-02T01:34:34.2283118-03:00"
-    },
-    "f07eeacd553c25b3": {
-      "conversation_id": "f07eeacd553c25b3",
-      "mode": "iterative",
-      "model": "gpt-4o-mini",
-      "final_success": false,
-      "total_iterations": 2,
-      "short_prompts": false,
-      "iteration_results": [
-        {
-          "iteration_number": 1,
-          "total_statements": 23,
-          "successfully_parsed": 15,
-          "parse_errors": 8,
-          "executed": 9,
-          "execution_errors": 6,
-          "parse_success_rate": 65.21739130434783,
-          "execution_success_rate": 60,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        },
-        {
-          "iteration_number": 2,
-          "total_statements": 23,
-          "successfully_parsed": 14,
-          "parse_errors": 9,
-          "executed": 9,
-          "execution_errors": 5,
-          "parse_success_rate": 60.86956521739131,
-          "execution_success_rate": 64.28571428571429,
-          "overall_success_rate": 39.130434782608695,
-          "success": false
-        }
-      ],
-      "timestamp": "2025-10-01T22:49:42.365784-03:00"
     },
     "f434847ace18d384": {
       "conversation_id": "f434847ace18d384",

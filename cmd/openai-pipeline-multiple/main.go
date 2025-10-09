@@ -22,7 +22,7 @@ func runMultiple() int {
 		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
 		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
 		ragEnabled      = flag.Bool("rag", false, "Enable RAG mode: combine prompt.txt with spanner_sql_generation_guidelines.txt")
-		saveOutput      = flag.Bool("save-output", false, "Save output to file")
+		saveOutput      = flag.Bool("save-output", true, "Save output to file")
 		verbose         = flag.Bool("verbose", false, "Verbose output for each pipeline")
 		model           = flag.String("model", "chatgpt-4o-latest", "OpenAI model to use")
 	)
