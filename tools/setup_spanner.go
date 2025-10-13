@@ -46,10 +46,7 @@ func GetDBWithIdentifier(spanner bool, uniqueID string) (*sql.DB, func(), error)
 	return db, terminate, nil
 }
 
-// SetupSpannerDB starts a spanner adapter container and returns the dsn to connect to it.
-//
-// DBOptions is kept mostly for compatibility with the postgres container setup function.
-// The only option that will actually be used is SpannerDialect.
+// SetupSpannerDSN starts a spanner adapter container and returns the dsn to connect to it.
 func SetupSpannerDSN(spanner bool) (dsn string, terminate func(), err error) {
 	return SetupSpannerDSNWithIdentifier(spanner, "")
 }
@@ -65,10 +62,7 @@ func SetupSpannerDSNWithIdentifier(spanner bool, uniqueID string) (dsn string, t
 	return dsn, terminate, err
 }
 
-// SetupSpannerDB starts a spanner pg adapter container and returns the dsn to connect to it.
-//
-// DBOptions is kept for compatibility with the postgres container setup function, but
-// it is not used.
+// setupSpannerForPGAdapter starts a spanner pg adapter container and returns the dsn to connect to it.
 func setupSpannerForPGAdapter() (dsn string, terminate func(), err error) {
 	ctx := context.Background()
 	opts := DBOptions{PostgresUser: "postgres", PostgresPassword: "postgres", DBName: "test-database"}
@@ -119,10 +113,6 @@ const (
 	SpannerDB    = "test-database"
 	listenPort   = "9010/tcp"
 )
-
-func setupSpannerForGoogleSQL() (dsn string, terminate func(), err error) {
-	return setupSpannerForGoogleSQLWithIdentifier("")
-}
 
 func setupSpannerForGoogleSQLWithIdentifier(uniqueID string) (dsn string, terminate func(), err error) {
 	ctx := context.Background()
@@ -241,10 +231,6 @@ func setupInstance(ctx context.Context) error {
 	return nil
 }
 
-func createDatabase(ctx context.Context) error {
-	return createDatabaseWithName(ctx, SpannerDB)
-}
-
 func createDatabaseWithName(ctx context.Context, dbName string) error {
 	adminClient, err := database.NewDatabaseAdminClient(ctx)
 	if err != nil {
@@ -274,23 +260,14 @@ const (
 )
 
 type DBOptions struct {
-	// Will be used if TEST_WITH_SPANNER environment variable is set
-	GCPProjectName string
-	// Will be used if TEST_WITH_SPANNER environment variable is set
+	GCPProjectName     string
 	GCPCredentialsFile string
-	// Will be used if TEST_WITH_SPANNER environment variable is set
 	GCPSpannerInstance string
-	// Will be used if TEST_WITH_SPANNER environment variable is set
 	GCPSpannerDatabase string
-
-	// Will be ignored if TEST_WITH_SPANNER environment variable is set
-	PostgresUser string
-	// Will be ignored if TEST_WITH_SPANNER environment variable is set
-	PostgresPassword string
-
-	DBName string
-
-	SpannerDialect spannerDialect
+	PostgresUser       string
+	PostgresPassword   string
+	DBName             string
+	SpannerDialect     spannerDialect
 }
 
 func getDSN(opts DBOptions) func(host string, port nat.Port) string {

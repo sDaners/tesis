@@ -299,12 +299,9 @@ func (e *SQLExecutor) executeSelect(stmt string) QueryResult {
 	return result
 }
 
-// cleanStatement removes extra whitespace, comments, and ensures proper formatting
 func (e *SQLExecutor) cleanStatement(stmt string) string {
-	// Remove leading/trailing whitespace
 	cleaned := strings.TrimSpace(stmt)
 
-	// Remove comments and extract only the SQL content
 	cleaned = e.stripComments(cleaned)
 
 	// Normalize internal whitespace
@@ -314,7 +311,6 @@ func (e *SQLExecutor) cleanStatement(stmt string) string {
 	return cleaned
 }
 
-// stripComments removes SQL comments from a statement
 func (e *SQLExecutor) stripComments(stmt string) string {
 	lines := strings.Split(stmt, "\n")
 	var sqlLines []string
@@ -322,12 +318,10 @@ func (e *SQLExecutor) stripComments(stmt string) string {
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 
-		// Skip empty lines
 		if trimmed == "" {
 			continue
 		}
 
-		// Skip single-line comments
 		if strings.HasPrefix(trimmed, "--") {
 			continue
 		}
@@ -339,9 +333,6 @@ func (e *SQLExecutor) stripComments(stmt string) string {
 				continue
 			}
 		}
-
-		// For now, ignore multi-line comments /* */ as they're more complex
-		// and less common in our test cases
 
 		sqlLines = append(sqlLines, trimmed)
 	}
@@ -365,7 +356,6 @@ func (e *SQLExecutor) extractTableName(stmt string) string {
 	return ""
 }
 
-// extractTableSchema extracts column information from CREATE TABLE statement
 func (e *SQLExecutor) extractTableSchema(stmt, tableName string) {
 	if e.tableSchemas[tableName] == nil {
 		e.tableSchemas[tableName] = make(map[string]string)
@@ -385,7 +375,6 @@ func (e *SQLExecutor) extractTableSchema(stmt, tableName string) {
 	}
 }
 
-// getTableFromInsert extracts table name from INSERT statement
 func (e *SQLExecutor) getTableFromInsert(stmt string) string {
 	re := regexp.MustCompile(`(?i)INSERT\s+INTO\s+(\w+)`)
 	matches := re.FindStringSubmatch(stmt)
@@ -465,7 +454,7 @@ func (e *SQLExecutor) getSampleValueForParameter(paramName, tableName string) st
 	case strings.Contains(lower, "start_date"):
 		return "'2024-01-01'"
 	case strings.Contains(lower, "end_date"):
-		return "'2024-12-31'" // Ensure end_date > start_date
+		return "'2024-12-31'"
 	case strings.Contains(lower, "hire_date"):
 		return "'2024-01-01'"
 	case strings.Contains(lower, "date"):
@@ -546,7 +535,6 @@ func (e *SQLExecutor) generateUUIDForParameter(paramName, tableName string) stri
 				return uuid
 			}
 		}
-		// For departments table or if no UUID captured yet, let database generate
 		return "NULL" // Let database generate UUID
 	case strings.Contains(lower, "emp_id"):
 		if tableName != "employees" {
@@ -584,10 +572,7 @@ func (e *SQLExecutor) generateUUIDForParameter(paramName, tableName string) stri
 
 // getSampleValueForIndex returns sample data based on parameter index and table schema
 func (e *SQLExecutor) getSampleValueForIndex(index int, tableName string) string {
-	// Try to use schema information if available
 	if schema, exists := e.tableSchemas[tableName]; exists {
-		// This is a simplified approach - in a real implementation,
-		// you'd want to match the index to the actual column order
 		columnNames := make([]string, 0, len(schema))
 		for colName := range schema {
 			columnNames = append(columnNames, colName)
@@ -627,14 +612,8 @@ func (e *SQLExecutor) getSampleValueForIndex(index int, tableName string) string
 	}
 }
 
-// GetCreatedTables returns the list of tables created during execution
-func (e *SQLExecutor) GetCreatedTables() []string {
-	return e.createdTables
-}
-
 // Cleanup drops all created tables and objects
 func (e *SQLExecutor) Cleanup() error {
-	// Use the repository's cleanup method if available
 	if e.repo != nil {
 		return e.repo.CleanupDB()
 	}

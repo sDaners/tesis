@@ -15,12 +15,19 @@ type DBTeardown struct {
 	terminate func()
 }
 
+const testSpanner = false // If false tests postgres
+
 func setupDB(t *testing.T) *DBTeardown {
-	db, terminate, err := tools.GetDB(false)
+	db, terminate, err := tools.GetDB(testSpanner)
 	if err != nil {
 		t.Fatalf("Failed to connect to DB: %v", err)
 	}
-	r := repo.NewPostgresRepo(db)
+	var r repo.Database
+	if testSpanner {
+		r = repo.NewSpannerRepo(db)
+	} else {
+		r = repo.NewPostgresRepo(db)
+	}
 	if err := r.CleanupDB(); err != nil {
 		t.Fatalf("Failed to cleanup DB: %v", err)
 	}
