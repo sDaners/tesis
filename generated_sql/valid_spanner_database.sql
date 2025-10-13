@@ -9,10 +9,6 @@
 -- Execution success rate (of parsed): 100.0%
 -- Overall success rate: 100.0%
 
--- Spanner Database Schema and Queries
--- Extracted from valid_spanner_sql.go
-
--- Table Creation Statements
 CREATE TABLE departments (
     dept_id STRING(36) DEFAULT (GENERATE_UUID()),
     dept_name STRING(50) NOT NULL,
@@ -54,13 +50,11 @@ CREATE TABLE project_assignments (
     CONSTRAINT fk_project FOREIGN KEY (project_id) REFERENCES projects(project_id)
 ) PRIMARY KEY (emp_id, project_id);
 
--- Index Creation Statements
 CREATE UNIQUE INDEX idx_emp_email ON employees(email);
 CREATE INDEX idx_emp_name ON employees(last_name, first_name);
 CREATE INDEX idx_dept_location ON departments(location);
 CREATE INDEX idx_project_status ON projects(status);
 
--- View Creation
 CREATE OR REPLACE VIEW employee_details
     SQL SECURITY INVOKER
     AS SELECT 
@@ -75,33 +69,21 @@ CREATE OR REPLACE VIEW employee_details
     LEFT JOIN departments d ON e.dept_id = d.dept_id
     LEFT JOIN employees m ON e.manager_id = m.emp_id;
 
--- Insert Statements
-
--- Insert Department (with parameters: @dept_name, @location)
--- Returns: dept_id
 INSERT INTO departments (dept_name, location)
 VALUES (@dept_name, @location)
 THEN RETURN dept_id;
 
--- Insert Employee (with parameters: @first_name, @last_name, @email, @hire_date, @salary, @dept_id)
--- Returns: emp_id
 INSERT INTO employees (first_name, last_name, email, hire_date, salary, dept_id)
 VALUES (@first_name, @last_name, @email, @hire_date, @salary, @dept_id)
 THEN RETURN emp_id;
 
--- Insert Project (with parameters: @project_name, @start_date, @end_date, @budget, @status)
--- Returns: project_id
 INSERT INTO projects (project_name, start_date, end_date, budget, status)
 VALUES (@project_name, @start_date, @end_date, @budget, @status)
 THEN RETURN project_id;
 
--- Insert Project Assignment (with parameters: @emp_id, @project_id, @role, @hours)
 INSERT INTO project_assignments (emp_id, project_id, role, hours_allocated)
 VALUES (@emp_id, @project_id, @role, @hours);
 
--- Query Statements
-
--- Query Employee Details - Comprehensive view of employee information
 SELECT e.emp_id, e.first_name, e.last_name, e.email, d.dept_name, 
        m.first_name as manager_first_name, m.last_name as manager_last_name,
        p.project_name
@@ -111,7 +93,6 @@ LEFT JOIN employees m ON e.manager_id = m.emp_id
 LEFT JOIN project_assignments pa ON e.emp_id = pa.emp_id
 LEFT JOIN projects p ON pa.project_id = p.project_id;
 
--- Cleanup Statements (Execute in this order to respect dependencies)
 DROP VIEW employee_details;
 DROP INDEX  idx_project_status;
 DROP INDEX  idx_dept_location;
