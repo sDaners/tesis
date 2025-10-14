@@ -1,5 +1,1505 @@
 {
   "executions": {
+    "conv_1760409687853729800_ed8bb275ea49b7e01cb99fc397d2a136022a55f4": {
+      "conversation_id": "conv_1760409687853729800_ed8bb275ea49b7e01cb99fc397d2a136022a55f4",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:42:07.5478685-03:00"
+    },
+    "conv_1760409687854230000_4da8627409522928e9e8a235f48a1c42e4f59219": {
+      "conversation_id": "conv_1760409687854230000_4da8627409522928e9e8a235f48a1c42e4f59219",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 22,
+          "parse_errors": 1,
+          "executed": 11,
+          "execution_errors": 11,
+          "parse_success_rate": 95.65217391304348,
+          "execution_success_rate": 50,
+          "overall_success_rate": 47.82608695652174,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T23:44:49.0313734-03:00"
+    },
+    "conv_1760409687854230000_63e76fba599f9253f4e88b48636ae1c02fae4025": {
+      "conversation_id": "conv_1760409687854230000_63e76fba599f9253f4e88b48636ae1c02fae4025",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:43:35.49208-03:00"
+    },
+    "conv_1760409687854230000_b8a74af29631b0a6dd43fa1b46bc07052317447b": {
+      "conversation_id": "conv_1760409687854230000_b8a74af29631b0a6dd43fa1b46bc07052317447b",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:44:37.9246462-03:00"
+    },
+    "conv_1760409687854230000_e0dc78ed870d612ee66e31d6ff76251cf47fba38": {
+      "conversation_id": "conv_1760409687854230000_e0dc78ed870d612ee66e31d6ff76251cf47fba38",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 2,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:43:13.9306752-03:00"
+    },
+    "conv_1760409991017425500_08d8d5e3687d12b0f0353de808de27a0483b08ab": {
+      "conversation_id": "conv_1760409991017425500_08d8d5e3687d12b0f0353de808de27a0483b08ab",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:48:42.4168497-03:00"
+    },
+    "conv_1760409991017425500_458a30010f1d0f2ff78678d2d7684634bd6adcdc": {
+      "conversation_id": "conv_1760409991017425500_458a30010f1d0f2ff78678d2d7684634bd6adcdc",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 2,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 9,
+          "execution_errors": 14,
+          "parse_success_rate": 100,
+          "execution_success_rate": 39.130434782608695,
+          "overall_success_rate": 39.130434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:48:07.5400789-03:00"
+    },
+    "conv_1760409991017425500_a42215bfcbd1b8dca884b0cfce2182bd07ee6b83": {
+      "conversation_id": "conv_1760409991017425500_a42215bfcbd1b8dca884b0cfce2182bd07ee6b83",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:47:08.5923148-03:00"
+    },
+    "conv_1760409991017425500_e821e249062dc5123887d0451cb97e3f53fbe14e": {
+      "conversation_id": "conv_1760409991017425500_e821e249062dc5123887d0451cb97e3f53fbe14e",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:47:13.3073084-03:00"
+    },
+    "conv_1760409991017425500_fc1eaefdbc1d63e3c1ec848f1fa6bdbea677bd62": {
+      "conversation_id": "conv_1760409991017425500_fc1eaefdbc1d63e3c1ec848f1fa6bdbea677bd62",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T23:48:53.457974-03:00"
+    },
+    "conv_1760410167621077800_0f720f8a1eb01b3d8e085c3f3a547acba93a4eb4": {
+      "conversation_id": "conv_1760410167621077800_0f720f8a1eb01b3d8e085c3f3a547acba93a4eb4",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:50:06.3212993-03:00"
+    },
+    "conv_1760410167621077800_6c57a2ab81db6effeea6c2089d9368fa9a873ca9": {
+      "conversation_id": "conv_1760410167621077800_6c57a2ab81db6effeea6c2089d9368fa9a873ca9",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 2,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:51:21.6234011-03:00"
+    },
+    "conv_1760410167621077800_b107764fc0c57bb2cd40ae3c6e4d7768d9c9600a": {
+      "conversation_id": "conv_1760410167621077800_b107764fc0c57bb2cd40ae3c6e4d7768d9c9600a",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 1,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:50:09.0958056-03:00"
+    },
+    "conv_1760410167621077800_c71f15f9e5dbf4a1f4a5918150342b9f4d4ff71b": {
+      "conversation_id": "conv_1760410167621077800_c71f15f9e5dbf4a1f4a5918150342b9f4d4ff71b",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 2,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:50:56.7044395-03:00"
+    },
+    "conv_1760410167621077800_fa8e28d3a99884a0c7e9edc9c05e63a9ca846052": {
+      "conversation_id": "conv_1760410167621077800_fa8e28d3a99884a0c7e9edc9c05e63a9ca846052",
+      "mode": "iterative",
+      "model": "gpt-5-2025-08-07",
+      "final_success": true,
+      "total_iterations": 2,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T23:51:37.8018172-03:00"
+    },
+    "conv_1760403905230683100_05689d9f0129077faba94c3d39121953b12cfad0": {
+      "conversation_id": "conv_1760403905230683100_05689d9f0129077faba94c3d39121953b12cfad0",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 25,
+          "successfully_parsed": 25,
+          "parse_errors": 0,
+          "executed": 25,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T22:07:53.2934098-03:00"
+    },
+    "conv_1760403905230683100_324c917e8115c113b69a330cc1529f39679a4397": {
+      "conversation_id": "conv_1760403905230683100_324c917e8115c113b69a330cc1529f39679a4397",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T22:06:56.7054574-03:00"
+    },
+    "conv_1760403905230683100_c6f121a1a10ac31bd3625eb2139250cb9513bf5f": {
+      "conversation_id": "conv_1760403905230683100_c6f121a1a10ac31bd3625eb2139250cb9513bf5f",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 19,
+          "execution_errors": 4,
+          "parse_success_rate": 100,
+          "execution_success_rate": 82.6086956521739,
+          "overall_success_rate": 82.6086956521739,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:07:02.1401531-03:00"
+    },
+    "conv_1760403905230683100_d714ccbb3bf41a9b2f5ec57f12e2a2586ee6fbe6": {
+      "conversation_id": "conv_1760403905230683100_d714ccbb3bf41a9b2f5ec57f12e2a2586ee6fbe6",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.30434782608695,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:07:34.0098675-03:00"
+    },
+    "conv_1760404209015340500_609270680656fb5abb2df712c24720ce5f2df9d9": {
+      "conversation_id": "conv_1760404209015340500_609270680656fb5abb2df712c24720ce5f2df9d9",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 6,
+          "parse_success_rate": 100,
+          "execution_success_rate": 76.92307692307693,
+          "overall_success_rate": 76.92307692307693,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 26,
+          "successfully_parsed": 25,
+          "parse_errors": 1,
+          "executed": 19,
+          "execution_errors": 6,
+          "parse_success_rate": 96.15384615384616,
+          "execution_success_rate": 76,
+          "overall_success_rate": 73.07692307692307,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:12:36.7410906-03:00"
+    },
+    "conv_1760404209015340500_a2f85cccceb4abcd8e87296cd5e301bab9f95fca": {
+      "conversation_id": "conv_1760404209015340500_a2f85cccceb4abcd8e87296cd5e301bab9f95fca",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.30434782608695,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:12:12.4808131-03:00"
+    },
+    "conv_1760404209015340500_a96ea2ef9a4fa0048a4ec32b9050ae4e60fd25ac": {
+      "conversation_id": "conv_1760404209015340500_a96ea2ef9a4fa0048a4ec32b9050ae4e60fd25ac",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 5,
+          "parse_success_rate": 100,
+          "execution_success_rate": 80.76923076923077,
+          "overall_success_rate": 80.76923076923077,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:12:59.2035323-03:00"
+    },
+    "conv_1760404209015340500_c7cc8658a865e74d8414a1658bd7d1a03762500b": {
+      "conversation_id": "conv_1760404209015340500_c7cc8658a865e74d8414a1658bd7d1a03762500b",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 20,
+          "parse_errors": 3,
+          "executed": 19,
+          "execution_errors": 1,
+          "parse_success_rate": 86.95652173913044,
+          "execution_success_rate": 95,
+          "overall_success_rate": 82.6086956521739,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.30434782608695,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:12:02.1353321-03:00"
+    },
+    "conv_1760404209015340500_e1fff926c89bda2c1bb3438da6a51ea89a5a8673": {
+      "conversation_id": "conv_1760404209015340500_e1fff926c89bda2c1bb3438da6a51ea89a5a8673",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 29,
+          "successfully_parsed": 26,
+          "parse_errors": 3,
+          "executed": 19,
+          "execution_errors": 7,
+          "parse_success_rate": 89.65517241379311,
+          "execution_success_rate": 73.07692307692307,
+          "overall_success_rate": 65.51724137931035,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:12:19.2687901-03:00"
+    },
+    "conv_1760404820835598800_146dbd89b3cf8683f9d5632df2a9c3da334a7ef4": {
+      "conversation_id": "conv_1760404820835598800_146dbd89b3cf8683f9d5632df2a9c3da334a7ef4",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T22:22:09.0031289-03:00"
+    },
+    "conv_1760404820835598800_83139a22114ab8f919a9373ca4cf26c9c81b6b38": {
+      "conversation_id": "conv_1760404820835598800_83139a22114ab8f919a9373ca4cf26c9c81b6b38",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:23:08.372771-03:00"
+    },
+    "conv_1760404820835598800_899bb76a3271ac3d41e3e49d25d4893655397526": {
+      "conversation_id": "conv_1760404820835598800_899bb76a3271ac3d41e3e49d25d4893655397526",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 27,
+          "successfully_parsed": 27,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 5,
+          "parse_success_rate": 100,
+          "execution_success_rate": 81.48148148148148,
+          "overall_success_rate": 81.48148148148148,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:22:53.1500051-03:00"
+    },
+    "conv_1760404820835598800_d79817261d6cc830c0cf3327ace52a94be758e7d": {
+      "conversation_id": "conv_1760404820835598800_d79817261d6cc830c0cf3327ace52a94be758e7d",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 26,
+          "successfully_parsed": 18,
+          "parse_errors": 8,
+          "executed": 11,
+          "execution_errors": 7,
+          "parse_success_rate": 69.23076923076923,
+          "execution_success_rate": 61.111111111111114,
+          "overall_success_rate": 42.30769230769231,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 4,
+          "parse_success_rate": 100,
+          "execution_success_rate": 84.61538461538461,
+          "overall_success_rate": 84.61538461538461,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 24,
+          "successfully_parsed": 24,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 87.5,
+          "overall_success_rate": 87.5,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:22:48.9427636-03:00"
+    },
+    "conv_1760404820835598800_e3aa5784fe006f29f67a8a02088a3b2bd7ae7c4e": {
+      "conversation_id": "conv_1760404820835598800_e3aa5784fe006f29f67a8a02088a3b2bd7ae7c4e",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 26,
+          "successfully_parsed": 22,
+          "parse_errors": 4,
+          "executed": 9,
+          "execution_errors": 13,
+          "parse_success_rate": 84.61538461538461,
+          "execution_success_rate": 40.909090909090914,
+          "overall_success_rate": 34.61538461538461,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 4,
+          "parse_success_rate": 100,
+          "execution_success_rate": 84.61538461538461,
+          "overall_success_rate": 84.61538461538461,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 24,
+          "successfully_parsed": 24,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.66666666666666,
+          "overall_success_rate": 91.66666666666666,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:22:40.5782954-03:00"
+    },
+    "conv_1760405049493447300_7535503fcb18060e0d657319f8020ae55cae2789": {
+      "conversation_id": "conv_1760405049493447300_7535503fcb18060e0d657319f8020ae55cae2789",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 4,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 19,
+          "execution_errors": 0,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 100,
+          "overall_success_rate": 82.6086956521739,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 24,
+          "successfully_parsed": 24,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 87.5,
+          "overall_success_rate": 87.5,
+          "success": false
+        },
+        {
+          "iteration_number": 4,
+          "total_statements": 24,
+          "successfully_parsed": 24,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.66666666666666,
+          "overall_success_rate": 91.66666666666666,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:28:23.5638708-03:00"
+    },
+    "conv_1760405049493447300_a563c10cfeda3e0e0ec291f9883e89076b0faee7": {
+      "conversation_id": "conv_1760405049493447300_a563c10cfeda3e0e0ec291f9883e89076b0faee7",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 4,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 6,
+          "parse_success_rate": 100,
+          "execution_success_rate": 76.92307692307693,
+          "overall_success_rate": 76.92307692307693,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 22,
+          "parse_errors": 1,
+          "executed": 21,
+          "execution_errors": 1,
+          "parse_success_rate": 95.65217391304348,
+          "execution_success_rate": 95.45454545454545,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 4,
+          "parse_success_rate": 100,
+          "execution_success_rate": 84.61538461538461,
+          "overall_success_rate": 84.61538461538461,
+          "success": false
+        },
+        {
+          "iteration_number": 4,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:28:31.216478-03:00"
+    },
+    "conv_1760405049493447300_af218e2ab6277c239d1bb30c930b1276af29c0c3": {
+      "conversation_id": "conv_1760405049493447300_af218e2ab6277c239d1bb30c930b1276af29c0c3",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": true,
+      "total_iterations": 3,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 19,
+          "parse_errors": 4,
+          "executed": 19,
+          "execution_errors": 0,
+          "parse_success_rate": 82.6086956521739,
+          "execution_success_rate": 100,
+          "overall_success_rate": 82.6086956521739,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 22,
+          "execution_errors": 1,
+          "parse_success_rate": 100,
+          "execution_success_rate": 95.65217391304348,
+          "overall_success_rate": 95.65217391304348,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 23,
+          "execution_errors": 0,
+          "parse_success_rate": 100,
+          "execution_success_rate": 100,
+          "overall_success_rate": 100,
+          "success": true
+        }
+      ],
+      "timestamp": "2025-10-13T22:25:59.5924366-03:00"
+    },
+    "conv_1760405049493447300_b45cee6232c05092a4fef5ae9cde40242ecfc631": {
+      "conversation_id": "conv_1760405049493447300_b45cee6232c05092a4fef5ae9cde40242ecfc631",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 4,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 29,
+          "successfully_parsed": 26,
+          "parse_errors": 3,
+          "executed": 19,
+          "execution_errors": 7,
+          "parse_success_rate": 89.65517241379311,
+          "execution_success_rate": 73.07692307692307,
+          "overall_success_rate": 65.51724137931035,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 26,
+          "successfully_parsed": 26,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 6,
+          "parse_success_rate": 100,
+          "execution_success_rate": 76.92307692307693,
+          "overall_success_rate": 76.92307692307693,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.30434782608695,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 4,
+          "total_statements": 23,
+          "successfully_parsed": 21,
+          "parse_errors": 2,
+          "executed": 21,
+          "execution_errors": 0,
+          "parse_success_rate": 91.30434782608695,
+          "execution_success_rate": 100,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:28:14.6619792-03:00"
+    },
+    "conv_1760405049493447300_c16f065540d3427cd6c9359e2fa7bb5ecf3cb653": {
+      "conversation_id": "conv_1760405049493447300_c16f065540d3427cd6c9359e2fa7bb5ecf3cb653",
+      "mode": "iterative",
+      "model": "gpt-5-mini-2025-08-07",
+      "final_success": false,
+      "total_iterations": 4,
+      "short_prompts": false,
+      "rag_enabled": true,
+      "iteration_results": [
+        {
+          "iteration_number": 1,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 2,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 20,
+          "execution_errors": 3,
+          "parse_success_rate": 100,
+          "execution_success_rate": 86.95652173913044,
+          "overall_success_rate": 86.95652173913044,
+          "success": false
+        },
+        {
+          "iteration_number": 3,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 21,
+          "execution_errors": 2,
+          "parse_success_rate": 100,
+          "execution_success_rate": 91.30434782608695,
+          "overall_success_rate": 91.30434782608695,
+          "success": false
+        },
+        {
+          "iteration_number": 4,
+          "total_statements": 23,
+          "successfully_parsed": 23,
+          "parse_errors": 0,
+          "executed": 16,
+          "execution_errors": 7,
+          "parse_success_rate": 100,
+          "execution_success_rate": 69.56521739130434,
+          "overall_success_rate": 69.56521739130434,
+          "success": false
+        }
+      ],
+      "timestamp": "2025-10-13T22:29:22.8293709-03:00"
+    },
     "conv_1759893978613351100_0747df6d2d6189f9a281b2ac5e9a920e00936245": {
       "conversation_id": "conv_1759893978613351100_0747df6d2d6189f9a281b2ac5e9a920e00936245",
       "mode": "iterative",
