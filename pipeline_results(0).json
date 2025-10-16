@@ -7,7 +7,7 @@
       "final_success": true,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -31,7 +31,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -79,7 +79,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -127,7 +127,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -175,7 +175,7 @@
       "final_success": true,
       "total_iterations": 2,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -211,7 +211,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -259,7 +259,7 @@
       "final_success": true,
       "total_iterations": 2,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -295,7 +295,7 @@
       "final_success": true,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -319,7 +319,7 @@
       "final_success": true,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -343,7 +343,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -391,7 +391,7 @@
       "final_success": true,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -415,7 +415,7 @@
       "final_success": true,
       "total_iterations": 2,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -451,7 +451,7 @@
       "final_success": true,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -475,7 +475,7 @@
       "final_success": true,
       "total_iterations": 2,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -511,7 +511,7 @@
       "final_success": true,
       "total_iterations": 2,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -547,7 +547,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -595,7 +595,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -643,7 +643,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -691,7 +691,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -739,7 +739,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -787,7 +787,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -835,7 +835,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -883,7 +883,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -931,7 +931,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -979,7 +979,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1027,7 +1027,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1075,7 +1075,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1123,7 +1123,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1171,7 +1171,7 @@
       "final_success": false,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1219,7 +1219,7 @@
       "final_success": false,
       "total_iterations": 4,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1279,7 +1279,7 @@
       "final_success": false,
       "total_iterations": 4,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1339,7 +1339,7 @@
       "final_success": true,
       "total_iterations": 3,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1387,7 +1387,7 @@
       "final_success": false,
       "total_iterations": 4,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1447,7 +1447,7 @@
       "final_success": false,
       "total_iterations": 4,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1507,7 +1507,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1531,7 +1531,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1555,7 +1555,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1579,7 +1579,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1603,7 +1603,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1627,7 +1627,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1651,7 +1651,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1675,7 +1675,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1699,7 +1699,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1723,7 +1723,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1747,7 +1747,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1771,7 +1771,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1795,7 +1795,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1819,7 +1819,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1843,7 +1843,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1867,7 +1867,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1891,7 +1891,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1915,7 +1915,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1939,7 +1939,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1963,7 +1963,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -1987,7 +1987,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2011,7 +2011,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2035,7 +2035,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2059,7 +2059,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2083,7 +2083,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2107,7 +2107,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2131,7 +2131,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2155,7 +2155,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2179,7 +2179,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2203,7 +2203,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": false,
+      "more_context": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2227,7 +2227,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": false,
+      "more_context": false,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2251,7 +2251,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2275,7 +2275,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2299,7 +2299,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2323,7 +2323,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2347,7 +2347,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2371,7 +2371,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2395,7 +2395,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,
@@ -2419,7 +2419,7 @@
       "final_success": false,
       "total_iterations": 1,
       "short_prompts": false,
-      "rag_enabled": true,
+      "more_context": true,
       "iteration_results": [
         {
           "iteration_number": 1,

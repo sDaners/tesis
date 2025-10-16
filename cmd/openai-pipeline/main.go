@@ -13,14 +13,14 @@ func main() {
 
 func run() int {
 	var (
-		mode            = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
-		maxIterations   = flag.Int("iterations", 2, "Maximum iterations for iterative mode")
-		outputFile      = flag.String("output", "", "Output file for generated SQL (optional)")
-		verbose         = flag.Bool("verbose", false, "Verbose output")
-		debugPrompt     = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
-		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
-		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
-		ragEnabled      = flag.Bool("rag", false, "Enable RAG mode: combine prompt.txt with spanner_sql_generation_guidelines.txt")
+		mode               = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
+		maxIterations      = flag.Int("iterations", 2, "Maximum iterations for iterative mode")
+		outputFile         = flag.String("output", "", "Output file for generated SQL (optional)")
+		verbose            = flag.Bool("verbose", false, "Verbose output")
+		debugPrompt        = flag.Bool("debug-prompt", false, "Save prompts to file for debugging")
+		saveAccumulated    = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
+		shortPrompts       = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
+		moreContextEnabled = flag.Bool("more-context", false, "Add more context: combine prompt.txt with spanner_sql_generation_guidelines.txt")
 	)
 
 	flag.Usage = func() {
@@ -48,15 +48,15 @@ func run() int {
 
 	// Create pipeline configuration
 	config := integration.PipelineConfig{
-		Mode:            *mode,
-		MaxIterations:   *maxIterations,
-		OutputFile:      *outputFile,
-		Verbose:         *verbose,
-		DebugPrompt:     *debugPrompt,
-		SaveAccumulated: *saveAccumulated,
-		ShortPrompts:    *shortPrompts,
-		RAGEnabled:      *ragEnabled,
-		UniqueID:        "", // Single instance doesn't need unique ID
+		Mode:               *mode,
+		MaxIterations:      *maxIterations,
+		OutputFile:         *outputFile,
+		Verbose:            *verbose,
+		DebugPrompt:        *debugPrompt,
+		SaveAccumulated:    *saveAccumulated,
+		ShortPrompts:       *shortPrompts,
+		MoreContextEnabled: *moreContextEnabled,
+		UniqueID:           "", // Single instance doesn't need unique ID
 	}
 
 	// Create and run pipeline

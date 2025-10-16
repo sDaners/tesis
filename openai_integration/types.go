@@ -140,15 +140,15 @@ type IterationMetrics struct {
 }
 
 type ExecutionMetrics struct {
-	ConversationID   string             `json:"conversation_id"`
-	Mode             string             `json:"mode"`
-	Model            string             `json:"model"`
-	Success          bool               `json:"final_success"`
-	TotalIterations  int                `json:"total_iterations"`
-	ShortPrompts     bool               `json:"short_prompts"`
-	RAGEnabled       bool               `json:"rag_enabled"`
-	IterationResults []IterationMetrics `json:"iteration_results"`
-	Timestamp        time.Time          `json:"timestamp"`
+	ConversationID     string             `json:"conversation_id"`
+	Mode               string             `json:"mode"`
+	Model              string             `json:"model"`
+	Success            bool               `json:"final_success"`
+	TotalIterations    int                `json:"total_iterations"`
+	ShortPrompts       bool               `json:"short_prompts"`
+	MoreContextEnabled bool               `json:"more_context"`
+	IterationResults   []IterationMetrics `json:"iteration_results"`
+	Timestamp          time.Time          `json:"timestamp"`
 }
 
 type AccumulatedResults struct {

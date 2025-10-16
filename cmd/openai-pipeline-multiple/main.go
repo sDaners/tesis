@@ -16,15 +16,15 @@ func main() {
 
 func runMultiple() int {
 	var (
-		mode            = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
-		maxIterations   = flag.Int("iterations", 1, "Maximum iterations for iterative mode")
-		numConcurrent   = flag.Int("concurrent", 3, "Number of concurrent pipeline instances to run")
-		saveAccumulated = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
-		shortPrompts    = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
-		ragEnabled      = flag.Bool("rag", false, "Enable RAG mode: combine prompt.txt with spanner_sql_generation_guidelines.txt")
-		saveOutput      = flag.Bool("save-output", true, "Save output to file")
-		verbose         = flag.Bool("verbose", false, "Verbose output for each pipeline")
-		model           = flag.String("model", "chatgpt-4o-latest", "OpenAI model to use")
+		mode               = flag.String("mode", "iterative", "Mode: 'single' or 'iterative'")
+		maxIterations      = flag.Int("iterations", 1, "Maximum iterations for iterative mode")
+		numConcurrent      = flag.Int("concurrent", 3, "Number of concurrent pipeline instances to run")
+		saveAccumulated    = flag.Bool("save-results", true, "Save results to accumulated JSON file for graphing")
+		shortPrompts       = flag.Bool("short-prompts", false, "Generate shorter iterative prompts by removing summaries and truncating error details")
+		MoreContextEnabled = flag.Bool("more-context", false, "Add more context: combine prompt.txt with spanner_sql_generation_guidelines.txt")
+		saveOutput         = flag.Bool("save-output", true, "Save output to file")
+		verbose            = flag.Bool("verbose", false, "Verbose output for each pipeline")
+		model              = flag.String("model", "chatgpt-4o-latest", "OpenAI model to use")
 	)
 
 	flag.Usage = func() {
@@ -50,7 +50,7 @@ func runMultiple() int {
 	}
 
 	fmt.Printf("Starting %d concurrent OpenAI pipeline instances...\n", *numConcurrent)
-	fmt.Printf("Mode: %s | Model: %s | Iterations: %d | Short Prompts: %v | RAG: %v\n", *mode, *model, *maxIterations, *shortPrompts, *ragEnabled)
+	fmt.Printf("Mode: %s | Model: %s | Iterations: %d | Short Prompts: %v | HasMoreContext: %v\n", *mode, *model, *maxIterations, *shortPrompts, *MoreContextEnabled)
 	fmt.Printf("=== CONCURRENT EXECUTION PROGRESS ===\n")
 
 	start := time.Now()
@@ -70,16 +70,16 @@ func runMultiple() int {
 		go func(instanceID int) {
 			defer wg.Done()
 			runPipelineInstance(instanceID, integration.PipelineConfig{
-				Mode:            *mode,
-				MaxIterations:   *maxIterations,
-				OutputFile:      outputFile,
-				Verbose:         *verbose,
-				SaveAccumulated: *saveAccumulated,
-				DebugPrompt:     false,
-				ShortPrompts:    *shortPrompts,
-				RAGEnabled:      *ragEnabled,
-				UniqueID:        fmt.Sprintf("instance-%d", instanceID),
-				Model:           *model,
+				Mode:               *mode,
+				MaxIterations:      *maxIterations,
+				OutputFile:         outputFile,
+				Verbose:            *verbose,
+				SaveAccumulated:    *saveAccumulated,
+				DebugPrompt:        false,
+				ShortPrompts:       *shortPrompts,
+				MoreContextEnabled: *MoreContextEnabled,
+				UniqueID:           fmt.Sprintf("instance-%d", instanceID),
+				Model:              *model,
 			}, basePath, results)
 		}(i + 1)
 	}

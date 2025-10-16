@@ -17,28 +17,25 @@ import (
 // Global mutex to protect concurrent writes to pipeline_results.json
 var pipelineResultsMutex sync.Mutex
 
-// Pipeline orchestrates the complete workflow from prompt to tested SQL
 type Pipeline struct {
-	client        *OpenAIClient
-	sessionMgr    *SessionManager
-	promptReader  *PromptReader
-	basePath      string
-	maxIterations int
-	verbose       bool
-	debugPrompt   bool
-	debugFile     string
-	shortPrompts  bool
-	ragEnabled    bool
-	uniqueID      string
-	model         string
+	client             *OpenAIClient
+	sessionMgr         *SessionManager
+	promptReader       *PromptReader
+	basePath           string
+	maxIterations      int
+	verbose            bool
+	debugPrompt        bool
+	debugFile          string
+	shortPrompts       bool
+	moreContextEnabled bool
+	uniqueID           string
+	model              string
 }
 
-// NewPipeline creates a new pipeline instance with the default model
 func NewPipeline(basePath string, maxIterations int, verbose bool) (*Pipeline, error) {
 	return NewPipelineWithModel(basePath, maxIterations, "", verbose)
 }
 
-// NewPipelineWithModel creates a new pipeline instance with a specific model
 func NewPipelineWithModel(basePath string, maxIterations int, model string, verbose bool) (*Pipeline, error) {
 	var client *OpenAIClient
 
@@ -57,22 +54,21 @@ func NewPipelineWithModel(basePath string, maxIterations int, model string, verb
 	promptReader := NewPromptReader(basePath)
 
 	return &Pipeline{
-		client:        client,
-		sessionMgr:    sessionMgr,
-		promptReader:  promptReader,
-		basePath:      basePath,
-		maxIterations: maxIterations,
-		verbose:       verbose,
-		debugPrompt:   false,
-		debugFile:     "",
-		shortPrompts:  false,
-		ragEnabled:    false,
-		uniqueID:      "",
-		model:         model,
+		client:             client,
+		sessionMgr:         sessionMgr,
+		promptReader:       promptReader,
+		basePath:           basePath,
+		maxIterations:      maxIterations,
+		verbose:            verbose,
+		debugPrompt:        false,
+		debugFile:          "",
+		shortPrompts:       false,
+		moreContextEnabled: false,
+		uniqueID:           "",
+		model:              model,
 	}, nil
 }
 
-// SetDebugPrompt enables debug mode and creates a debug file for saving prompts
 func (p *Pipeline) SetDebugPrompt(debug bool) {
 	p.debugPrompt = debug
 	if debug {
@@ -90,22 +86,18 @@ func (p *Pipeline) SetDebugPrompt(debug bool) {
 	}
 }
 
-// SetShortPrompts enables/disables shorter prompt generation for iterative feedback
 func (p *Pipeline) SetShortPrompts(short bool) {
 	p.shortPrompts = short
 }
 
-// SetRAGEnabled enables/disables RAG (Retrieval-Augmented Generation) mode
-func (p *Pipeline) SetRAGEnabled(enabled bool) {
-	p.ragEnabled = enabled
+func (p *Pipeline) SetMoreContextEnabled(enabled bool) {
+	p.moreContextEnabled = enabled
 }
 
-// SetUniqueID sets a unique identifier for this pipeline instance (for concurrent execution)
 func (p *Pipeline) SetUniqueID(uniqueID string) {
 	p.uniqueID = uniqueID
 }
 
-// savePromptToDebugFile appends a prompt to the debug file
 func (p *Pipeline) savePromptToDebugFile(promptType, content string) {
 	if !p.debugPrompt || p.debugFile == "" {
 		return
@@ -127,7 +119,6 @@ func (p *Pipeline) savePromptToDebugFile(promptType, content string) {
 	}
 }
 
-// printIterationResult prints the results of a single iteration in real-time
 func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFileResult) {
 	parseRate := 0.0
 	execRate := 0.0
@@ -145,24 +136,20 @@ func (p *Pipeline) printIterationResult(iteration int, testResult models.TestFil
 		iteration, parseRate, execRate, overall)
 }
 
-// RunSingleShot runs a single-shot prompt without iteration
 func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	start := time.Now()
 
-	// Create a new session for single-shot execution
 	session, err := p.sessionMgr.CreateSession(DefaultModel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	// Read the initial prompt
 	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
 	}
 
-	// If RAG is enabled, append guidelines
-	if p.ragEnabled {
+	if p.moreContextEnabled {
 		guidelines, err := p.promptReader.ReadGuidelinesFile()
 		if err != nil {
 			return nil, fmt.Errorf("failed to read guidelines: %w", err)
@@ -170,10 +157,8 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 		initialPrompt = initialPrompt + "\n\n" + guidelines
 	}
 
-	// Save prompt to debug file if enabled
 	p.savePromptToDebugFile("INITIAL PROMPT (Single Shot)", initialPrompt)
 
-	// Send to OpenAI using session manager
 	fmt.Printf("  └─ Sending prompt to AI...\n")
 	aiStart := time.Now()
 	response, err := p.sessionMgr.SendMessage(session.ID, initialPrompt)
@@ -182,13 +167,10 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	}
 	fmt.Printf("  └─ [%.3fs] AI response received\n", time.Since(aiStart).Seconds())
 
-	// Save AI response to debug file if enabled
 	p.savePromptToDebugFile("AI RESPONSE (Single Shot)", response)
 
-	// Extract SQL from response
 	generatedSQL := p.promptReader.ExtractSQLFromResponse(response)
 
-	// Test the generated SQL
 	testStart := time.Now()
 	testResult, err := p.testSQLString(generatedSQL)
 	if err != nil {
@@ -198,7 +180,6 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 
 	success := len(testResult.ParseErrors) == 0 && len(testResult.ExecutionErrors) == 0
 
-	// Create single iteration result
 	iterationResult := IterationResult{
 		Iteration:    1,
 		TestResults:  testResult,
@@ -206,10 +187,8 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 		GeneratedSQL: generatedSQL,
 	}
 
-	// Print iteration result in real-time
 	p.printIterationResult(1, testResult)
 
-	// Get conversation history for messages
 	allMessages, _ := p.sessionMgr.GetConversationHistory(session.ID)
 
 	result := &PipelineResult{
@@ -223,7 +202,7 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 		Success:          success,
 		Messages:         allMessages,
 		TotalTime:        time.Since(start),
-		TokensUsed:       0, // Would need to track from OpenAI response
+		TokensUsed:       0,
 		ExecutionMode:    "single",
 		Timestamp:        time.Now(),
 	}
@@ -231,24 +210,20 @@ func (p *Pipeline) RunSingleShot() (*PipelineResult, error) {
 	return result, nil
 }
 
-// RunIterative runs the pipeline with iterative feedback until success or max iterations
 func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 	start := time.Now()
 
-	// Create a new session
 	session, err := p.sessionMgr.CreateSession(DefaultModel)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create session: %w", err)
 	}
 
-	// Read initial prompt
 	initialPrompt, err := p.promptReader.ReadPromptFile()
 	if err != nil {
 		return nil, fmt.Errorf("failed to read prompt: %w", err)
 	}
 
-	// If RAG is enabled, append guidelines
-	if p.ragEnabled {
+	if p.moreContextEnabled {
 		guidelines, err := p.promptReader.ReadGuidelinesFile()
 		if err != nil {
 			return nil, fmt.Errorf("failed to read guidelines: %w", err)
@@ -256,7 +231,6 @@ func (p *Pipeline) RunIterative() (*PipelineResult, error) {
 		initialPrompt = initialPrompt + "\n\n" + guidelines
 	}
 
-	// Save initial prompt to debug file if enabled
 	p.savePromptToDebugFile("INITIAL PROMPT (Iterative)", initialPrompt)
 
 	var generatedSQL string
@@ -698,15 +672,15 @@ func (p *Pipeline) createExecutionMetrics(result *PipelineResult, mode string) *
 	}
 
 	return &ExecutionMetrics{
-		ConversationID:   result.ConversationID,
-		Mode:             mode,
-		Model:            p.model,
-		Success:          result.Success,
-		TotalIterations:  result.Iterations,
-		ShortPrompts:     p.shortPrompts,
-		RAGEnabled:       p.ragEnabled,
-		IterationResults: iterationResults,
-		Timestamp:        time.Now(),
+		ConversationID:     result.ConversationID,
+		Mode:               mode,
+		Model:              p.model,
+		Success:            result.Success,
+		TotalIterations:    result.Iterations,
+		ShortPrompts:       p.shortPrompts,
+		MoreContextEnabled: p.moreContextEnabled,
+		IterationResults:   iterationResults,
+		Timestamp:          time.Now(),
 	}
 }
 

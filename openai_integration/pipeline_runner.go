@@ -11,16 +11,16 @@ import (
 
 // PipelineConfig holds configuration for running a pipeline instance
 type PipelineConfig struct {
-	Mode            string
-	MaxIterations   int
-	OutputFile      string
-	Verbose         bool
-	DebugPrompt     bool
-	SaveAccumulated bool
-	ShortPrompts    bool
-	RAGEnabled      bool
-	UniqueID        string
-	Model           string
+	Mode               string
+	MaxIterations      int
+	OutputFile         string
+	Verbose            bool
+	DebugPrompt        bool
+	SaveAccumulated    bool
+	ShortPrompts       bool
+	MoreContextEnabled bool
+	UniqueID           string
+	Model              string
 }
 
 // PipelineRunner encapsulates the logic for running a single pipeline instance
@@ -49,7 +49,7 @@ func (pr *PipelineRunner) Run() (*PipelineResult, error) {
 	}
 	pipeline.SetDebugPrompt(pr.config.DebugPrompt)
 	pipeline.SetShortPrompts(pr.config.ShortPrompts)
-	pipeline.SetRAGEnabled(pr.config.RAGEnabled)
+	pipeline.SetMoreContextEnabled(pr.config.MoreContextEnabled)
 
 	// Set unique ID if provided (for concurrent execution)
 	if pr.config.UniqueID != "" {
