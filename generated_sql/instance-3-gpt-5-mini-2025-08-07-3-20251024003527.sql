@@ -1,61 +1,58 @@
-We need to translate the following PostgreSQL code to work with a new Spanner database running on GoogleSQL. 
-Constraints, foreign keys and self generated primary keys need to be kept (datatype may be changed). ALL code must be translated
-ALWAYS: The response to this message should only the translated SQL code.
-
 CREATE TABLE authors (
-    author_id SERIAL PRIMARY KEY,
-    author_name VARCHAR(100) NOT NULL,
-    nationality VARCHAR(50),
-    birth_year INTEGER,
-    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
-);
+    author_id STRING(36) NOT NULL DEFAULT (GENERATE_UUID()),
+    author_name STRING(100) NOT NULL,
+    nationality STRING(50),
+    birth_year INT64,
+    created_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP())
+) PRIMARY KEY (author_id);
 
 CREATE TABLE books (
-    book_id SERIAL PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    isbn VARCHAR(20),
-    publication_year INTEGER,
+    book_id STRING(36) NOT NULL DEFAULT (GENERATE_UUID()),
+    title STRING(200) NOT NULL,
+    isbn STRING(20),
+    publication_year INT64,
     price NUMERIC,
-    author_id INTEGER REFERENCES authors(author_id),
-    category VARCHAR(50),
-    total_copies INTEGER DEFAULT 1
-);
+    author_id STRING(36),
+    category STRING(50),
+    total_copies INT64 DEFAULT (1),
+    CONSTRAINT fk_books_author FOREIGN KEY (author_id) REFERENCES authors(author_id)
+) PRIMARY KEY (book_id);
 
 CREATE UNIQUE INDEX idx_book_isbn ON books(isbn);
 
 CREATE TABLE members (
-    member_id SERIAL PRIMARY KEY,
-    full_name VARCHAR(100) NOT NULL,
-    email VARCHAR(150),
+    member_id STRING(36) NOT NULL DEFAULT (GENERATE_UUID()),
+    full_name STRING(100) NOT NULL,
+    email STRING(150),
     join_date DATE NOT NULL,
-    membership_type VARCHAR(30) DEFAULT 'STANDARD',
-    phone_number VARCHAR(20),
+    membership_type STRING(30) DEFAULT ('STANDARD'),
+    phone_number STRING(20),
     CONSTRAINT check_membership CHECK (membership_type IN ('STANDARD', 'PREMIUM', 'STUDENT', 'SENIOR'))
-);
+) PRIMARY KEY (member_id);
 
 CREATE TABLE loans (
-    loan_id SERIAL PRIMARY KEY,
-    member_id INTEGER,
-    book_id INTEGER,
+    loan_id STRING(36) NOT NULL DEFAULT (GENERATE_UUID()),
+    member_id STRING(36),
+    book_id STRING(36),
     loan_date DATE NOT NULL,
     due_date DATE NOT NULL,
     return_date DATE,
-    fine_amount NUMERIC DEFAULT 0,
+    fine_amount NUMERIC DEFAULT (0),
     CONSTRAINT check_loan_dates CHECK (due_date > loan_date),
-    FOREIGN KEY (member_id) REFERENCES members(member_id),
-    FOREIGN KEY (book_id) REFERENCES books(book_id)
-);
+    CONSTRAINT fk_loans_member FOREIGN KEY (member_id) REFERENCES members(member_id),
+    CONSTRAINT fk_loans_book FOREIGN KEY (book_id) REFERENCES books(book_id)
+) PRIMARY KEY (loan_id);
 
 CREATE INDEX idx_book_title ON books(title);
 CREATE INDEX idx_author_name ON authors(author_name);
 CREATE INDEX idx_member_email ON members(email);
 CREATE INDEX idx_loan_status ON loans(return_date);
 
-CREATE OR REPLACE VIEW active_loans AS
+CREATE OR REPLACE VIEW active_loans SQL SECURITY INVOKER AS
 SELECT 
     l.loan_id,
-    m.full_name as member_name,
-    b.title as book_title,
+    m.full_name AS member_name,
+    b.title AS book_title,
     a.author_name,
     l.loan_date,
     l.due_date,
@@ -67,20 +64,16 @@ JOIN authors a ON b.author_id = a.author_id
 WHERE l.return_date IS NULL;
 
 INSERT INTO authors (author_name, nationality, birth_year)
-VALUES ($1, $2, $3)
-RETURNING author_id;
+VALUES (@p1, @p2, @p3);
 
 INSERT INTO books (title, isbn, publication_year, price, author_id, category, total_copies)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING book_id;
+VALUES (@p1, @p2, @p3, @p4, @p5, @p6, @p7);
 
 INSERT INTO members (full_name, email, join_date, membership_type, phone_number)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING member_id;
+VALUES (@p1, @p2, @p3, @p4, @p5);
 
 INSERT INTO loans (member_id, book_id, loan_date, due_date, fine_amount)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING loan_id;
+VALUES (@p1, @p2, @p3, @p4, @p5);
 
 SELECT m.member_id, m.full_name, m.email, m.membership_type,
        b.title, b.isbn, a.author_name,

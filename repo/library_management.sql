@@ -1,7 +1,3 @@
-We need to translate the following PostgreSQL code to work with a new Spanner database running on GoogleSQL. 
-Constraints, foreign keys and self generated primary keys need to be kept (datatype may be changed). ALL code must be translated
-ALWAYS: The response to this message should only the translated SQL code.
-
 CREATE TABLE authors (
     author_id SERIAL PRIMARY KEY,
     author_name VARCHAR(100) NOT NULL,
@@ -100,3 +96,4 @@ DROP TABLE loans;
 DROP TABLE books;
 DROP TABLE members;
 DROP TABLE authors;
+
