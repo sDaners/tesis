@@ -1,6 +1,3 @@
-We need to translate the following SQLite code to work with a new Spanner database running on GoogleSQL. 
-Constraints, foreign keys and self generated primary keys need to be kept (datatype may be changed). ALL code must be translated
-ALWAYS: The response to this message should only the translated SQL code.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE `Third_Party_Companies` (
@@ -9,18 +6,14 @@ CREATE TABLE `Third_Party_Companies` (
 `company_name` VARCHAR(255),
 `company_address` VARCHAR(255),
 `other_company_details` VARCHAR(255)
-);
-
-CREATE TABLE `Maintenance_Contracts` (
+);CREATE TABLE `Maintenance_Contracts` (
 `maintenance_contract_id` INTEGER PRIMARY KEY,
 `maintenance_contract_company_id` INTEGER NOT NULL,
 `contract_start_date` DATETIME,
 `contract_end_date` DATETIME,
 `other_contract_details` VARCHAR(255),
 FOREIGN KEY (`maintenance_contract_company_id` ) REFERENCES `Third_Party_Companies`(`company_id` )
-);
-
-CREATE TABLE `Parts` (
+);CREATE TABLE `Parts` (
 `part_id` INTEGER PRIMARY KEY,
 `part_name` VARCHAR(255),
 `chargeable_yn` VARCHAR(1),
@@ -58,7 +51,6 @@ CREATE TABLE `Asset_Parts` (
 FOREIGN KEY (`part_id` ) REFERENCES `Parts`(`part_id` ),
 FOREIGN KEY (`asset_id` ) REFERENCES `Assets`(`asset_id` )
 );
-
 CREATE TABLE `Maintenance_Engineers` (
 `engineer_id` INTEGER PRIMARY KEY,
 `company_id` INTEGER NOT NULL,
