@@ -6,14 +6,18 @@ CREATE TABLE `Third_Party_Companies` (
 `company_name` VARCHAR(255),
 `company_address` VARCHAR(255),
 `other_company_details` VARCHAR(255)
-);CREATE TABLE `Maintenance_Contracts` (
+);
+
+CREATE TABLE `Maintenance_Contracts` (
 `maintenance_contract_id` INTEGER PRIMARY KEY,
 `maintenance_contract_company_id` INTEGER NOT NULL,
 `contract_start_date` DATETIME,
 `contract_end_date` DATETIME,
 `other_contract_details` VARCHAR(255),
 FOREIGN KEY (`maintenance_contract_company_id` ) REFERENCES `Third_Party_Companies`(`company_id` )
-);CREATE TABLE `Parts` (
+);
+
+CREATE TABLE `Parts` (
 `part_id` INTEGER PRIMARY KEY,
 `part_name` VARCHAR(255),
 `chargeable_yn` VARCHAR(1),
@@ -25,12 +29,16 @@ CREATE TABLE `Skills` (
 `skill_id` INTEGER PRIMARY KEY,
 `skill_code` VARCHAR(20),
 `skill_description` VARCHAR(255)
-);CREATE TABLE `Staff` (
+);
+
+CREATE TABLE `Staff` (
 `staff_id` INTEGER PRIMARY KEY,
 `staff_name` VARCHAR(255),
 `gender` VARCHAR(1),
 `other_staff_details` VARCHAR(255)
-);CREATE TABLE `Assets` (
+);
+
+CREATE TABLE `Assets` (
 `asset_id` INTEGER PRIMARY KEY,
 `maintenance_contract_id` INTEGER NOT NULL,
 `supplier_company_id` INTEGER NOT NULL,
